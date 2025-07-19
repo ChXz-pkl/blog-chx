@@ -1,249 +1,56 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Upload - RZF Academy</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f0f9ff;
-        }
-
-        .navbar-custom {
-            background: linear-gradient(to right, #007BFF, #00BFFF);
-        }
-
-        .form-box {
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-        }
-
-        footer {
-            background: #f8f9fa;
-            padding: 10px;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<body class="bg-sky-50 min-h-screen flex flex-col">
 
-<body onload="cekLogin()" class="d-flex flex-column min-vh-100">
+    <div id="toast-container" class="fixed top-5 right-5 z-[120] space-y-2"></div>
 
-    <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-custom navbar-dark px-3">
-        <a class="navbar-brand fw-bold" href="dashboard.html">RZF Academy</a>
-        <div class="ms-auto d-flex align-items-center">
-            <button onclick="logout()" class="btn btn-outline-light btn-sm">Logout</button>
+    <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md">
+        <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
+        <div class="hidden md:flex items-center space-x-4">
+            <a href="dashboard.html" class="hover:text-sky-200">Dashboard</a>
+            <a href="galeri.html" class="hover:text-sky-200">Galeri</a>
+            <a href="text.html" class="hover:text-sky-200">Teks</a>
+            <a href="upload.html" class="hover:text-sky-200">Upload</a>
+            <a href="my.html" class="hover:text-sky-200">Konten Saya</a>
+            <a id="adminLink" href="admin.html" class="px-3 py-1 bg-red-500 rounded-md text-white font-bold" style="display: none;">Panel Admin</a>
+        </div>
+        <div class="flex items-center space-x-4">
+          <a href="profil.html" class="flex items-center space-x-3 group">
+            <img id="navbarProfilePicture" src="https://placehold.co/32x32/e2e8f0/718096?text=U" alt="Foto Profil" class="w-8 h-8 rounded-full object-cover border-2 border-sky-200 group-hover:border-white transition">
+            <span id="welcomeUser" class="font-semibold text-white group-hover:text-sky-200 transition">Pengguna</span>
+          </a>
+          <button onclick="logout()" class="px-3 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Logout</button>
         </div>
     </nav>
 
-    <!-- MAIN CONTENT -->
-    <div class="container my-5">
-        <div class="form-box mx-auto" style="max-width: 600px;">
-            <h4 class="text-primary text-center mb-4">Unggah Karya Anda</h4>
-            <form onsubmit="return handleUpload(event)">
-                <div class="mb-3">
-                    <label class="form-label">Judul Konten</label>
-                    <input type="text" id="judul" class="form-control" required />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Kategori</label>
-                    <select id="kategori" class="form-select" required>
-                        <option value="">Memuat...</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Jenis Konten</label>
-                    <select onchange="toggleField()" id="jenis" class="form-select" onchange="toggleField()" required>
-                        <option value="">-- Pilih Jenis --</option>
-                        <option value="gambar">Gambar</option>
-                        <option value="teks">Teks</option>
-                    </select>
-                </div>
-                <div class="mb-3" id="fieldGambar" style="display: none;">
-                    <label class="form-label">Pilih Gambar</label>
-                    <input type="file" id="gambar" class="form-control" accept=".jpg,.jpeg,.png,.gif" required />
-                </div>
-
-
-                <div class="mb-3" id="fieldTeks" style="display: none;">
-                    <label class="form-label">Isi Teks</label>
-                    <textarea id="teks" class="form-control" rows="5"></textarea>
-                </div>
-
-                <button type="submit" class="btn btn-success w-100">Upload</button>
+    <main class="flex-1 container mx-auto px-4 py-10 flex justify-center items-center">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-lg">
+            <h2 class="text-2xl font-bold text-blue-600 text-center mb-6">Unggah Karya Anda</h2>
+            <form onsubmit="handleUpload(event)" class="space-y-4">
+                <div><label for="judul" class="block text-sm font-medium text-gray-700 mb-1">Judul Konten</label><input type="text" id="judul" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" required /></div>
+                <div><label for="kategori" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label><select id="kategori" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" required></select></div>
+                <div><label for="jenis" class="block text-sm font-medium text-gray-700 mb-1">Jenis Konten</label><select onchange="toggleField()" id="jenis" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" required><option value="">-- Pilih Jenis --</option><option value="gambar">Gambar</option><option value="teks">Teks</option></select></div>
+                <div id="fieldGambar" style="display: none;"><label for="gambar" class="block text-sm font-medium text-gray-700 mb-1">Pilih Gambar</label><input type="file" id="gambar" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100" accept=".jpg,.jpeg,.png,.gif" /></div>
+                <div id="fieldTeks" style="display: none;"><label for="teks" class="block text-sm font-medium text-gray-700 mb-1">Isi Teks</label><textarea id="teks" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" rows="5"></textarea></div>
+                <button type="submit" class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 transition duration-300">Upload</button>
             </form>
         </div>
-    </div>
+    </main>
 
-    <!-- FOOTER -->
-    <footer class="mt-auto text-center text-muted py-3" style="background:#f8f9fa;">
-        &copy; 2025 <a href="https://portfolio-chx.netlify.app/"
-            class="text-decoration-none fw-semibold text-dark">CHX</a> • All rights
-        reserved.
+    <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
+        &copy; 2025 <a href="https://portfolio-chx.netlify.app/" class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
     </footer>
 
     <script>
-        function cekLogin() {
-            if (!localStorage.getItem("userId")) {
-                alert("Silakan login terlebih dahulu.");
-                window.location.href = "login.html";
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem("loggedInUser");
-            alert("Anda telah logout.");
-            window.location.href = "index.html";
-        }
-
-
-        function toggleField() {
-            const jenis = document.getElementById("jenis").value;
-            document.getElementById("fieldGambar").style.display = jenis === "gambar" ? "block" : "none";
-            document.getElementById("fieldTeks").style.display = jenis === "teks" ? "block" : "none";
-        }
-
-        function handleUpload(e) {
-            e.preventDefault();
-
-            const judul = document.getElementById("judul").value.trim();
-            const kategori = document.getElementById("kategori").value;
-            const jenis = document.getElementById("jenis").value;
-            const teks = document.getElementById("teks").value.trim();
-            const userId = localStorage.getItem("userId");
-            const userName = localStorage.getItem("userName");
-
-            // Validasi gambar jika jenis adalah "gambar"
-            if (jenis === "gambar") {
-                const fileInput = document.getElementById("gambar");
-                const file = fileInput.files[0];
-
-                if (!file) {
-                    alert("Pilih file gambar terlebih dahulu.");
-                    return;
-                }
-
-                const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
-                if (!allowedTypes.includes(file.type)) {
-                    alert("Tipe file tidak didukung. Gunakan .jpg, .jpeg, .png, atau .gif");
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const konten = {
-                        id: Date.now().toString(),
-                        userId,
-                        userName,
-                        judul,
-                        kategori,
-                        jenis,
-                        gambar: e.target.result, // hasil base64
-                        teks: null,
-                        waktu: new Date().toISOString()
-                    };
-
-                    simpanKonten(konten);
-                };
-                reader.readAsDataURL(file);
-            }
-            // Jika jenis adalah "teks"
-            else if (jenis === "teks") {
-                if (!teks) {
-                    alert("Isi teks tidak boleh kosong.");
-                    return;
-                }
-
-                const konten = {
-                    id: Date.now().toString(),
-                    userId,
-                    userName,
-                    judul,
-                    kategori,
-                    jenis,
-                    gambar: null,
-                    teks: teks,
-                    waktu: new Date().toISOString()
-                };
-
-                simpanKonten(konten);
-            }
-            else {
-                alert("Jenis konten belum dipilih.");
-            }
-        }
-
-        // Fungsi simpan konten ke localStorage
-        function simpanKonten(konten) {
-            const data = JSON.parse(localStorage.getItem("konten") || "[]");
-            data.push(konten);
-            localStorage.setItem("konten", JSON.stringify(data));
-
-            alert("Konten berhasil diunggah!");
-            window.location.href = "my.html";
-        }
-
-
-        function isiDropdownKategori() {
-            const select = document.getElementById("kategori");
-            const list = JSON.parse(localStorage.getItem("kategoriList") || "[]");
-
-            select.innerHTML = '<option value="">-- Pilih Kategori --</option>'; // kosongkan dulu
-            if (list.length === 0) {
-                const opt = document.createElement("option");
-                opt.text = "Belum ada kategori tersedia";
-                opt.disabled = true;
-                select.appendChild(opt);
-                select.disabled = true;
-                return;
-            }
-
-            list.forEach(kat => {
-                const opt = document.createElement("option");
-                opt.value = kat;
-                opt.textContent = kat.charAt(0).toUpperCase() + kat.slice(1);
-                select.appendChild(opt);
-            });
-        }
-
-        function toggleField() {
-            const jenis = document.getElementById("jenis").value;
-            const fieldGambar = document.getElementById("fieldGambar");
-            const fieldTeks = document.getElementById("fieldTeks");
-            const gambarInput = document.getElementById("gambar");
-            const teksInput = document.getElementById("teks");
-
-            if (jenis === "gambar") {
-                fieldGambar.style.display = "block";
-                fieldTeks.style.display = "none";
-                gambarInput.required = true;
-                teksInput.required = false;
-            } else if (jenis === "teks") {
-                fieldGambar.style.display = "none";
-                fieldTeks.style.display = "block";
-                gambarInput.required = false;
-                teksInput.required = true;
-            } else {
-                fieldGambar.style.display = "none";
-                fieldTeks.style.display = "none";
-                gambarInput.required = false;
-                teksInput.required = false;
-            }
-        }
-
-
-        // Jalankan saat halaman load
-        window.onload = function () {
-            isiDropdownKategori();
-        }
-
+        function showToast(e,t="success"){const o=document.getElementById("toast-container"),n=document.createElement("div"),s={success:"bg-green-500",error:"bg-red-500"};n.className=`w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-fade-in-right ${s[t]}`,n.textContent=e;const a=document.createElement("style");a.innerHTML="@keyframes fade-in-right{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-fade-in-right{animation:fade-in-right .5s ease-out forwards}",document.head.appendChild(a),o.appendChild(n),setTimeout(()=>n.remove(),3e3)}function logout(){localStorage.removeItem("loggedInUser"),showToast("Anda telah berhasil logout."),setTimeout(()=>{window.location.href="index.html"},1500)}function cekLogin(){const e=JSON.parse(localStorage.getItem("loggedInUser"));if(!e)return showToast("Silakan login terlebih dahulu.","error"),void setTimeout(()=>{window.location.href="login.html"},1500);const t=document.getElementById("welcomeUser"),o=document.getElementById("navbarProfilePicture"),n=document.getElementById("adminLink");t&&(t.textContent=e.name),o&&e.profilePicture&&(o.src=e.profilePicture),n&&"admin"===e.role&&(n.style.display="inline-block")}
+        function toggleField(){const e=document.getElementById("jenis").value;document.getElementById("fieldGambar").style.display="gambar"===e?"block":"none",document.getElementById("fieldTeks").style.display="teks"===e?"block":"none",document.getElementById("gambar").required="gambar"===e,document.getElementById("teks").required="teks"===e}function handleUpload(e){e.preventDefault();const t=JSON.parse(localStorage.getItem("loggedInUser")),o={id:Date.now().toString(),userId:t.id,userName:t.name,userProfilePicture:t.profilePicture,judul:document.getElementById("judul").value.trim(),kategori:document.getElementById("kategori").value,jenis:document.getElementById("jenis").value,waktu:(new Date).toISOString()};"gambar"===o.jenis?(e=document.getElementById("gambar").files[0])?new FileReader().onload=function(e){o.gambar=e.target.result,o.teks=null,simpanKonten(o)}:showToast("Pilih file gambar dahulu.","error"):"teks"===o.jenis&&((o.teks=document.getElementById("teks").value.trim())?(o.gambar=null,simpanKonten(o)):showToast("Isi teks tidak boleh kosong.","error"))}function simpanKonten(e){const t=JSON.parse(localStorage.getItem("konten")||"[]");t.push(e),localStorage.setItem("konten",JSON.stringify(t)),showToast("Konten berhasil diunggah!"),setTimeout(()=>{window.location.href="my.html"},1000)}function isiDropdownKategori(){const e=document.getElementById("kategori"),t=JSON.parse(localStorage.getItem("kategoriList")||"[]");if(e.innerHTML='<option value="">-- Pilih Kategori --</option>',0===t.length)return void(e.innerHTML="<option disabled>Belum ada kategori</option>");t.forEach(t=>{const o=document.createElement("option");o.value=t,o.textContent=t.charAt(0).toUpperCase()+t.slice(1),e.appendChild(o)})}
+        document.addEventListener("DOMContentLoaded",()=>{cekLogin(),isiDropdownKategori(),toggleField()});
     </script>
-
 </body>
-
 </html>

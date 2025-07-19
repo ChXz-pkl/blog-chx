@@ -1,90 +1,93 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Registrasi - RZF Academy</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background: linear-gradient(to right, #007BFF, #00BFFF);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .register-box {
-      background: white;
-      padding: 40px;
-      border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 500px;
-    }
-    footer {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      text-align: center;
-      background: #f8f9fa;
-      padding: 10px;
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="d-flex flex-column min-vh-100">
 
-  <div class="register-box">
-    <h3 class="text-center text-primary mb-4">Registrasi RZF Academy</h3>
-    <form onsubmit="return handleRegister(event)">
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Nama</label>
-          <input type="text" id="name" class="form-control" required />
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" id="email" class="form-control" required />
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Password</label>
-          <input type="password" id="password" class="form-control" required />
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Ulangi Password</label>
-          <input type="password" id="confirmPassword" class="form-control" required />
-        </div>
-      </div>
-      <button type="submit" class="btn btn-success w-100">Daftar</button>
-      <p class="text-center mt-3 mb-0">Sudah punya akun? <a href="login.html">Login di sini</a></p>
-    </form>
-  </div>
+<body
+  class="bg-gradient-to-r from-blue-600 to-sky-400 min-h-screen flex flex-col justify-center items-center px-4 py-8">
 
-  <footer class="mt-auto text-center text-muted py-3" style="background:#f8f9fa;">
-        &copy; 2025 <a href="https://portfolio-chx.netlify.app/" class="text-decoration-none fw-semibold text-dark">CHX</a> • All rights
-        reserved.
-    </footer>
+  <div id="toast-container" class="fixed top-5 right-5 z-[100] space-y-2"></div>
+
+  <main class="w-full max-w-lg">
+    <div class="bg-white p-8 rounded-xl shadow-2xl">
+      <h2 class="text-2xl font-bold text-center text-blue-600 mb-6">Registrasi RZF Academy</h2>
+      <form onsubmit="return handleRegister(event)" class="space-y-4">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+            <input type="text" id="name"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
+              required />
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" id="email"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
+              required />
+          </div>
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input type="password" id="password"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
+              required />
+          </div>
+          <div>
+            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Ulangi Password</label>
+            <input type="password" id="confirmPassword"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
+              required />
+          </div>
+        </div>
+        <button type="submit"
+          class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 transition duration-300">Daftar</button>
+        <p class="text-center text-sm text-gray-600 pt-2">
+          Sudah punya akun? <a href="login.html" class="font-semibold text-blue-500 hover:underline">Login di sini</a>
+        </p>
+      </form>
+    </div>
+  </main>
+
+  <footer class="text-center text-white/80 py-4 text-sm mt-8">
+    &copy; 2025 <a href="https://portfolio-chx.netlify.app/" class="font-semibold hover:underline">CHX</a> • All rights
+    reserved.
+  </footer>
 
   <script>
+    function showToast(message, type = 'success') {
+      if (!document.getElementById('toast-animation-style')) {
+        const style = document.createElement('style');
+        style.id = 'toast-animation-style';
+        style.innerHTML = `@keyframes fade-in-right { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } } .animate-fade-in-right { animation: fade-in-right 0.5s ease-out forwards; }`;
+        document.head.appendChild(style);
+      }
+      const toastContainer = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = { success: 'bg-green-500', error: 'bg-red-500' };
+      toast.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg ${colors[type]} animate-fade-in-right`;
+      toast.textContent = message;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
     function handleRegister(e) {
       e.preventDefault();
-
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
 
       if (password !== confirmPassword) {
-        alert("Password tidak cocok!");
+        showToast("Password tidak cocok!", 'error');
         return;
       }
-
       const users = JSON.parse(localStorage.getItem("users") || "[]");
-
-      const isExist = users.some(u => u.email === email);
-      if (isExist) {
-        alert("Email sudah terdaftar.");
+      if (users.some(u => u.email === email)) {
+        showToast("Email sudah terdaftar.", 'error');
         return;
       }
 
@@ -93,16 +96,18 @@
         name,
         email,
         password,
-        role: "user"  // Otomatis sebagai user
+        role: "user",
+        profilePicture: null // Menambahkan properti baru dengan nilai default
       };
-
-      users.push(newUser);
+      users.push({ id: Date.now().toString(), name, email, password, role: "user" });
       localStorage.setItem("users", JSON.stringify(users));
 
-      alert("Registrasi berhasil! Silakan login.");
-      window.location.href = "login.html";
+      showToast("Registrasi berhasil! Silakan login.");
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1500);
     }
   </script>
-
 </body>
+
 </html>

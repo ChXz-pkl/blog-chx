@@ -1,63 +1,65 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Registrasi Admin - RZF Academy</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <style>
-    body {
-      background: linear-gradient(to right, #007BFF, #00BFFF);
-      color: #fff;
-    }
-
-    .form-container {
-      background: #ffffff;
-      border-radius: 10px;
-      padding: 30px;
-      max-width: 500px;
-      margin: 80px auto;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-      color: #000;
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<body class="bg-gradient-to-r from-blue-600 to-sky-400 min-h-screen flex flex-col justify-center items-center px-4 py-8">
+  
+  <div id="toast-container" class="fixed top-5 right-5 z-[100] space-y-2"></div>
 
-<body class="d-flex flex-column min-vh-100">
-
-  <div class="form-container">
-    <h3 class="text-center mb-4 text-primary">Registrasi Admin</h3>
-    <div class="alert alert-danger small">
-      ⚠️ <strong>Peringatan:</strong> Halaman ini hanya untuk membuat akun <strong>admin</strong>. Jangan disebarkan!
+  <main class="w-full max-w-md">
+    <div class="bg-white p-8 rounded-xl shadow-2xl">
+      <h2 class="text-2xl font-bold text-center text-blue-600 mb-4">Registrasi Admin</h2>
+      <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 rounded-r-lg mb-4 text-sm">
+        <strong>Peringatan:</strong> Halaman ini hanya untuk membuat akun <strong>admin</strong>. Jangan disebarkan!
+      </div>
+      <form onsubmit="buatAdmin(event)" class="space-y-4">
+        <div>
+          <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+          <input type="text" id="nama" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" required />
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input type="email" id="email" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" required />
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" required />
+        </div>
+        <div>
+          <label for="konfirmasi" class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
+          <input type="password" id="konfirmasi" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" required />
+        </div>
+        <button type="submit" class="w-full bg-red-500 text-white font-bold py-2 px-4 rounded-md hover:bg-red-600 transition duration-300">Buat Admin</button>
+        <a href="index.html" class="block w-full text-center bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-md hover:bg-gray-300 transition duration-300 mt-2">Kembali</a>
+      </form>
     </div>
-    <form onsubmit="buatAdmin(event)">
-      <div class="mb-3">
-        <label class="form-label">Nama</label>
-        <input type="text" id="nama" class="form-control" required />
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input type="email" id="email" class="form-control" required />
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Password</label>
-        <input type="password" id="password" class="form-control" required />
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Konfirmasi Password</label>
-        <input type="password" id="konfirmasi" class="form-control" required />
-      </div>
-      <button type="submit" class="btn btn-danger w-100">Buat Admin</button>
-      <a href="index.html" class="btn btn-outline-secondary w-100 mt-2">Kembali</a>
-    </form>
-  </div>
-  <footer class="mt-auto text-center text-muted py-3" style="background:#f8f9fa;">
-    &copy; 2025 <a href="https://portfolio-chx.netlify.app/" class="text-decoration-none fw-semibold text-dark">CHX</a>
-    • All rights
-    reserved.
+  </main>
+
+  <footer class="text-center text-white/80 py-4 text-sm mt-8">
+    &copy; 2025 <a href="https://portfolio-chx.netlify.app/" class="font-semibold hover:underline">CHX</a> • All rights reserved.
   </footer>
+
   <script>
+    function showToast(message, type = 'success') {
+        if (!document.getElementById('toast-animation-style')) {
+            const style = document.createElement('style');
+            style.id = 'toast-animation-style';
+            style.innerHTML = `@keyframes fade-in-right { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } } .animate-fade-in-right { animation: fade-in-right 0.5s ease-out forwards; }`;
+            document.head.appendChild(style);
+        }
+        const toastContainer = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        const colors = { success: 'bg-green-500', error: 'bg-red-500' };
+        toast.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg ${colors[type]} animate-fade-in-right`;
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
     function buatAdmin(e) {
       e.preventDefault();
       const nama = document.getElementById("nama").value.trim();
@@ -66,35 +68,26 @@
       const konfirmasi = document.getElementById("konfirmasi").value;
 
       if (password !== konfirmasi) {
-        alert("Password tidak cocok!");
+        showToast("Password tidak cocok!", 'error');
         return;
       }
 
       let users = JSON.parse(localStorage.getItem("users") || "[]");
-
-      // Cek email sudah digunakan?
       if (users.some(u => u.email === email)) {
-        alert("Email sudah terdaftar.");
+        showToast("Email sudah terdaftar.", 'error');
         return;
       }
 
-      const newUser = {
-        id: Date.now().toString(),
-        nama,
-        email,
-        password,
-        role: "admin"
-      };
-
+      const newUser = { id: Date.now().toString(), name: nama, email, password, role: "admin" };
       users.push(newUser);
       localStorage.setItem("users", JSON.stringify(users));
       localStorage.setItem("loggedInUser", JSON.stringify(newUser));
-      alert("Admin berhasil dibuat dan langsung login!");
-      window.location.href = "admin.html";
-
+      
+      showToast("Admin berhasil dibuat dan langsung login!");
+      setTimeout(() => {
+        window.location.href = "admin.html";
+      }, 1500);
     }
   </script>
-
 </body>
-
 </html>
