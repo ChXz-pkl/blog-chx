@@ -16,35 +16,31 @@
   <main class="w-full max-w-lg">
     <div class="bg-white p-8 rounded-xl shadow-2xl">
       <h2 class="text-2xl font-bold text-center text-blue-600 mb-6">Registrasi RZF Academy</h2>
-      <form onsubmit="return handleRegister(event)" class="space-y-4">
+      <form id="registerForm" class="space-y-4">
         <div class="grid md:grid-cols-2 gap-4">
           <div>
             <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
-            <input type="text" id="name"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
+            <input type="text" id="name" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               required />
           </div>
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" id="email"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
+            <input type="email" id="email" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               required />
           </div>
           <div>
             <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input type="password" id="password"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
+            <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               required />
           </div>
           <div>
             <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Ulangi Password</label>
             <input type="password" id="confirmPassword"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
-              required />
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required />
           </div>
         </div>
         <button type="submit"
-          class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 transition duration-300">Daftar</button>
+          class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600">Daftar</button>
         <p class="text-center text-sm text-gray-600 pt-2">
           Sudah punya akun? <a href="login.html" class="font-semibold text-blue-500 hover:underline">Login di sini</a>
         </p>
@@ -57,56 +53,59 @@
     reserved.
   </footer>
 
-  <script>
-    function showToast(message, type = 'success') {
-      if (!document.getElementById('toast-animation-style')) {
-        const style = document.createElement('style');
-        style.id = 'toast-animation-style';
-        style.innerHTML = `@keyframes fade-in-right { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } } .animate-fade-in-right { animation: fade-in-right 0.5s ease-out forwards; }`;
-        document.head.appendChild(style);
-      }
-      const toastContainer = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      const colors = { success: 'bg-green-500', error: 'bg-red-500' };
-      toast.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg ${colors[type]} animate-fade-in-right`;
-      toast.textContent = message;
-      toastContainer.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    function handleRegister(e) {
+    const registerForm = document.getElementById('registerForm');
+
+    // Ganti fungsi handleRegister di registrasi.html
+    async function handleRegister(e) {
       e.preventDefault();
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
 
+      if (password.length < 6) {
+        showToast("Password harus terdiri dari minimal 6 karakter.", 'error');
+        return;
+      }
       if (password !== confirmPassword) {
         showToast("Password tidak cocok!", 'error');
         return;
       }
-      const users = JSON.parse(localStorage.getItem("users") || "[]");
-      if (users.some(u => u.email === email)) {
-        showToast("Email sudah terdaftar.", 'error');
-        return;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        await setDoc(doc(db, "users", user.uid), {
+          name: name,
+          email: email,
+          role: "user",
+          profilePicture: null
+        });
+
+        showToast("Registrasi berhasil! Silakan login.");
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1500);
+
+      } catch (error) {
+        if (error.code === 'auth/email-already-in-use') {
+          showToast('Email ini sudah terdaftar.', 'error');
+        } else {
+          showToast('Terjadi kesalahan saat registrasi.', 'error');
+          console.error("Registrasi Gagal:", error);
+        }
       }
-
-      const newUser = {
-        id: Date.now().toString(),
-        name,
-        email,
-        password,
-        role: "user",
-        profilePicture: null // Menambahkan properti baru dengan nilai default
-      };
-      users.push({ id: Date.now().toString(), name, email, password, role: "user" });
-      localStorage.setItem("users", JSON.stringify(users));
-
-      showToast("Registrasi berhasil! Silakan login.");
-      setTimeout(() => {
-        window.location.href = "login.html";
-      }, 1500);
     }
+    // Pastikan event listenernya juga diperbarui untuk memanggil fungsi ini
+    document.getElementById('registerForm').addEventListener('submit', handleRegister);
+    // Fungsi utilitas untuk notifikasi
+    function showToast(m, t = 'success') { const e = document.getElementById("toast-container"), o = document.createElement("div"), s = { success: "bg-green-500", error: "bg-red-500" }; o.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg ${s[t]}`; o.textContent = m; const n = document.createElement("style"); n.innerHTML = "@keyframes fade-in-right{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-fade-in-right{animation:fade-in-right .5s ease-out forwards}"; document.head.appendChild(n); e.appendChild(o); setTimeout(() => o.remove(), 3e3) }
   </script>
 </body>
 

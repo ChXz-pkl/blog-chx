@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Upload - RZF Academy</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-sky-50 min-h-screen flex flex-col">
-
     <div id="toast-container" class="fixed top-5 right-5 z-[120] space-y-2"></div>
-
-    <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md">
+    <nav
+        class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md">
         <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
         <div class="hidden md:flex items-center space-x-4">
             <a href="dashboard.html" class="hover:text-sky-200">Dashboard</a>
@@ -18,39 +19,167 @@
             <a href="text.html" class="hover:text-sky-200">Teks</a>
             <a href="upload.html" class="hover:text-sky-200">Upload</a>
             <a href="my.html" class="hover:text-sky-200">Konten Saya</a>
-            <a id="adminLink" href="admin.html" class="px-3 py-1 bg-red-500 rounded-md text-white font-bold" style="display: none;">Panel Admin</a>
+            <a id="adminLink" href="admin.html" class="px-3 py-1 bg-red-500 rounded-md text-white font-bold"
+                style="display: none;">Panel Admin</a>
         </div>
         <div class="flex items-center space-x-4">
-          <a href="profil.html" class="flex items-center space-x-3 group">
-            <img id="navbarProfilePicture" src="https://placehold.co/32x32/e2e8f0/718096?text=U" alt="Foto Profil" class="w-8 h-8 rounded-full object-cover border-2 border-sky-200 group-hover:border-white transition">
-            <span id="welcomeUser" class="font-semibold text-white group-hover:text-sky-200 transition">Pengguna</span>
-          </a>
-          <button onclick="logout()" class="px-3 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Logout</button>
+            <a href="profil.html" class="flex items-center space-x-3 group">
+                <img id="navbarProfilePicture" src="https://placehold.co/32x32/e2e8f0/718096?text=U" alt="Foto Profil"
+                    class="w-8 h-8 rounded-full object-cover border-2 border-sky-200 group-hover:border-white transition">
+                <span id="welcomeUser"
+                    class="font-semibold text-white group-hover:text-sky-200 transition">Pengguna</span>
+            </a>
+            <button id="logoutButton"
+                class="px-3 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Logout</button>
         </div>
     </nav>
-
     <main class="flex-1 container mx-auto px-4 py-10 flex justify-center items-center">
         <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-lg">
             <h2 class="text-2xl font-bold text-blue-600 text-center mb-6">Unggah Karya Anda</h2>
-            <form onsubmit="handleUpload(event)" class="space-y-4">
-                <div><label for="judul" class="block text-sm font-medium text-gray-700 mb-1">Judul Konten</label><input type="text" id="judul" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" required /></div>
-                <div><label for="kategori" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label><select id="kategori" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" required></select></div>
-                <div><label for="jenis" class="block text-sm font-medium text-gray-700 mb-1">Jenis Konten</label><select onchange="toggleField()" id="jenis" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" required><option value="">-- Pilih Jenis --</option><option value="gambar">Gambar</option><option value="teks">Teks</option></select></div>
-                <div id="fieldGambar" style="display: none;"><label for="gambar" class="block text-sm font-medium text-gray-700 mb-1">Pilih Gambar</label><input type="file" id="gambar" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100" accept=".jpg,.jpeg,.png,.gif" /></div>
-                <div id="fieldTeks" style="display: none;"><label for="teks" class="block text-sm font-medium text-gray-700 mb-1">Isi Teks</label><textarea id="teks" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" rows="5"></textarea></div>
-                <button type="submit" class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 transition duration-300">Upload</button>
+            <form id="uploadForm" class="space-y-4">
+                <div><label for="judul" class="block text-sm font-medium text-gray-700 mb-1">Judul Konten</label><input
+                        type="text" id="judul" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+                </div>
+                <div><label for="kategori" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label><select
+                        id="kategori" class="w-full px-3 py-2 border border-gray-300 rounded-md" required></select>
+                </div>
+                <div><label for="jenis" class="block text-sm font-medium text-gray-700 mb-1">Jenis Konten</label><select
+                        id="jenis" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <option value="">-- Pilih Jenis --</option>
+                        <option value="image">Gambar</option>
+                        <option value="text">Teks</option>
+                    </select></div>
+                <div id="fieldGambar" style="display: none;"><label for="gambar"
+                        class="block text-sm font-medium text-gray-700 mb-1">Pilih Gambar</label><input type="file"
+                        id="gambar"
+                        class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"
+                        accept=".jpg,.jpeg,.png,.gif" /></div>
+                <div id="fieldTeks" style="display: none;"><label for="teks"
+                        class="block text-sm font-medium text-gray-700 mb-1">Isi Teks</label><textarea id="teks"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="5"></textarea></div>
+                <button type="submit"
+                    class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600">Upload</button>
             </form>
         </div>
     </main>
-
     <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
-        &copy; 2025 <a href="https://portfolio-chx.netlify.app/" class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
+        &copy; 2025 <a href="https://portfolio-chx.netlify.app/"
+            class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
     </footer>
+    <script type="module">
+        import { auth, db, storage } from './firebase-config.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { doc, getDoc, collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-    <script>
-        function showToast(e,t="success"){const o=document.getElementById("toast-container"),n=document.createElement("div"),s={success:"bg-green-500",error:"bg-red-500"};n.className=`w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-fade-in-right ${s[t]}`,n.textContent=e;const a=document.createElement("style");a.innerHTML="@keyframes fade-in-right{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-fade-in-right{animation:fade-in-right .5s ease-out forwards}",document.head.appendChild(a),o.appendChild(n),setTimeout(()=>n.remove(),3e3)}function logout(){localStorage.removeItem("loggedInUser"),showToast("Anda telah berhasil logout."),setTimeout(()=>{window.location.href="index.html"},1500)}function cekLogin(){const e=JSON.parse(localStorage.getItem("loggedInUser"));if(!e)return showToast("Silakan login terlebih dahulu.","error"),void setTimeout(()=>{window.location.href="login.html"},1500);const t=document.getElementById("welcomeUser"),o=document.getElementById("navbarProfilePicture"),n=document.getElementById("adminLink");t&&(t.textContent=e.name),o&&e.profilePicture&&(o.src=e.profilePicture),n&&"admin"===e.role&&(n.style.display="inline-block")}
-        function toggleField(){const e=document.getElementById("jenis").value;document.getElementById("fieldGambar").style.display="gambar"===e?"block":"none",document.getElementById("fieldTeks").style.display="teks"===e?"block":"none",document.getElementById("gambar").required="gambar"===e,document.getElementById("teks").required="teks"===e}function handleUpload(e){e.preventDefault();const t=JSON.parse(localStorage.getItem("loggedInUser")),o={id:Date.now().toString(),userId:t.id,userName:t.name,userProfilePicture:t.profilePicture,judul:document.getElementById("judul").value.trim(),kategori:document.getElementById("kategori").value,jenis:document.getElementById("jenis").value,waktu:(new Date).toISOString()};"gambar"===o.jenis?(e=document.getElementById("gambar").files[0])?new FileReader().onload=function(e){o.gambar=e.target.result,o.teks=null,simpanKonten(o)}:showToast("Pilih file gambar dahulu.","error"):"teks"===o.jenis&&((o.teks=document.getElementById("teks").value.trim())?(o.gambar=null,simpanKonten(o)):showToast("Isi teks tidak boleh kosong.","error"))}function simpanKonten(e){const t=JSON.parse(localStorage.getItem("konten")||"[]");t.push(e),localStorage.setItem("konten",JSON.stringify(t)),showToast("Konten berhasil diunggah!"),setTimeout(()=>{window.location.href="my.html"},1000)}function isiDropdownKategori(){const e=document.getElementById("kategori"),t=JSON.parse(localStorage.getItem("kategoriList")||"[]");if(e.innerHTML='<option value="">-- Pilih Kategori --</option>',0===t.length)return void(e.innerHTML="<option disabled>Belum ada kategori</option>");t.forEach(t=>{const o=document.createElement("option");o.value=t,o.textContent=t.charAt(0).toUpperCase()+t.slice(1),e.appendChild(o)})}
-        document.addEventListener("DOMContentLoaded",()=>{cekLogin(),isiDropdownKategori(),toggleField()});
+        let currentUser = null;
+        let userData = null;
+
+        async function checkAuthState() { /* ... (fungsi checkAuthState sama seperti di profil.html) ... */ }
+
+        document.getElementById('jenis').addEventListener('change', (e) => {
+            const jenis = e.target.value;
+            document.getElementById("fieldGambar").style.display = jenis === "image" ? "block" : "none";
+            document.getElementById("fieldTeks").style.display = jenis === "text" ? "block" : "none";
+            document.getElementById("gambar").required = jenis === "image";
+            document.getElementById("teks").required = jenis === "text";
+        });
+
+        async function isiDropdownKategori() {
+            const select = document.getElementById("kategori");
+            select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
+            const querySnapshot = await getDocs(collection(db, "categories"));
+            querySnapshot.forEach(doc => {
+                const kat = doc.data().name;
+                const opt = document.createElement("option");
+                opt.value = kat;
+                opt.textContent = kat.charAt(0).toUpperCase() + kat.slice(1);
+                select.appendChild(opt);
+            });
+        }
+
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = "Mengunggah...";
+
+            const kontenData = {
+                title: document.getElementById("judul").value.trim(),
+                category: document.getElementById("kategori").value,
+                type: document.getElementById("jenis").value,
+                createdAt: serverTimestamp(),
+                author: {
+                    uid: currentUser.uid,
+                    name: userData.name,
+                    profilePicture: userData.profilePicture
+                }
+            };
+
+            try {
+                if (kontenData.type === "image") {
+                    const file = document.getElementById("gambar").files[0];
+                    if (!file) throw new Error("File gambar belum dipilih.");
+
+                    const storageRef = ref(storage, `content_images/${currentUser.uid}/${Date.now()}_${file.name}`);
+                    const snapshot = await uploadBytes(storageRef, file);
+                    kontenData.imageUrl = await getDownloadURL(snapshot.ref);
+                    kontenData.text = null;
+
+                } else if (kontenData.type === "text") {
+                    kontenData.text = document.getElementById("teks").value.trim();
+                    if (!kontenData.text) throw new Error("Teks tidak boleh kosong.");
+                    kontenData.imageUrl = null;
+                }
+
+                await addDoc(collection(db, "content"), kontenData);
+                showToast("Konten berhasil diunggah!");
+                setTimeout(() => window.location.href = "my.html", 1000);
+
+            } catch (error) {
+                console.error("Gagal mengunggah:", error);
+                showToast(error.message || "Gagal mengunggah konten.", "error");
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = "Upload";
+            }
+        });
+
+        // Fungsi ini harus ada di semua halaman yang punya tombol logout
+        async function handleLogout() {
+            try {
+                await signOut(auth); // Perintah logout ke Firebase
+                showToast("Anda telah berhasil logout.");
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 1500);
+            } catch (error) {
+                showToast("Gagal untuk logout.", "error");
+            }
+        }
+        document.getElementById('logoutButton').addEventListener('click', handleLogout);
+        function showToast(m, t = 'success') { const e = document.getElementById("toast-container"), o = document.createElement("div"), s = { success: "bg-green-500", error: "bg-red-500", info: "bg-blue-500" }; o.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg ${s[t] || s.info} animate-fade-in-right`; o.textContent = m; const n = document.createElement("style"); n.innerHTML = "@keyframes fade-in-right{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-fade-in-right{animation:fade-in-right .5s ease-out forwards}", document.head.appendChild(n); e.appendChild(o); setTimeout(() => o.remove(), 3e3) }
+
+        // Salin fungsi checkAuthState yang lengkap dari profil.html ke sini untuk kelengkapan
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const userDocSnap = await getDoc(doc(db, "users", user.uid));
+                if (userDocSnap.exists()) {
+                    userData = userDocSnap.data();
+                    document.getElementById("welcomeUser").textContent = userData.name;
+                    const navbarPic = document.getElementById("navbarProfilePicture");
+                    if (navbarPic && userData.profilePicture) navbarPic.src = userData.profilePicture;
+                    const adminLink = document.getElementById('adminLink');
+                    if (adminLink && userData.role === 'admin') adminLink.style.display = 'inline-block';
+                    // Muat data halaman setelah login terverifikasi
+                    isiDropdownKategori();
+                } else { handleLogout(); }
+            } else { window.location.href = 'login.html'; }
+        });
+        // Skrip untuk tombol logout
+        document.getElementById('logoutButton').addEventListener('click', handleLogout);
     </script>
 </body>
+
 </html>
