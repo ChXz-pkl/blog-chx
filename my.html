@@ -1,44 +1,60 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Konten Saya - RZF Academy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="dist/output.css">
 </head>
+
 <body class="bg-sky-50 min-h-screen flex flex-col">
 
     <div id="toast-container" class="fixed top-5 right-5 z-[120] space-y-2"></div>
 
-    <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md sticky top-0 z-50">
-        <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
-        <div class="hidden md:flex items-center space-x-4">
-            <a href="dashboard.html" class="hover:text-sky-200">Dashboard</a>
-            <a href="galeri.html" class="hover:text-sky-200">Galeri</a>
-            <a href="text.html" class="hover:text-sky-200">Teks</a>
-            <a href="my.html" class="font-bold">Konten Saya</a>
-            <a href="upload.html" class="hover:text-sky-200">Upload</a>
-            <a id="adminLink" href="admin.html" class="px-3 py-1 bg-red-500 rounded-md text-white font-bold" style="display: none;">Panel Admin</a>
+    <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 shadow-md sticky top-0 z-50">
+        <div class="flex justify-between items-center">
+            <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
+            <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">&#9776;</button>
         </div>
-        <div class="flex items-center space-x-4">
-            <a href="profil.html" class="flex items-center space-x-3 group">
-                <img id="navbarProfilePicture" src="https://placehold.co/32x32/e2e8f0/718096?text=U" alt="Foto Profil" class="w-8 h-8 rounded-full object-cover border-2 border-sky-200 group-hover:border-white transition">
-                <span id="welcomeUser" class="font-semibold text-white group-hover:text-sky-200 transition">Pengguna</span>
-            </a>
-            <button id="logout-button" class="px-3 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Logout</button>
+        <div id="nav-menu"
+            class="hidden md:flex flex-col md:flex-row mt-3 md:mt-0 md:items-center md:justify-between md:space-x-4">
+            <div class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0 mt-2 md:mt-0">
+                <a href="dashboard.html" class="hover:text-sky-200">Dashboard</a>
+                <a href="galeri.html" class="hover:text-sky-200">Galeri</a>
+                <a href="text.html" class="hover:text-sky-200">Teks</a>
+                <a href="my.html" class="font-bold">Konten Saya</a>
+                <a href="upload.html" class="hover:text-sky-200">Upload</a>
+                <a id="adminLink" href="admin.html"
+                    class="px-3 py-1 bg-red-500 rounded-md text-white font-bold hidden">Panel Admin</a>
+            </div>
+            <div class="flex items-center gap-3 mt-3 md:mt-0">
+                <a href="profil.html" class="flex items-center space-x-2 group">
+                    <img id="navbarProfilePicture" src="https://placehold.co/32x32/e2e8f0/718096?text=U"
+                        class="w-8 h-8 rounded-full border border-sky-200 group-hover:border-white transition" />
+                    <span id="welcomeUser" class="font-semibold group-hover:text-sky-200 transition">Pengguna</span>
+                </a>
+                <button id="logout-button"
+                    class="px-3 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Logout</button>
+            </div>
         </div>
     </nav>
+
 
     <main class="flex-1 container mx-auto px-4 py-6">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-3xl font-bold text-blue-600">Konten Saya</h2>
-            <a href="upload.html" class="bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 transition duration-300 flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            <a href="upload.html"
+                class="bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 transition duration-300 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
                 Unggah Baru
             </a>
         </div>
         <div id="kontenContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            </div>
+        </div>
     </main>
 
     <div id="editModal" class="fixed inset-0 bg-black bg-opacity-60 hidden justify-center items-center z-[110]">
@@ -47,31 +63,44 @@
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Edit Konten</h3>
                 <div class="space-y-4">
                     <input type="hidden" id="editId">
-                    <div><label for="editJudul" class="block text-sm font-medium text-gray-700 mb-1">Judul</label><input type="text" id="editJudul" class="w-full px-3 py-2 border border-gray-300 rounded-md" required /></div>
-                    <div><label for="editKategori" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label><select id="editKategori" class="w-full px-3 py-2 border border-gray-300 rounded-md" required></select></div>
-                    <div id="editTeksGroup" style="display: none;"><label for="editTeks" class="block text-sm font-medium text-gray-700 mb-1">Isi Teks</label><textarea id="editTeks" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="5"></textarea></div>
+                    <div><label for="editJudul" class="block text-sm font-medium text-gray-700 mb-1">Judul</label><input
+                            type="text" id="editJudul" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            required /></div>
+                    <div><label for="editKategori"
+                            class="block text-sm font-medium text-gray-700 mb-1">Kategori</label><select
+                            id="editKategori" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            required></select></div>
+                    <div id="editTeksGroup" style="display: none;"><label for="editTeks"
+                            class="block text-sm font-medium text-gray-700 mb-1">Isi Teks</label><textarea id="editTeks"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="5"></textarea></div>
                 </div>
                 <div class="mt-6 flex justify-end space-x-3">
-                    <button type="button" id="batalEdit" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Simpan Perubahan</button>
+                    <button type="button" id="batalEdit"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Simpan
+                        Perubahan</button>
                 </div>
             </form>
         </div>
     </div>
-    
+
     <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-[110]">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-4 text-center">
             <h3 class="text-lg font-bold text-gray-900 mb-2">Konfirmasi Hapus</h3>
-            <p id="confirmModalMessage" class="text-sm text-gray-600 mb-6">Apakah Anda yakin ingin menghapus konten ini secara permanen?</p>
+            <p id="confirmModalMessage" class="text-sm text-gray-600 mb-6">Apakah Anda yakin ingin menghapus konten ini
+                secara permanen?</p>
             <div class="flex justify-center space-x-4">
-                <button id="confirmModalCancel" class="px-6 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Batal</button>
-                <button id="confirmModalConfirm" class="px-6 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Ya, Hapus</button>
+                <button id="confirmModalCancel"
+                    class="px-6 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Batal</button>
+                <button id="confirmModalConfirm" class="px-6 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Ya,
+                    Hapus</button>
             </div>
         </div>
     </div>
 
     <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
-        &copy; 2025 <a href="https://portfolio-chx.netlify.app/" class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
+        &copy; 2025 <a href="https://portfolio-chx.netlify.app/"
+            class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
     </footer>
 
     <script type="module">
@@ -79,6 +108,7 @@
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
         import { getDatabase, ref, query, orderByChild, equalTo, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
         import { getStorage, ref as storageRef, deleteObject } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
+        import { get, child } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
         // --- KONFIGURASI FIREBASE (LENGKAP) ---
         const firebaseConfig = {
@@ -100,11 +130,14 @@
         let allMyContent = [];
 
         // --- Fungsi Utilitas & UI ---
-        function showToast(m,t='success'){const n=document.getElementById("toast-container"),e=document.createElement("div"),o={success:"bg-green-500",error:"bg-red-500",info:"bg-sky-500"};e.className=`w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`,e.textContent=m;const a=document.createElement("style");a.id="toast-animation-style",a.innerHTML="@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}",document.head.appendChild(a),n.appendChild(e),setTimeout(()=>e.remove(),3e3)}
-        const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(()=>window.location.href="index.html",1500); });
+        function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
+
+        const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
+
         const showConfirmModal = (onConfirm) => { confirmCallback = onConfirm; document.getElementById("confirmModal").style.display = "flex"; };
+
         const hideConfirmModal = () => { document.getElementById("confirmModal").style.display = "none"; confirmCallback = null; };
-        
+
         // --- Fungsi Modal Edit ---
         const editModal = document.getElementById('editModal');
         const editIdInput = document.getElementById('editId');
@@ -119,9 +152,9 @@
 
             // Isi dropdown kategori
             const kategoriRef = ref(db, 'kategoriList');
-            onValue(kategoriRef, (snapshot) => {
+            get(kategoriRef).then(snapshot => {
                 editKategoriSelect.innerHTML = '';
-                if(snapshot.exists()) {
+                if (snapshot.exists()) {
                     snapshot.val().forEach(kat => {
                         const option = document.createElement('option');
                         option.value = kat;
@@ -143,7 +176,7 @@
             editModal.style.display = "flex";
         };
         const tutupEditModal = () => editModal.style.display = "none";
-        
+
         const handleSimpanEdit = (e) => {
             e.preventDefault();
             const idToUpdate = editIdInput.value;
@@ -152,7 +185,7 @@
                 kategori: editKategoriSelect.value,
                 waktu: new Date().toISOString()
             };
-            if(editTeksGroup.style.display === 'block') {
+            if (editTeksGroup.style.display === 'block') {
                 updatedData.teks = editTeksArea.value.trim();
             }
 
@@ -181,18 +214,28 @@
 
         // --- Fungsi Utama untuk Menampilkan Konten ---
         const tampilKontenSaya = (userId) => {
+            if (!userId || typeof userId !== 'string') {
+                console.error("User ID tidak valid untuk query:", userId);
+                return;
+            }
+
             const kontenContainer = document.getElementById('kontenContainer');
             const kontenQuery = query(ref(db, 'konten'), orderByChild('userId'), equalTo(userId));
-            
-            onValue(kontenQuery, (snapshot) => {
+
+            get(kontenQuery).then(snapshot => {
                 kontenContainer.innerHTML = "";
                 allMyContent = []; // Reset daftar konten
                 if (!snapshot.exists()) {
                     kontenContainer.innerHTML = "<p class='text-gray-500 col-span-full text-center'>Anda belum mengunggah konten apapun. Mulai berkarya!</p>";
                     return;
                 }
-                
-                snapshot.forEach(child => allMyContent.push(child.val()));
+
+                snapshot.forEach(child => {
+                    const data = child.val();
+                    console.log("Data ditemukan:", data);
+                    allMyContent.push(data);
+                });
+
 
                 allMyContent.sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).forEach(item => {
                     const card = document.createElement("div");
@@ -200,7 +243,7 @@
 
                     if (item.jenis === 'gambar') {
                         card.innerHTML = `
-                            <img src="${item.gambar}" class="w-full h-48 object-contain border rounded bg-gray-50 mb-3" />
+                            <img src="${item.gambar || 'https://placehold.co/300x200?text=Gambar+hilang'}" class="w-full h-48 object-contain border rounded bg-gray-50 mb-3" />
                             <div class="flex-1 flex flex-col">
                                 <h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3>
                                 <div class="mt-auto pt-3 border-t flex items-center justify-between">
@@ -212,11 +255,14 @@
                                 </div>
                             </div>`;
                     } else { // jenis 'teks'
-                        const preview = item.teks.substring(0, 150);
+                        const preview = (item.teks || '').substring(0, 150);
                         card.innerHTML = `
                             <div class="flex-1 flex flex-col">
                                 <h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3>
-                                <p class="text-sm text-gray-600 mt-1 flex-1">${preview}${item.teks.length > 150 ? '...' : ''}</p>
+                                <p class="text-sm text-gray-600 mt-1 flex-1">
+                                ${preview}${(item.teks && item.teks.length > 150) ? '...' : ''}
+                                </p>
+
                                 <div class="mt-auto pt-3 border-t flex items-center justify-between">
                                     <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
                                     <div class="space-x-2">
@@ -233,6 +279,7 @@
                 document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', (e) => bukaEditModal(e.currentTarget.dataset.id)));
                 document.querySelectorAll('.hapus-btn').forEach(btn => btn.addEventListener('click', (e) => handleHapusKonten(e.currentTarget.dataset.id)));
             });
+
         };
 
         // --- Titik Masuk Utama Saat Halaman Dimuat ---
@@ -242,7 +289,14 @@
             document.getElementById('batalEdit').addEventListener('click', tutupEditModal);
             document.getElementById('edit-form').addEventListener('submit', handleSimpanEdit);
             document.getElementById('confirmModalCancel').addEventListener('click', hideConfirmModal);
-            document.getElementById('confirmModalConfirm').addEventListener('click', () => { if(confirmCallback) confirmCallback(); });
+            document.getElementById('confirmModalConfirm').addEventListener('click', () => { if (confirmCallback) confirmCallback(); });
+            // --- Hamburger Toggle ---
+            const toggleBtn = document.getElementById("menu-toggle");
+            const navMenu = document.getElementById("nav-menu");
+            toggleBtn.addEventListener("click", () => {
+                navMenu.classList.toggle("hidden");
+            });
+
 
             // Cek status otentikasi pengguna
             onAuthStateChanged(auth, (user) => {
@@ -252,9 +306,10 @@
                         document.getElementById("welcomeUser").textContent = loggedInUser.name;
                         if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
                         if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
-                        
+
                         // Muat data utama halaman
-                        tampilKontenSaya(user.uid);
+                        tampilKontenSaya(loggedInUser.id); // ✅ Ini benar
+                        console.log("User ID yang dipakai:", loggedInUser.id);
                     } else {
                         logout(); // Paksa logout jika data localStorage tidak sinkron
                     }
@@ -266,4 +321,5 @@
         });
     </script>
 </body>
+
 </html>

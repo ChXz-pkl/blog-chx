@@ -1,44 +1,68 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Galeri - RZF Academy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="dist/output.css">
     <style>
         .kategori-badge {
-            background-color: #e0e7ff; color: #4338ca; padding: 4px 12px;
-            border-radius: 9999px; font-size: 0.875rem; transition: all 0.2s;
-            cursor: pointer; border: 1px solid #c7d2fe;
+            background-color: #e0e7ff;
+            color: #4338ca;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid #c7d2fe;
         }
-        .kategori-badge:hover { background-color: #c7d2fe; }
+
+        .kategori-badge:hover {
+            background-color: #c7d2fe;
+        }
+
         .kategori-badge.active {
-            background-color: #4f46e5; color: white; font-weight: 600; border-color: #4f46e5;
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 600;
+            border-color: #4f46e5;
         }
     </style>
 </head>
+
 <body class="bg-sky-50 min-h-screen flex flex-col">
 
     <div id="toast-container" class="fixed top-5 right-5 z-[120] space-y-2"></div>
 
-    <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md sticky top-0 z-50">
-        <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
-        <div class="hidden md:flex items-center space-x-4">
-            <a href="dashboard.html" class="hover:text-sky-200">Dashboard</a>
-            <a href="galeri.html" class="font-bold">Galeri</a>
-            <a href="text.html" class="hover:text-sky-200">Teks</a>
-            <a href="my.html" class="hover:text-sky-200">Konten Saya</a>
-            <a href="upload.html" class="hover:text-sky-200">Upload</a>
-            <a id="adminLink" href="admin.html" class="px-3 py-1 bg-red-500 rounded-md text-white font-bold" style="display: none;">Panel Admin</a>
+    <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 shadow-md sticky top-0 z-50">
+        <div class="flex justify-between items-center">
+            <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
+            <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">&#9776;</button>
         </div>
-        <div class="flex items-center space-x-4">
-            <a href="profil.html" class="flex items-center space-x-3 group">
-                <img id="navbarProfilePicture" src="https://placehold.co/32x32/e2e8f0/718096?text=U" alt="Foto Profil" class="w-8 h-8 rounded-full object-cover border-2 border-sky-200 group-hover:border-white transition">
-                <span id="welcomeUser" class="font-semibold text-white group-hover:text-sky-200 transition">Pengguna</span>
-            </a>
-            <button id="logout-button" class="px-3 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Logout</button>
+        <div id="nav-menu"
+            class="hidden md:flex flex-col md:flex-row mt-3 md:mt-0 md:items-center md:justify-between md:space-x-4">
+            <div class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0 mt-2 md:mt-0">
+                <a href="dashboard.html" class="hover:text-sky-200">Dashboard</a>
+                <a href="galeri.html" class="font-bold">Galeri</a>
+                <a href="text.html" class="hover:text-sky-200">Teks</a>
+                <a href="my.html" class="hover:text-sky-200">Konten Saya</a>
+                <a href="upload.html" class="hover:text-sky-200">Upload</a>
+                <a id="adminLink" href="admin.html"
+                    class="px-3 py-1 bg-red-500 rounded-md text-white font-bold hidden">Panel Admin</a>
+            </div>
+            <div class="flex items-center gap-3 mt-3 md:mt-0">
+                <a href="profil.html" class="flex items-center space-x-2 group">
+                    <img id="navbarProfilePicture" src="https://placehold.co/32x32/e2e8f0/718096?text=U"
+                        class="w-8 h-8 rounded-full border border-sky-200 group-hover:border-white transition" />
+                    <span id="welcomeUser" class="font-semibold group-hover:text-sky-200 transition">Pengguna</span>
+                </a>
+                <button id="logout-button"
+                    class="px-3 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Logout</button>
+            </div>
         </div>
     </nav>
+
 
     <main class="flex-1 container mx-auto px-4 py-6">
         <div class="text-center mb-6">
@@ -47,22 +71,25 @@
         </div>
         <div id="kategoriBadges" class="flex flex-wrap justify-center gap-2 mb-8"></div>
         <div id="galeriContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            </div>
+        </div>
     </main>
 
     <div id="previewOverlay" class="fixed inset-0 bg-black bg-opacity-80 hidden justify-center items-center z-50">
-        <span id="close-preview" class="absolute top-5 right-6 text-white text-4xl cursor-pointer font-bold">&times;</span>
+        <span id="close-preview"
+            class="absolute top-5 right-6 text-white text-4xl cursor-pointer font-bold">&times;</span>
         <img id="previewImage" class="max-w-[90%] max-h-[90%] rounded shadow-2xl" />
     </div>
 
     <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
-        &copy; 2025 <a href="https://portfolio-chx.netlify.app/" class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
+        &copy; 2025 <a href="https://portfolio-chx.netlify.app/"
+            class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
     </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+        import { get, child } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
         // --- KONFIGURASI FIREBASE (LENGKAP) ---
         const firebaseConfig = {
@@ -83,9 +110,9 @@
         const galeriContainerEl = document.getElementById('galeriContainer');
 
         // --- Fungsi Utilitas & UI ---
-        function showToast(m,t='success'){const n=document.getElementById("toast-container"),e=document.createElement("div"),o={success:"bg-green-500",error:"bg-red-500",info:"bg-sky-500"};e.className=`w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`,e.textContent=m;const a=document.createElement("style");a.id="toast-animation-style",a.innerHTML="@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}",document.head.appendChild(a),n.appendChild(e),setTimeout(()=>e.remove(),3e3)}
-        const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(()=>window.location.href="index.html",1500); });
-        
+        function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
+        const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
+
         const previewOverlay = document.getElementById("previewOverlay");
         const previewImage = document.getElementById("previewImage");
         const tampilkanPreview = (src) => { previewImage.src = src; previewOverlay.style.display = "flex"; };
@@ -95,7 +122,7 @@
         const tampilkanKategori = () => {
             const kategoriRef = ref(db, 'kategoriList');
             const kategoriBadgesEl = document.getElementById('kategoriBadges');
-            onValue(kategoriRef, (snapshot) => {
+            get(kategoriRef).then(snapshot => {
                 let badgeHTML = `<button class="kategori-badge active" data-kategori="semua">Semua</button>`;
                 if (snapshot.exists()) {
                     snapshot.val().forEach(kat => {
@@ -104,7 +131,7 @@
                     });
                 }
                 kategoriBadgesEl.innerHTML = badgeHTML;
-                
+
                 kategoriBadgesEl.querySelectorAll('.kategori-badge').forEach(badge => {
                     badge.addEventListener('click', (e) => {
                         kategoriBadgesEl.querySelector('.active').classList.remove('active');
@@ -119,21 +146,21 @@
             const activeBadge = document.querySelector('#kategoriBadges .kategori-badge.active');
             const kategoriFilter = activeBadge ? activeBadge.dataset.kategori : 'semua';
             const kontenRef = ref(db, 'konten');
-            
+
             galeriContainerEl.innerHTML = "<p class='col-span-full text-center text-gray-500'>Memuat gambar...</p>";
-            
-            onValue(kontenRef, (snapshot) => {
+
+            get(kontenRef).then(snapshot => {
                 const semuaKonten = [];
                 if (snapshot.exists()) {
                     snapshot.forEach(child => semuaKonten.push(child.val()));
                 }
-                
+
                 // Filter 1: Hanya ambil yang jenisnya 'gambar'
                 const gambarKonten = semuaKonten.filter(item => item.jenis === 'gambar');
-                
+
                 // Filter 2: Berdasarkan kategori yang aktif
                 let hasil = kategoriFilter === 'semua' ? gambarKonten : gambarKonten.filter(k => k.kategori === kategoriFilter);
-                
+
                 galeriContainerEl.innerHTML = "";
 
                 if (hasil.length === 0) {
@@ -145,7 +172,7 @@
                     const card = document.createElement("div");
                     card.className = "bg-white rounded-lg shadow hover:shadow-lg transition p-4";
                     const placeholderImg = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
-                    
+
                     card.innerHTML = `
                         <img src="${item.gambar}" alt="${item.judul}" class="w-full h-56 object-contain cursor-pointer border rounded bg-gray-50 mb-4">
                         <h3 class="font-semibold text-lg text-blue-700 truncate">${item.judul}</h3>
@@ -168,8 +195,14 @@
             // Event Listener untuk elemen statis
             document.getElementById('logout-button').addEventListener('click', logout);
             document.getElementById('close-preview').addEventListener('click', tutupPreview);
-            previewOverlay.addEventListener('click', (e) => { if(e.target === previewOverlay) tutupPreview(); });
-            
+            previewOverlay.addEventListener('click', (e) => { if (e.target === previewOverlay) tutupPreview(); });
+            // --- Hamburger Toggle ---
+            const toggleBtn = document.getElementById("menu-toggle");
+            const navMenu = document.getElementById("nav-menu");
+            toggleBtn.addEventListener("click", () => {
+                navMenu.classList.toggle("hidden");
+            });
+
             // Cek status otentikasi pengguna
             onAuthStateChanged(auth, (user) => {
                 if (user) {
@@ -178,7 +211,7 @@
                         document.getElementById("welcomeUser").textContent = loggedInUser.name;
                         if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
                         if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
-                        
+
                         // Muat data utama halaman
                         tampilkanKategori();
                         tampilGambar();
@@ -194,4 +227,5 @@
         });
     </script>
 </body>
+
 </html>
