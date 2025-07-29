@@ -9,172 +9,259 @@
 </head>
 
 <body class="bg-sky-50 min-h-screen flex flex-col">
+
     <div id="toast-container" class="fixed top-5 right-5 z-[120] space-y-2"></div>
+
     <nav
-        class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md">
+        class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md sticky top-0 z-50">
         <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
         <div class="hidden md:flex items-center space-x-4">
             <a href="dashboard.html" class="hover:text-sky-200">Dashboard</a>
-            <a href="galeri.html" class="hover:text-sky-200">Galeri</a>
-            <a href="text.html" class="hover:text-sky-200">Teks</a>
-            <a href="upload.html" class="hover:text-sky-200">Upload</a>
             <a href="my.html" class="hover:text-sky-200">Konten Saya</a>
+            <a href="upload.html" class="hover:text-sky-200">Upload</a>
             <a id="adminLink" href="admin.html" class="px-3 py-1 bg-red-500 rounded-md text-white font-bold"
                 style="display: none;">Panel Admin</a>
         </div>
         <div class="flex items-center space-x-4">
-            <a href="profil.html" class="flex items-center space-x-3 group">
+            <a href="profil.html" class="flex items-center space-x-3 group border-b-2 border-white pb-1">
                 <img id="navbarProfilePicture" src="https://placehold.co/32x32/e2e8f0/718096?text=U" alt="Foto Profil"
-                    class="w-8 h-8 rounded-full object-cover border-2 border-sky-200 group-hover:border-white transition">
-                <span id="welcomeUser"
-                    class="font-semibold text-white group-hover:text-sky-200 transition">Pengguna</span>
+                    class="w-8 h-8 rounded-full object-cover border-2 border-white">
+                <span id="welcomeUser" class="font-semibold text-white">Pengguna</span>
             </a>
-            <button id="logoutButton"
+            <button id="logout-button"
                 class="px-3 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Logout</button>
         </div>
     </nav>
+
     <main class="flex-1 container mx-auto px-4 py-8">
         <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="md:col-span-1">
                 <div class="bg-white p-6 rounded-xl shadow-lg text-center">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">Foto Profil</h3>
-                    <img id="profilePicturePreview" src="https://placehold.co/128x128/e2e8f0/718096?text=Foto"
+                    <img id="profilePicturePreview" src="https://placehold.co/128x128/e2e8f0/718096?text=U"
                         alt="Foto Profil"
                         class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-white shadow-md">
                     <input type="file" id="profilePictureInput" class="hidden" accept="image/*">
-                    <button onclick="document.getElementById('profilePictureInput').click()"
+                    <button id="ubah-foto-btn"
                         class="w-full bg-sky-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-sky-600 transition duration-300 text-sm">Ubah
                         Foto</button>
+                    <p class="text-xs text-gray-500 mt-2">Pilih foto, lalu klik "Simpan Perubahan" di samping.</p>
                 </div>
             </div>
+
             <div class="md:col-span-2 space-y-8">
                 <div class="bg-white p-6 rounded-xl shadow-lg">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">Edit Detail Profil</h3>
-                    <form id="profileForm" class="space-y-4">
-                        <div><label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama</label><input
-                                type="text" id="nama"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required></div>
-                        <div><label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label><input
-                                type="email" id="email"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
-                                readonly></div>
+                    <form id="profile-details-form" class="space-y-4">
+                        <div>
+                            <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+                            <input type="text" id="nama" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                required>
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email (tidak bisa
+                                diubah)</label>
+                            <input type="email" id="email"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
+                                readonly>
+                        </div>
                         <button type="submit"
-                            class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600">Simpan
+                            class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 transition duration-300">Simpan
                             Perubahan</button>
                     </form>
                 </div>
+
                 <div class="bg-white p-6 rounded-xl shadow-lg">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">Ubah Kata Sandi</h3>
-                    <p class="text-sm text-gray-500">Untuk mengubah kata sandi, silakan gunakan opsi "Lupa Password"
-                        pada halaman login.</p>
+                    <form id="password-change-form" class="space-y-4">
+                        <div>
+                            <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-1">Kata Sandi
+                                Baru</label>
+                            <input type="password" id="newPassword"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                        </div>
+                        <div>
+                            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi
+                                Kata Sandi Baru</label>
+                            <input type="password" id="confirmPassword"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-red-500 text-white font-bold py-2 px-4 rounded-md hover:bg-red-600 transition duration-300">Ubah
+                            Kata Sandi</button>
+                    </form>
                 </div>
             </div>
         </div>
     </main>
+
     <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
         &copy; 2025 <a href="https://portfolio-chx.netlify.app/"
             class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
     </footer>
+
     <script type="module">
-        import { auth, db, storage } from './firebase-config.js';
-        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
 
-        let currentUser = null;
-        let userData = null;
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
+            authDomain: "rzf-academy-bd.firebaseapp.com",
+            databaseURL: "https://rzf-academy-bd-default-rtdb.firebaseio.com",
+            projectId: "rzf-academy-bd",
+            storageBucket: "rzf-academy-bd.appspot.com",
+            messagingSenderId: "875822158869",
+            appId: "1:875822158869:web:a88c284f1d031d9da3aa1c",
+        };
 
-        async function checkAuthState() {
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    currentUser = user;
-                    const userDocRef = doc(db, "users", user.uid);
-                    const userDocSnap = await getDoc(userDocRef);
-                    if (userDocSnap.exists()) {
-                        userData = userDocSnap.data();
-                        // Populate Navbar
-                        document.getElementById("welcomeUser").textContent = userData.name;
-                        const navbarPic = document.getElementById("navbarProfilePicture");
-                        if (navbarPic && userData.profilePicture) navbarPic.src = userData.profilePicture;
-                        const adminLink = document.getElementById('adminLink');
-                        if (adminLink && userData.role === 'admin') adminLink.style.display = 'inline-block';
-                        // Populate Profile Page
-                        loadProfile();
-                    } else { handleLogout(); }
-                } else { window.location.href = 'login.html'; }
-            });
-        }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
 
-        function loadProfile() {
-            document.getElementById('nama').value = userData.name;
-            document.getElementById('email').value = userData.email;
-            if (userData.profilePicture) {
-                document.getElementById('profilePicturePreview').src = userData.profilePicture;
-            }
-        }
+        let loggedInUser = null;
+        let selectedFile = null;
 
-        document.getElementById('profilePictureInput').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
+        const profilePicturePreview = document.getElementById('profilePicturePreview');
+        const profilePictureInput = document.getElementById('profilePictureInput');
+        const namaInput = document.getElementById('nama');
+        const emailInput = document.getElementById('email');
+
+        function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
+        const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
+
+        const loadProfileData = () => {
+            namaInput.value = loggedInUser.name;
+            emailInput.value = loggedInUser.email;
+            profilePicturePreview.src = loggedInUser.profilePicture || "https://placehold.co/128x128/e2e8f0/718096?text=U";
+        };
+
+        const previewImage = () => {
+            selectedFile = profilePictureInput.files[0];
+            if (selectedFile) {
                 const reader = new FileReader();
-                reader.onload = function (event) {
-                    document.getElementById('profilePicturePreview').src = event.target.result;
-                }
-                reader.readAsDataURL(file);
+                reader.onload = (e) => profilePicturePreview.src = e.target.result;
+                reader.readAsDataURL(selectedFile);
             }
-        });
+        };
 
-        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        const handleProfileUpdate = async (e) => {
             e.preventDefault();
-            const newName = document.getElementById('nama').value;
-            const profileFile = document.getElementById('profilePictureInput').files[0];
-            const userDocRef = doc(db, "users", currentUser.uid);
+            const user = auth.currentUser;
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            if (!user) return;
 
-            showToast("Memperbarui profil...", "info");
+            const newName = namaInput.value.trim();
+            const isNameChanged = newName !== loggedInUser.name;
+            const isFileSelected = selectedFile !== null;
+
+            if (!isNameChanged && !isFileSelected) {
+                return showToast("Tidak ada perubahan untuk disimpan.", 'info');
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Menyimpan...';
 
             try {
-                let newProfilePictureUrl = userData.profilePicture;
-                // Jika ada file gambar baru, upload dulu
-                if (profileFile) {
-                    const storageRef = ref(storage, `profile_pictures/${currentUser.uid}/${profileFile.name}`);
-                    const snapshot = await uploadBytes(storageRef, profileFile);
-                    newProfilePictureUrl = await getDownloadURL(snapshot.ref);
+                let newProfilePictureUrl = loggedInUser.profilePicture;
+                if (isFileSelected) {
+                    const formData = new FormData();
+                    formData.append('file', selectedFile);
+                    formData.append('upload_preset', 'rzf-unsigned');
+
+                    const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dvrbdmikf/image/upload';
+                    const response = await fetch(cloudinaryUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error('Upload ke Cloudinary gagal.');
+
+                    const data = await response.json();
+                    newProfilePictureUrl = data.secure_url;
                 }
 
-                // Update dokumen di Firestore
-                await updateDoc(userDocRef, {
-                    name: newName,
-                    profilePicture: newProfilePictureUrl
-                });
+                const dbUpdates = {};
+                const authUpdates = {};
+                if (isNameChanged) {
+                    dbUpdates[`users/${user.uid}/name`] = newName;
+                    authUpdates.displayName = newName;
+                }
+                if (newProfilePictureUrl !== loggedInUser.profilePicture) {
+                    dbUpdates[`users/${user.uid}/profilePicture`] = newProfilePictureUrl;
+                    authUpdates.photoURL = newProfilePictureUrl;
+                }
 
-                // (Opsional Lanjutan): Update data author di semua konten yang pernah dibuat user ini.
-                // Untuk saat ini, kita skip agar tidak memberatkan. Perubahan akan terlihat di konten baru.
+                await update(ref(db), dbUpdates);
+                if (Object.keys(authUpdates).length > 0) {
+                    await updateProfile(user, authUpdates);
+                }
 
+                loggedInUser.name = newName;
+                loggedInUser.profilePicture = newProfilePictureUrl;
+                localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
+
+                document.getElementById("welcomeUser").textContent = newName;
+                if (newProfilePictureUrl) document.getElementById("navbarProfilePicture").src = newProfilePictureUrl;
+                selectedFile = null;
                 showToast("Profil berhasil diperbarui!");
+
             } catch (error) {
-                console.error("Gagal update profil:", error);
-                showToast("Gagal memperbarui profil.", "error");
+                showToast("Gagal memperbarui profil: " + error.message, 'error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Simpan Perubahan';
             }
+        };
+
+        const handlePasswordChange = (e) => {
+            e.preventDefault();
+            const user = auth.currentUser;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword.length < 6) return showToast("Password baru minimal 6 karakter.", 'error');
+            if (newPassword !== confirmPassword) return showToast("Password baru tidak cocok.", 'error');
+
+            updatePassword(user, newPassword)
+                .then(() => {
+                    showToast("Password berhasil diubah!");
+                    e.target.reset();
+                })
+                .catch(error => {
+                    showToast("Gagal ubah password: " + error.message, 'error');
+                    if (error.code === 'auth/requires-recent-login') {
+                        showToast("Demi keamanan, silakan logout dan login kembali untuk mengubah password.", 'info');
+                    }
+                });
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('logout-button').addEventListener('click', logout);
+            document.getElementById('ubah-foto-btn').addEventListener('click', () => profilePictureInput.click());
+            profilePictureInput.addEventListener('change', previewImage);
+            document.getElementById('profile-details-form').addEventListener('submit', handleProfileUpdate);
+            document.getElementById('password-change-form').addEventListener('submit', handlePasswordChange);
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+                    if (loggedInUser && loggedInUser.id === user.uid) {
+                        document.getElementById("welcomeUser").textContent = loggedInUser.name;
+                        if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
+                        if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
+                        loadProfileData();
+                    } else {
+                        logout();
+                    }
+                } else {
+                    showToast("Silakan login terlebih dahulu.", "error");
+                    setTimeout(() => window.location.href = "login.html", 1500);
+                }
+            });
         });
-
-        // Fungsi ini harus ada di semua halaman yang punya tombol logout
-        async function handleLogout() {
-            try {
-                await signOut(auth); // Perintah logout ke Firebase
-                showToast("Anda telah berhasil logout.");
-                setTimeout(() => {
-                    window.location.href = "index.html";
-                }, 1500);
-            } catch (error) {
-                showToast("Gagal untuk logout.", "error");
-            }
-        }
-        document.getElementById('logoutButton').addEventListener('click', handleLogout);
-        function showToast(m, t = 'success') { const e = document.getElementById("toast-container"), o = document.createElement("div"), s = { success: "bg-green-500", error: "bg-red-500", info: "bg-blue-500" }; o.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg ${s[t] || s.info} animate-fade-in-right`; o.textContent = m; const n = document.createElement("style"); n.innerHTML = "@keyframes fade-in-right{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-fade-in-right{animation:fade-in-right .5s ease-out forwards}", document.head.appendChild(n); e.appendChild(o); setTimeout(() => o.remove(), 3e3) }
-
-        document.addEventListener('DOMContentLoaded', checkAuthState);
-        // Skrip untuk tombol logout
-        document.getElementById('logoutButton').addEventListener('click', handleLogout);
     </script>
 </body>
 

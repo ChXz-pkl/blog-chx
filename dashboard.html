@@ -1,192 +1,177 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard - RZF Academy</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard - RZF Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .kategori-badge {
+            background-color: #e0e7ff; color: #4338ca; padding: 4px 12px;
+            border-radius: 9999px; font-size: 0.875rem; transition: all 0.2s;
+            cursor: pointer; border: 1px solid #c7d2fe;
+        }
+        .kategori-badge:hover { background-color: #c7d2fe; }
+        .kategori-badge.active {
+            background-color: #4f46e5; color: white; font-weight: 600; border-color: #4f46e5;
+        }
+    </style>
 </head>
-
 <body class="bg-sky-50 min-h-screen flex flex-col">
 
-  <div id="toast-container" class="fixed top-5 right-5 z-[100] space-y-2"></div>
+    <div id="toast-container" class="fixed top-5 right-5 z-[120] space-y-2"></div>
 
-  <nav
-    class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md">
-    <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
-    <div class="hidden md:flex items-center space-x-4">
-      <a href="dashboard.html" class="hover:text-sky-200">Dashboard</a>
-      <a href="galeri.html" class="hover:text-sky-200">Galeri</a>
-      <a href="text.html" class="hover:text-sky-200">Teks</a>
-      <a href="upload.html" class="hover:text-sky-200">Upload</a>
-      <a href="my.html" class="hover:text-sky-200">Konten Saya</a>
-      <a id="adminLink" href="admin.html" class="px-3 py-1 bg-red-500 rounded-md text-white font-bold"
-        style="display: none;">Panel Admin</a>
-    </div>
-    <div class="flex items-center space-x-4">
-      <a href="profil.html" class="flex items-center space-x-3 group">
-        <img id="navbarProfilePicture" src="https://placehold.co/32x32/e2e8f0/718096?text=U" alt="Foto Profil"
-          class="w-8 h-8 rounded-full object-cover border-2 border-sky-200 group-hover:border-white transition">
-        <span id="welcomeUser" class="font-semibold text-white group-hover:text-sky-200 transition">Pengguna</span>
-      </a>
-      <button id="logoutButton"
-        class="px-3 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Logout</button>
-    </div>
-  </nav>
+    <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md sticky top-0 z-50">
+        <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
+        <div class="hidden md:flex items-center space-x-4">
+            <a href="dashboard.html" class="font-bold">Dashboard</a>
+            <a href="galeri.html" class="hover:text-sky-200">Galeri</a>
+            <a href="text.html" class="hover:text-sky-200">Teks</a>
+            <a href="my.html" class="hover:text-sky-200">Konten Saya</a>
+            <a href="upload.html" class="hover:text-sky-200">Upload</a>
+            <a id="adminLink" href="admin.html" class="px-3 py-1 bg-red-500 rounded-md text-white font-bold" style="display: none;">Panel Admin</a>
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="profil.html" class="flex items-center space-x-3 group">
+                <img id="navbarProfilePicture" src="https://placehold.co/32x32/e2e8f0/718096?text=U" alt="Foto Profil" class="w-8 h-8 rounded-full object-cover border-2 border-sky-200 group-hover:border-white transition">
+                <span id="welcomeUser" class="font-semibold text-white group-hover:text-sky-200 transition">Pengguna</span>
+            </a>
+            <button id="logout-button" class="px-3 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Logout</button>
+        </div>
+    </nav>
 
-  <main class="flex-1 container mx-auto px-4 py-6">
-    <div class="text-center mb-6">
-      <h2 class="text-3xl font-bold text-blue-600">Feed Terbaru</h2>
-      <p class="text-gray-600">Lihat karya-karya terbaru dari semua kreator.</p>
-    </div>
-    <div id="kategoriBadges" class="flex flex-wrap justify-center gap-2 mb-8"></div>
-    <div id="feedKonten" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <p class="text-gray-500 col-span-full text-center">Memuat konten...</p>
-    </div>
-  </main>
+    <main class="flex-1 container mx-auto px-4 py-6">
+        <div class="text-center mb-6">
+            <h2 class="text-3xl font-bold text-blue-600">Feed Terbaru</h2>
+            <p class="text-gray-600">Lihat karya-karya terbaru dari semua kreator.</p>
+        </div>
+        <div id="kategoriBadges" class="flex flex-wrap justify-center gap-2 mb-8"></div>
+        <div id="feedKonten" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+    </main>
 
-  <div id="previewOverlay" class="fixed inset-0 bg-black bg-opacity-80 hidden justify-center items-center z-50"><span
-      onclick="tutupPreview()"
-      class="absolute top-5 right-6 text-white text-4xl cursor-pointer font-bold">&times;</span><img id="previewImage"
-      class="max-w-[90%] max-h-[90%] rounded shadow-2xl" /></div>
-  <div id="bacaModal" class="fixed inset-0 bg-black bg-opacity-70 hidden justify-center items-center z-50">
-    <div class="bg-white max-w-xl w-full mx-4 p-6 rounded-xl shadow-lg relative"><button onclick="tutupBaca()"
-        class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold">✖</button>
-      <h2 id="judulBaca" class="text-xl font-bold mb-2 text-blue-700"></h2>
-      <p id="isiBaca" class="text-gray-800 whitespace-pre-line leading-relaxed text-sm max-h-[60vh] overflow-y-auto">
-      </p>
-    </div>
-  </div>
+    <div id="previewOverlay" class="fixed inset-0 bg-black bg-opacity-80 hidden justify-center items-center z-50"><span id="close-preview" class="absolute top-5 right-6 text-white text-4xl cursor-pointer font-bold">&times;</span><img id="previewImage" class="max-w-[90%] max-h-[90%] rounded shadow-2xl" /></div>
+    <div id="bacaModal" class="fixed inset-0 bg-black bg-opacity-70 hidden justify-center items-center z-50"><div class="bg-white max-w-xl w-full mx-4 p-6 rounded-xl shadow-lg relative"><button id="close-baca" class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold">✖</button><h2 id="judulBaca" class="text-xl font-bold mb-2 text-blue-700"></h2><p id="isiBaca" class="text-gray-800 whitespace-pre-line leading-relaxed text-sm max-h-[60vh] overflow-y-auto"></p></div></div>
 
-  <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
-    &copy; 2025 <a href="https://portfolio-chx.netlify.app/" class="font-semibold text-black hover:underline">CHX</a> •
-    All rights reserved.
-  </footer>
+    <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
+        &copy; 2025 <a href="https://portfolio-chx.netlify.app/" class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
+    </footer>
 
-  <script type="module">
-    // MIGRASI KE FIREBASE: Menggunakan data dari Firestore dan Auth
-    import { auth, db } from './firebase-config.js';
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { collection, getDocs, doc, getDoc, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-    let semuaKonten = [];
+        // --- KONFIGURASI FIREBASE (LENGKAP) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
+            authDomain: "rzf-academy-bd.firebaseapp.com",
+            databaseURL: "https://rzf-academy-bd-default-rtdb.firebaseio.com",
+            projectId: "rzf-academy-bd",
+            storageBucket: "rzf-academy-bd.appspot.com",
+            messagingSenderId: "875822158869",
+            appId: "1:875822158869:web:a88c284f1d031d9da3aa1c",
+        };
 
-    async function checkAuthState() {
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          const userDocRef = doc(db, "users", user.uid);
-          const userDocSnap = await getDoc(userDocRef);
-          if (userDocSnap.exists()) {
-            const userData = userDocSnap.data();
-            document.getElementById("welcomeUser").textContent = userData.name;
-            const navbarPic = document.getElementById("navbarProfilePicture");
-            if (navbarPic && userData.profilePicture) {
-              navbarPic.src = userData.profilePicture;
-            }
-            const adminLink = document.getElementById('adminLink');
-            if (adminLink && userData.role === 'admin') {
-              adminLink.style.display = 'inline-block';
-            }
-            // Setelah login terverifikasi, muat data halaman
-            tampilkanKategori();
-            fetchKonten();
-          } else {
-            // Profil user tidak ditemukan di firestore
-            handleLogout();
-          }
-        } else {
-          window.location.href = 'login.html';
-        }
-      });
-    }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        
+        // --- Fungsi Utilitas & UI ---
+        function showToast(m,t='success'){const n=document.getElementById("toast-container"),e=document.createElement("div"),o={success:"bg-green-500",error:"bg-red-500",info:"bg-sky-500"};e.className=`w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`,e.textContent=m;const a=document.createElement("style");a.id="toast-animation-style",a.innerHTML="@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}",document.head.appendChild(a),n.appendChild(e),setTimeout(()=>e.remove(),3e3)}
+        const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(()=>window.location.href="index.html",1500); });
+        
+        const previewOverlay = document.getElementById("previewOverlay"), previewImage = document.getElementById("previewImage"), bacaModal = document.getElementById("bacaModal"), judulBaca = document.getElementById("judulBaca"), isiBaca = document.getElementById("isiBaca");
+        const tampilkanPreview = (src) => { previewImage.src = src; previewOverlay.style.display = "flex"; };
+        const tutupPreview = () => previewOverlay.style.display = "none";
+        const bukaBaca = (teks, judul) => { judulBaca.textContent = decodeURIComponent(judul); isiBaca.textContent = decodeURIComponent(teks); bacaModal.style.display = "flex"; };
+        const tutupBaca = () => bacaModal.style.display = "none";
 
-    async function fetchKonten() {
-      try {
-        const q = query(collection(db, "content"), orderBy("createdAt", "desc"), limit(20));
-        const querySnapshot = await getDocs(q);
-        semuaKonten = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        tampilkanFeed();
-      } catch (error) {
-        console.error("Error fetching content: ", error);
-      }
-    }
+        // --- Fungsi Utama Aplikasi ---
+        const tampilkanKategori = () => {
+            const kategoriRef = ref(db, 'kategoriList');
+            onValue(kategoriRef, (snapshot) => {
+                let badgeHTML = `<button class="kategori-badge active" data-kategori="semua">Semua</button>`;
+                if (snapshot.exists()) snapshot.val().forEach(kat => badgeHTML += `<button class="kategori-badge" data-kategori="${kat}">${kat.charAt(0).toUpperCase()+kat.slice(1)}</button>`);
+                document.getElementById('kategoriBadges').innerHTML = badgeHTML;
+                document.querySelectorAll('.kategori-badge').forEach(b => b.addEventListener('click', (e) => { document.querySelector('.kategori-badge.active').classList.remove('active'); e.currentTarget.classList.add('active'); tampilkanFeed(); }));
+            });
+        };
 
-    function tampilkanFeed() {
-      let hasil = semuaKonten;
-      const activeBadge = document.querySelector('#kategoriBadges .kategori-badge.active');
-      if (activeBadge && activeBadge.dataset.kategori !== 'semua') {
-        hasil = hasil.filter(k => k.category === activeBadge.dataset.kategori);
-      }
+        const tampilkanFeed = () => {
+            const filter = document.querySelector('#kategoriBadges .kategori-badge.active')?.dataset.kategori || 'semua';
+            const kontenRef = ref(db, 'konten');
+            const container = document.getElementById("feedKonten");
+            
+            onValue(kontenRef, (snapshot) => {
+                container.innerHTML = "<p class='col-span-full text-center text-gray-500'>Memuat...</p>";
+                const semuaKonten = [];
+                if (snapshot.exists()) snapshot.forEach(child => semuaKonten.push(child.val()));
+                
+                let hasil = filter === 'semua' ? semuaKonten : semuaKonten.filter(k => k.kategori === filter);
+                container.innerHTML = "";
+                if (hasil.length === 0) { container.innerHTML = "<p class='col-span-full text-gray-500 text-center'>Belum ada konten untuk kategori ini.</p>"; return; }
 
-      const container = document.getElementById("feedKonten");
-      container.innerHTML = "";
-      if (hasil.length === 0) {
-        container.innerHTML = "<p class='col-span-full text-gray-500 text-center'>Tidak ada konten ditemukan.</p>";
-        return;
-      }
-      const placeholderImg = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
-      hasil.forEach(item => {
-        const card = document.createElement("div");
-        if (item.type === 'image') {
-          card.className = "bg-white rounded-lg shadow hover:shadow-lg transition flex flex-col md:flex-row items-start gap-4 p-4";
-          card.innerHTML = `<img src="${item.imageUrl}" onclick="tampilkanPreview('${item.imageUrl}')" class="w-full md:w-32 h-32 object-contain cursor-pointer border rounded bg-gray-50" /><div class="flex-1"><h3 class="font-semibold text-lg text-blue-700">${item.title}</h3><div class="mt-3 pt-2 border-t flex flex-wrap items-center gap-x-4 gap-y-2"><span class="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full">${item.category}</span><div class="flex items-center gap-2"><img src="${item.author.profilePicture || placeholderImg}" alt="Author" class="w-6 h-6 rounded-full object-cover"><span class="text-gray-500 text-xs">Oleh: ${item.author.name}</span></div></div></div>`;
-        } else {
-          card.className = "bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col";
-          const preview = item.text.substring(0, 150);
-          card.innerHTML = `<div class="flex-1 flex flex-col"><h3 class="font-semibold text-lg text-blue-700">${item.title}</h3><p class="text-sm text-gray-600 mt-1">${preview}${item.text.length > 150 ? '...' : ''}</p>${item.text.length > 150 ? `<button onclick="bukaBaca('${encodeURIComponent(item.text)}', '${encodeURIComponent(item.title)}')" class="mt-2 text-blue-500 hover:underline text-sm font-semibold self-start">Baca Selengkapnya</button>` : ''}<div class="mt-auto pt-3 border-t flex flex-wrap items-center gap-x-4 gap-y-2"><span class="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full">${item.category}</span><div class="flex items-center gap-2"><img src="${item.author.profilePicture || placeholderImg}" alt="Author" class="w-6 h-6 rounded-full object-cover"><span class="text-gray-500 text-xs">Oleh: ${item.author.name}</span></div></div></div>`;
-        }
-        container.appendChild(card);
-      });
-    }
+                hasil.sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).forEach(item => {
+                    const card = document.createElement("div");
+                    const placeholder = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
+                    if (item.jenis === 'gambar') {
+                        card.className = "bg-white rounded-lg shadow hover:shadow-lg transition flex items-start gap-4 p-4";
+                        card.innerHTML = `<img src="${item.gambar}" class="w-32 h-32 object-contain cursor-pointer border rounded bg-gray-50" /><div class="flex-1"><h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3><div class="mt-3 pt-2 border-t flex items-center gap-2"><img src="${item.userProfilePicture||placeholder}" class="w-6 h-6 rounded-full object-cover"><span class="text-gray-500 text-xs">Oleh: ${item.userName}</span></div></div>`;
+                        card.querySelector('img').addEventListener('click', () => tampilkanPreview(item.gambar));
+                    } else {
+                        card.className = "bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col";
+                        const preview = item.teks.substring(0, 120);
+                        card.innerHTML = `<div class="flex-1 flex flex-col"><h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3><p class="text-sm text-gray-600 mt-1">${preview}${item.teks.length > 120 ? '...' : ''}</p>${item.teks.length > 120 ? `<button class="baca-btn mt-2 text-blue-500 hover:underline text-sm font-semibold self-start">Baca Selengkapnya</button>` : ''}<div class="mt-auto pt-3 border-t flex items-center gap-2"><img src="${item.userProfilePicture||placeholder}" class="w-6 h-6 rounded-full object-cover"><span class="text-gray-500 text-xs">Oleh: ${item.userName}</span></div></div>`;
+                        const btn = card.querySelector('.baca-btn');
+                        if(btn) btn.addEventListener('click', () => bukaBaca(encodeURIComponent(item.teks), encodeURIComponent(item.judul)));
+                    }
+                    container.appendChild(card);
+                });
+            });
+        };
 
-    async function tampilkanKategori() {
-      const container = document.getElementById("kategoriBadges");
-      container.innerHTML = `<button class="kategori-badge active" data-kategori="semua">Semua</button>`;
-      const querySnapshot = await getDocs(collection(db, "categories"));
-      querySnapshot.forEach((doc) => {
-        const kat = doc.data().name;
-        const badge = document.createElement("button");
-        badge.className = "kategori-badge"; badge.dataset.kategori = kat;
-        badge.textContent = kat.charAt(0).toUpperCase() + kat.slice(1);
-        container.appendChild(badge);
-      });
-      document.querySelectorAll('.kategori-badge').forEach(badge => {
-        badge.addEventListener('click', function () {
-          document.querySelectorAll('.kategori-badge').forEach(b => b.classList.remove('active'));
-          this.classList.add('active');
-          tampilkanFeed();
+        // --- TITIK MASUK UTAMA HALAMAN (LOGIKA BARU YANG LEBIH BAIK) ---
+        document.addEventListener("DOMContentLoaded", () => {
+            // Event listener untuk elemen statis
+            document.getElementById('logout-button').addEventListener('click', logout);
+            document.getElementById('close-preview').addEventListener('click', tutupPreview);
+            document.getElementById('close-baca').addEventListener('click', tutupBaca);
+            previewOverlay.addEventListener('click', (e) => { if(e.target === previewOverlay) tutupPreview(); });
+            bacaModal.addEventListener('click', (e) => { if(e.target === bacaModal) tutupBaca(); });
+            
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // 1. Pengguna terautentikasi oleh Firebase.
+                    const userRef = ref(db, 'users/' + user.uid);
+                    
+                    // 2. Ambil profil lengkap dari Realtime Database.
+                    onValue(userRef, (snapshot) => {
+                        if (snapshot.exists()) {
+                            const userProfile = snapshot.val();
+                            // 3. Simpan profil ke localStorage agar halaman lain bisa pakai.
+                            localStorage.setItem('loggedInUser', JSON.stringify(userProfile));
+
+                            // 4. Update UI Navbar.
+                            document.getElementById("welcomeUser").textContent = userProfile.name;
+                            if (userProfile.profilePicture) document.getElementById("navbarProfilePicture").src = userProfile.profilePicture;
+                            if (userProfile.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
+                            
+                            // 5. Setelah semua data siap, baru muat konten halaman.
+                            tampilkanKategori();
+                            tampilkanFeed();
+                        } else {
+                            // Kasus aneh: User ada di Auth tapi tidak di DB. Logout paksa.
+                            showToast("Data profil Anda tidak ditemukan.", "error");
+                            logout();
+                        }
+                    }, { onlyOnce: true }); // Cukup ambil data sekali saat halaman dimuat
+                } else {
+                    // Jika tidak ada sesi aktif di Firebase, arahkan ke login.
+                    showToast("Silakan login terlebih dahulu.", "error");
+                    setTimeout(() => window.location.href = "login.html", 1500);
+                }
+            });
         });
-      });
-      const style = document.createElement('style');
-      style.innerHTML = `.kategori-badge { background-color: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 9999px; font-size: 0.875rem; transition: background-color 0.2s; cursor:pointer; border:none; } .kategori-badge:hover { background-color: #c7d2fe; } .kategori-badge.active { background-color: #4f46e5; color: white; font-weight: 600; }`;
-      document.head.appendChild(style);
-    }
-
-    // Fungsi ini harus ada di semua halaman yang punya tombol logout
-    async function handleLogout() {
-      try {
-        await signOut(auth); // Perintah logout ke Firebase
-        showToast("Anda telah berhasil logout.");
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 1500);
-      } catch (error) {
-        showToast("Gagal untuk logout.", "error");
-      }
-    }
-
-    document.getElementById('logoutButton').addEventListener('click', handleLogout);
-    window.tampilkanPreview = (src) => { document.getElementById("previewImage").src = src; document.getElementById("previewOverlay").style.display = "flex"; }
-    window.tutupPreview = () => { document.getElementById("previewOverlay").style.display = "none"; }
-    window.bukaBaca = (teks, judul) => { document.getElementById("judulBaca").textContent = decodeURIComponent(judul); document.getElementById("isiBaca").textContent = decodeURIComponent(teks); document.getElementById("bacaModal").style.display = "flex"; }
-    window.tutupBaca = () => { document.getElementById("bacaModal").style.display = "none"; }
-    function showToast(m, t = 'success') { const e = document.getElementById("toast-container"), o = document.createElement("div"), s = { success: "bg-green-500", error: "bg-red-500" }; o.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg ${s[t]}`; o.textContent = m; const n = document.createElement("style"); n.innerHTML = "@keyframes fade-in-right{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-fade-in-right{animation:fade-in-right .5s ease-out forwards}"; document.head.appendChild(n); e.appendChild(o); setTimeout(() => o.remove(), 3e3) }
-
-    document.addEventListener('DOMContentLoaded', checkAuthState);
-    // Skrip untuk tombol logout
-    document.getElementById('logoutButton').addEventListener('click', handleLogout);
-  </script>
+    </script>
 </body>
-
 </html>

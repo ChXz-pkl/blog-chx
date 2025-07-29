@@ -9,16 +9,29 @@
 </head>
 
 <body class="bg-sky-50 min-h-screen flex flex-col">
+
     <div id="toast-container" class="fixed top-5 right-5 z-[120] space-y-2"></div>
+
+    <div id="upload-progress-overlay"
+        class="fixed inset-0 bg-black bg-opacity-70 hidden justify-center items-center z-[130]">
+        <div class="bg-white p-6 rounded-lg text-center shadow-xl">
+            <p id="progress-text" class="font-semibold text-lg text-gray-800">Mengunggah...</p>
+            <div class="w-64 bg-gray-200 rounded-full h-2.5 mt-2">
+                <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                    style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
     <nav
-        class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md">
+        class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md sticky top-0 z-50">
         <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
         <div class="hidden md:flex items-center space-x-4">
             <a href="dashboard.html" class="hover:text-sky-200">Dashboard</a>
             <a href="galeri.html" class="hover:text-sky-200">Galeri</a>
             <a href="text.html" class="hover:text-sky-200">Teks</a>
-            <a href="upload.html" class="hover:text-sky-200">Upload</a>
             <a href="my.html" class="hover:text-sky-200">Konten Saya</a>
+            <a href="upload.html" class="font-bold">Upload</a>
             <a id="adminLink" href="admin.html" class="px-3 py-1 bg-red-500 rounded-md text-white font-bold"
                 style="display: none;">Panel Admin</a>
         </div>
@@ -29,14 +42,15 @@
                 <span id="welcomeUser"
                     class="font-semibold text-white group-hover:text-sky-200 transition">Pengguna</span>
             </a>
-            <button id="logoutButton"
+            <button id="logout-button"
                 class="px-3 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Logout</button>
         </div>
     </nav>
+
     <main class="flex-1 container mx-auto px-4 py-10 flex justify-center items-center">
         <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-lg">
             <h2 class="text-2xl font-bold text-blue-600 text-center mb-6">Unggah Karya Anda</h2>
-            <form id="uploadForm" class="space-y-4">
+            <form id="upload-form" class="space-y-4">
                 <div><label for="judul" class="block text-sm font-medium text-gray-700 mb-1">Judul Konten</label><input
                         type="text" id="judul" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
                 </div>
@@ -44,141 +58,185 @@
                         id="kategori" class="w-full px-3 py-2 border border-gray-300 rounded-md" required></select>
                 </div>
                 <div><label for="jenis" class="block text-sm font-medium text-gray-700 mb-1">Jenis Konten</label><select
-                        id="jenis" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        id="jenis" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
                         <option value="">-- Pilih Jenis --</option>
-                        <option value="image">Gambar</option>
-                        <option value="text">Teks</option>
+                        <option value="gambar">Gambar</option>
+                        <option value="teks">Teks</option>
                     </select></div>
                 <div id="fieldGambar" style="display: none;"><label for="gambar"
                         class="block text-sm font-medium text-gray-700 mb-1">Pilih Gambar</label><input type="file"
                         id="gambar"
-                        class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"
+                        class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"
                         accept=".jpg,.jpeg,.png,.gif" /></div>
                 <div id="fieldTeks" style="display: none;"><label for="teks"
                         class="block text-sm font-medium text-gray-700 mb-1">Isi Teks</label><textarea id="teks"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="5"></textarea></div>
-                <button type="submit"
-                    class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600">Upload</button>
+                <button type="submit" id="submit-button"
+                    class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 transition duration-300">Upload</button>
             </form>
         </div>
     </main>
+
     <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
         &copy; 2025 <a href="https://portfolio-chx.netlify.app/"
             class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
     </footer>
+
     <script type="module">
-        import { auth, db, storage } from './firebase-config.js';
-        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { doc, getDoc, collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
 
-        let currentUser = null;
-        let userData = null;
+        // --- KONFIGURASI FIREBASE (LENGKAP) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
+            authDomain: "rzf-academy-bd.firebaseapp.com",
+            databaseURL: "https://rzf-academy-bd-default-rtdb.firebaseio.com",
+            projectId: "rzf-academy-bd",
+            storageBucket: "rzf-academy-bd.appspot.com",
+            messagingSenderId: "875822158869",
+            appId: "1:875822158869:web:a88c284f1d031d9da3aa1c",
+        };
 
-        async function checkAuthState() { /* ... (fungsi checkAuthState sama seperti di profil.html) ... */ }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
+        let loggedInUser = null;
 
-        document.getElementById('jenis').addEventListener('change', (e) => {
-            const jenis = e.target.value;
-            document.getElementById("fieldGambar").style.display = jenis === "image" ? "block" : "none";
-            document.getElementById("fieldTeks").style.display = jenis === "text" ? "block" : "none";
-            document.getElementById("gambar").required = jenis === "image";
-            document.getElementById("teks").required = jenis === "text";
-        });
+        // --- Fungsi Utilitas & UI ---
+        function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
+        const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
 
-        async function isiDropdownKategori() {
-            const select = document.getElementById("kategori");
-            select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
-            const querySnapshot = await getDocs(collection(db, "categories"));
-            querySnapshot.forEach(doc => {
-                const kat = doc.data().name;
-                const opt = document.createElement("option");
-                opt.value = kat;
-                opt.textContent = kat.charAt(0).toUpperCase() + kat.slice(1);
-                select.appendChild(opt);
-            });
-        }
+        const toggleField = () => {
+            const jenis = document.getElementById("jenis").value;
+            document.getElementById("fieldGambar").style.display = jenis === "gambar" ? "block" : "none";
+            document.getElementById("fieldTeks").style.display = jenis === "teks" ? "block" : "none";
+            document.getElementById("gambar").required = jenis === "gambar";
+            document.getElementById("teks").required = jenis === "teks";
+        };
 
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitButton = e.target.querySelector('button[type="submit"]');
+        const isiDropdownKategori = () => {
+            const dropdown = document.getElementById('kategori');
+            const kategoriRef = ref(db, 'kategoriList');
+            onValue(kategoriRef, (snapshot) => {
+                dropdown.innerHTML = '<option value="">-- Pilih Kategori --</option>';
+                if (snapshot.exists()) {
+                    snapshot.val().forEach(kat => {
+                        const option = document.createElement('option');
+                        option.value = kat;
+                        option.textContent = kat.charAt(0).toUpperCase() + kat.slice(1);
+                        dropdown.appendChild(option);
+                    });
+                }
+            }, { onlyOnce: true });
+        };
+
+        // --- Fungsi Utama untuk Unggah Konten ---
+        const handleUpload = async (event) => {
+            event.preventDefault();
+            const submitButton = document.getElementById('submit-button');
             submitButton.disabled = true;
             submitButton.textContent = "Mengunggah...";
 
+            const kontenRef = ref(db, 'konten');
+            const newKontenRef = push(kontenRef);
+            const newKey = newKontenRef.key;
+
             const kontenData = {
-                title: document.getElementById("judul").value.trim(),
-                category: document.getElementById("kategori").value,
-                type: document.getElementById("jenis").value,
-                createdAt: serverTimestamp(),
-                author: {
-                    uid: currentUser.uid,
-                    name: userData.name,
-                    profilePicture: userData.profilePicture
-                }
+                id: newKey,
+                userId: loggedInUser.id,
+                userName: loggedInUser.name,
+                userProfilePicture: loggedInUser.profilePicture || null,
+                judul: document.getElementById("judul").value.trim(),
+                kategori: document.getElementById("kategori").value,
+                jenis: document.getElementById("jenis").value,
+                waktu: new Date().toISOString()
             };
 
-            try {
-                if (kontenData.type === "image") {
-                    const file = document.getElementById("gambar").files[0];
-                    if (!file) throw new Error("File gambar belum dipilih.");
-
-                    const storageRef = ref(storage, `content_images/${currentUser.uid}/${Date.now()}_${file.name}`);
-                    const snapshot = await uploadBytes(storageRef, file);
-                    kontenData.imageUrl = await getDownloadURL(snapshot.ref);
-                    kontenData.text = null;
-
-                } else if (kontenData.type === "text") {
-                    kontenData.text = document.getElementById("teks").value.trim();
-                    if (!kontenData.text) throw new Error("Teks tidak boleh kosong.");
-                    kontenData.imageUrl = null;
+            if (kontenData.jenis === "gambar") {
+                const file = document.getElementById("gambar").files[0];
+                if (!file) {
+                    showToast("Pilih file gambar dahulu.", "error");
+                    submitButton.disabled = false;
+                    submitButton.textContent = "Upload";
+                    return;
                 }
 
-                await addDoc(collection(db, "content"), kontenData);
-                showToast("Konten berhasil diunggah!");
-                setTimeout(() => window.location.href = "my.html", 1000);
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', 'rzf-unsigned');
 
-            } catch (error) {
-                console.error("Gagal mengunggah:", error);
-                showToast(error.message || "Gagal mengunggah konten.", "error");
-            } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = "Upload";
+                const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dvrbdmikf/image/upload';
+
+                document.getElementById('upload-progress-overlay').style.display = 'flex';
+                document.getElementById('progress-bar').style.width = '10%';
+                document.getElementById('progress-text').textContent = 'Mengunggah ke Cloudinary...';
+
+                try {
+                    const response = await fetch(cloudinaryUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error('Upload ke Cloudinary gagal.');
+
+                    const data = await response.json();
+                    kontenData.gambar = data.secure_url;
+
+                    await set(newKontenRef, kontenData);
+                    document.getElementById('progress-bar').style.width = '100%';
+                    showToast("Konten gambar berhasil diunggah!");
+                    setTimeout(() => window.location.href = "my.html", 1000);
+                } catch (error) {
+                    showToast("Gagal: " + error.message, "error");
+                    submitButton.disabled = false;
+                    submitButton.textContent = "Upload";
+                } finally {
+                    document.getElementById('upload-progress-overlay').style.display = 'none';
+                }
+
+            } else if (kontenData.jenis === "teks") {
+                kontenData.teks = document.getElementById("teks").value.trim();
+                set(newKontenRef, kontenData).then(() => {
+                    showToast("Konten teks berhasil diunggah!");
+                    setTimeout(() => window.location.href = "my.html", 1000);
+                }).catch(err => {
+                    showToast("Gagal: " + err.message, "error");
+                    submitButton.disabled = false;
+                    submitButton.textContent = "Upload";
+                });
             }
-        });
+        };
 
-        // Fungsi ini harus ada di semua halaman yang punya tombol logout
-        async function handleLogout() {
-            try {
-                await signOut(auth); // Perintah logout ke Firebase
-                showToast("Anda telah berhasil logout.");
-                setTimeout(() => {
-                    window.location.href = "index.html";
-                }, 1500);
-            } catch (error) {
-                showToast("Gagal untuk logout.", "error");
-            }
-        }
-        document.getElementById('logoutButton').addEventListener('click', handleLogout);
-        function showToast(m, t = 'success') { const e = document.getElementById("toast-container"), o = document.createElement("div"), s = { success: "bg-green-500", error: "bg-red-500", info: "bg-blue-500" }; o.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg ${s[t] || s.info} animate-fade-in-right`; o.textContent = m; const n = document.createElement("style"); n.innerHTML = "@keyframes fade-in-right{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-fade-in-right{animation:fade-in-right .5s ease-out forwards}", document.head.appendChild(n); e.appendChild(o); setTimeout(() => o.remove(), 3e3) }
+        // --- Titik Masuk Utama Saat Halaman Dimuat ---
+        document.addEventListener("DOMContentLoaded", () => {
+            // Event Listener
+            document.getElementById('logout-button').addEventListener('click', logout);
+            document.getElementById('upload-form').addEventListener('submit', handleUpload);
+            document.getElementById('jenis').addEventListener('change', toggleField);
 
-        // Salin fungsi checkAuthState yang lengkap dari profil.html ke sini untuk kelengkapan
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                const userDocSnap = await getDoc(doc(db, "users", user.uid));
-                if (userDocSnap.exists()) {
-                    userData = userDocSnap.data();
-                    document.getElementById("welcomeUser").textContent = userData.name;
-                    const navbarPic = document.getElementById("navbarProfilePicture");
-                    if (navbarPic && userData.profilePicture) navbarPic.src = userData.profilePicture;
-                    const adminLink = document.getElementById('adminLink');
-                    if (adminLink && userData.role === 'admin') adminLink.style.display = 'inline-block';
-                    // Muat data halaman setelah login terverifikasi
-                    isiDropdownKategori();
-                } else { handleLogout(); }
-            } else { window.location.href = 'login.html'; }
+            // Cek status otentikasi
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+                    if (loggedInUser && loggedInUser.id === user.uid) {
+                        document.getElementById("welcomeUser").textContent = loggedInUser.name;
+                        if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
+                        if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
+
+                        isiDropdownKategori();
+                        toggleField();
+                    } else {
+                        logout();
+                    }
+                } else {
+                    showToast("Silakan login terlebih dahulu.", "error");
+                    setTimeout(() => window.location.href = "login.html", 1500);
+                }
+            });
         });
-        // Skrip untuk tombol logout
-        document.getElementById('logoutButton').addEventListener('click', handleLogout);
     </script>
 </body>
 
