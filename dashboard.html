@@ -121,6 +121,9 @@
         const navbarProfilePicture = document.getElementById("navbarProfilePicture");
         const welcomeUser = document.getElementById("welcomeUser");
         const adminLink = document.getElementById("adminLink");
+        const previewOverlay = document.getElementById("previewOverlay");
+        const previewImage = document.getElementById("previewImage");
+        const closePreviewBtn = document.getElementById("close-preview");
 
         // --- Utilitas ---
         const showToast = (message, type = 'success') => {
@@ -130,6 +133,13 @@
             toast.textContent = message;
             toastContainer.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
+        };
+        const openPreview = (src) => {
+            previewImage.src = src;
+            previewOverlay.style.display = 'flex';
+        };
+        const closePreview = () => {
+            previewOverlay.style.display = 'none';
         };
 
         // --- Render Konten ---
@@ -167,6 +177,10 @@
                             </div>
                         </div>
                     `;
+                    card.addEventListener('click', () => {
+                        openPreview(item.gambar);
+                    });
+
                 } else if (item.jenis === 'teks') {
                     const fullText = item.teks || "";
                     const preview = fullText.slice(0, 200).replace(/\n/g, "<br>");
@@ -242,6 +256,14 @@
             });
 
             logoutBtn.addEventListener("click", logout);
+
+            closePreviewBtn.addEventListener('click', closePreview);
+            previewOverlay.addEventListener('click', (e) => {
+                // Hanya tutup jika yang diklik adalah latar belakang gelapnya, bukan gambarnya
+                if (e.target === previewOverlay) {
+                    closePreview();
+                }
+            });
 
             onAuthStateChanged(auth, (user) => {
                 if (user) {
