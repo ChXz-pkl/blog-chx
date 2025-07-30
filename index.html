@@ -15,14 +15,26 @@
 
         @keyframes blink {
             from, to { color: transparent }
-            50% { color: #2563eb; } /* Warna kursor */
+            50% { color: #2563eb; }
+        }
+
+        /* [BARU] CSS untuk animasi saat scroll */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .animate-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
 
 <body class="bg-sky-50 min-h-screen flex flex-col">
 
-    <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md sticky top-0 z-10">
+    <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md sticky top-0 z-20">
         <h1 class="text-xl font-bold">RZF Academy</h1>
         <div class="space-x-2">
             <a href="login.html"
@@ -33,18 +45,18 @@
 
     <main class="flex-1 container mx-auto px-4 py-8">
         
-        <section class="text-center mb-16">
+        <section class="text-center mb-20">
             <h2 class="text-3xl md:text-5xl font-bold text-blue-600 h-24 md:h-16 flex items-center justify-center">
                 <span id="typing-text"></span><span class="blinking-cursor">|</span>
             </h2>
             <p class="text-gray-600 mt-2 text-lg max-w-2xl mx-auto">Platform untuk berbagi dan menemukan inspirasi tanpa batas melalui karya visual dan tulisan.</p>
         </section>
 
-        <section class="mb-16">
-            <h3 class="text-2xl font-bold text-center text-gray-800 mb-8">Apa yang Bisa Anda Lakukan?</h3>
+        <section class="mb-20">
+            <h3 class="text-2xl font-bold text-center text-gray-800 mb-10 animate-on-scroll">Apa yang Bisa Anda Lakukan?</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                 
-                <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition">
+                <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition animate-on-scroll">
                     <div class="text-blue-500 mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
                     </div>
@@ -52,7 +64,7 @@
                     <p class="text-gray-600 text-sm">Bagikan ide, gambar, atau tulisan Anda dengan mudah dan cepat kepada dunia.</p>
                 </div>
 
-                <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition">
+                <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition animate-on-scroll" style="transition-delay: 150ms;">
                     <div class="text-blue-500 mb-4">
                          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
                     </div>
@@ -60,7 +72,7 @@
                     <p class="text-gray-600 text-sm">Jelajahi feed berisi ribuan karya dari para kreator lain untuk memicu ide baru Anda.</p>
                 </div>
 
-                <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition">
+                <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition animate-on-scroll" style="transition-delay: 300ms;">
                     <div class="text-blue-500 mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                     </div>
@@ -71,14 +83,42 @@
             </div>
         </section>
 
-        <section class="text-center bg-white py-12 rounded-lg shadow-md">
-            <h3 class="text-2xl font-bold text-gray-800">Siap Untuk Memulai?</h3>
-            <p class="text-gray-600 mt-2 mb-6">Bergabunglah dengan ribuan kreator lainnya hari ini. Gratis!</p>
-            <a href="registrasi.html" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold text-lg transition shadow-lg hover:shadow-none">
-                Daftar Sekarang
-            </a>
+        <section class="mb-16">
+            <h3 class="text-2xl font-bold text-center text-gray-800 mb-10 animate-on-scroll">Kata Mereka Tentang RZF Academy</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-lg animate-on-scroll">
+                    <p class="text-gray-600 italic">"Platform ini benar-benar mengubah cara saya melihat karya. Sangat mudah untuk menemukan inspirasi setiap hari!"</p>
+                    <div class="flex items-center mt-4">
+                        <img src="https://i.pravatar.cc/40?u=citra" alt="Citra" class="w-10 h-10 rounded-full mr-4">
+                        <div>
+                            <p class="font-semibold">Citra Lestari</p>
+                            <p class="text-sm text-gray-500">Desainer Grafis</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg animate-on-scroll" style="transition-delay: 150ms;">
+                    <p class="text-gray-600 italic">"Sebagai seorang penulis, saya suka betapa sederhananya antarmuka untuk berbagi tulisan. Komunitasnya juga sangat positif."</p>
+                    <div class="flex items-center mt-4">
+                        <img src="https://i.pravatar.cc/40?u=budi" alt="Budi" class="w-10 h-10 rounded-full mr-4">
+                        <div>
+                            <p class="font-semibold">Budi Sanjaya</p>
+                            <p class="text-sm text-gray-500">Penulis Konten</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
+        <section class="text-center py-20 rounded-lg bg-cover bg-center relative overflow-hidden animate-on-scroll" style="background-image: url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1470');">
+            <div class="absolute inset-0 bg-blue-800 opacity-70"></div>
+            <div class="relative z-10">
+                <h3 class="text-3xl font-bold text-white">Siap Untuk Memulai?</h3>
+                <p class="text-blue-200 mt-2 mb-6">Bergabunglah dengan ribuan kreator lainnya hari ini. Gratis!</p>
+                <a href="registrasi.html" class="px-8 py-3 bg-white text-blue-600 rounded-lg hover:bg-blue-100 font-bold text-lg transition shadow-lg hover:shadow-none">
+                    Daftar Sekarang
+                </a>
+            </div>
+        </section>
     </main>
 
     <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
@@ -87,46 +127,50 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- Bagian Efek Mengetik (tidak berubah) ---
             const typingTextElement = document.getElementById('typing-text');
-            // Anda bisa mengubah teks ini sesuai keinginan
-            const textsToType = [
-                "Selamat Datang di RZF Academy",
-                "Tempat Berbagi Inspirasi",
-                "Wadah Para Kreator Hebat"
-            ];
-            let textIndex = 0;
-            let charIndex = 0;
-            let isDeleting = false;
-
-            function typeEffect() {
-                const currentText = textsToType[textIndex];
-                if (isDeleting) {
-                    typingTextElement.textContent = currentText.substring(0, charIndex - 1);
-                    charIndex--;
-                } else {
-                    typingTextElement.textContent = currentText.substring(0, charIndex + 1);
-                    charIndex++;
-                }
-
-                if (!isDeleting && charIndex === currentText.length) {
-                    isDeleting = true;
-                    setTimeout(typeEffect, 2000);
-                    return;
-                } else if (isDeleting && charIndex === 0) {
-                    isDeleting = false;
-                    textIndex = (textIndex + 1) % textsToType.length;
-                    setTimeout(typeEffect, 500);
-                    return;
-                }
-
-                const typingSpeed = isDeleting ? 75 : 150;
-                setTimeout(typeEffect, typingSpeed);
-            }
-            
-            // Panggil fungsi saat halaman dimuat
             if (typingTextElement) {
+                const textsToType = ["Selamat Datang di RZF Academy", "Tempat Berbagi Inspirasi", "Wadah Para Kreator Hebat"];
+                let textIndex = 0, charIndex = 0, isDeleting = false;
+                function typeEffect() {
+                    const currentText = textsToType[textIndex];
+                    if (isDeleting) {
+                        typingTextElement.textContent = currentText.substring(0, charIndex - 1);
+                        charIndex--;
+                    } else {
+                        typingTextElement.textContent = currentText.substring(0, charIndex + 1);
+                        charIndex++;
+                    }
+                    if (!isDeleting && charIndex === currentText.length) {
+                        isDeleting = true;
+                        setTimeout(typeEffect, 2000);
+                        return;
+                    } else if (isDeleting && charIndex === 0) {
+                        isDeleting = false;
+                        textIndex = (textIndex + 1) % textsToType.length;
+                        setTimeout(typeEffect, 500);
+                        return;
+                    }
+                    setTimeout(typeEffect, isDeleting ? 75 : 150);
+                }
                 typeEffect();
             }
+
+            // --- [BARU] Logika untuk Animasi Saat Scroll ---
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, {
+                rootMargin: '0px',
+                threshold: 0.1 // Elemen dianggap terlihat jika 10% areanya masuk layar
+            });
+
+            // Ambil semua elemen yang ingin dianimasikan
+            const elementsToAnimate = document.querySelectorAll('.animate-on-scroll');
+            elementsToAnimate.forEach(el => observer.observe(el));
         });
     </script>
 </body>
