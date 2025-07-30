@@ -137,10 +137,12 @@
         const tampilkanPreview = (url) => {
             previewImage.src = url;
             previewOverlay.style.display = "flex";
+            document.body.style.overflow = 'hidden'; 
         };
 
         const tutupPreview = () => {
             previewOverlay.style.display = "none";
+            document.body.style.overflow = '';
         };
 
         // --- Tampilkan Kategori + Event Filter ---

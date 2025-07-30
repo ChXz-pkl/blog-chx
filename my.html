@@ -57,7 +57,7 @@
         </div>
     </main>
 
-    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-60 hidden justify-center items-center z-[110]">
+    <div id="editModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg mx-4">
             <form id="edit-form">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Edit Konten</h3>
@@ -84,7 +84,7 @@
         </div>
     </div>
 
-    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-[110]">
+    <div id="confirmModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-4 text-center">
             <h3 class="text-lg font-bold text-gray-900 mb-2">Konfirmasi Hapus</h3>
             <p id="confirmModalMessage" class="text-sm text-gray-600 mb-6">Apakah Anda yakin ingin menghapus konten ini
@@ -104,11 +104,11 @@
         <img id="previewImage" class="max-w-[90%] max-h-[90%] rounded shadow-2xl" />
     </div>
 
-    <div id="bacaModal" class="fixed inset-0 bg-black bg-opacity-70 hidden justify-center items-center z-[120]">
-        <div class="bg-white max-w-xl w-full mx-4 p-6 rounded-xl shadow-lg relative">
+    <div id="bacaModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
+        <div class="bg-white max-w-xl w-full mx-4 p-6 rounded-xl shadow-lg relative ">
             <button id="close-baca"
                 class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold">✖</button>
-            <h2 id="judulBaca" class="text-xl font-bold mb-2 text-blue-700"></h2>
+            <h2 id="judulBaca" class="text-xl font-bold mb-2 text-blue-700 md:text-center"></h2>
             <p id="isiBaca"
                 class="text-gray-800 whitespace-pre-line leading-relaxed text-sm max-h-[60vh] overflow-y-auto break-words">
             </p>
@@ -121,148 +121,172 @@
     </footer>
 
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-    import { getDatabase, ref, query, orderByChild, equalTo, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-    import { getStorage, ref as storageRef, deleteObject } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getDatabase, ref, query, orderByChild, equalTo, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+        import { getStorage, ref as storageRef, deleteObject } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
 
-    // --- KONFIGURASI FIREBASE ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
-        authDomain: "rzf-academy-bd.firebaseapp.com",
-        databaseURL: "https://rzf-academy-bd-default-rtdb.firebaseio.com",
-        projectId: "rzf-academy-bd",
-        storageBucket: "rzf-academy-bd.appspot.com",
-        messagingSenderId: "875822158869",
-        appId: "1:875822158869:web:a88c284f1d031d9da3aa1c",
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    const storage = getStorage(app);
-
-    let confirmCallback = null;
-    let allMyContent = [];
-
-    // --- Fungsi Utilitas & UI ---
-    function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
-    const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
-    
-    const showConfirmModal = (onConfirm) => { confirmCallback = onConfirm; document.getElementById("confirmModal").style.display = "flex"; };
-    const hideConfirmModal = () => { document.getElementById("confirmModal").style.display = "none"; confirmCallback = null; };
-    
-    const previewOverlay = document.getElementById("previewOverlay");
-    const previewImage = document.getElementById("previewImage");
-    const bacaModal = document.getElementById("bacaModal");
-    
-    const bukaPreview = (src) => { previewImage.src = src; previewOverlay.style.display = 'flex'; };
-    const tutupPreview = () => { previewOverlay.style.display = 'none'; };
-
-    const bukaBaca = (judul, teks) => {
-        document.getElementById('judulBaca').textContent = judul;
-        document.getElementById('isiBaca').innerHTML = (teks || "").replace(/\n/g, "<br>");
-        bacaModal.style.display = 'flex';
-    };
-    const tutupBaca = () => { bacaModal.style.display = 'none'; };
-
-    // --- Fungsi Modal Edit ---
-    const editModal = document.getElementById('editModal');
-    const editIdInput = document.getElementById('editId');
-    const editJudulInput = document.getElementById('editJudul');
-    const editKategoriSelect = document.getElementById('editKategori');
-    const editTeksGroup = document.getElementById('editTeksGroup');
-    const editTeksArea = document.getElementById('editTeks');
-
-    const bukaEditModal = (kontenId) => {
-        const item = allMyContent.find(c => c.id === kontenId);
-        if (!item) return;
-
-        const kategoriRef = ref(db, 'kategoriList');
-        get(kategoriRef).then(snapshot => {
-            editKategoriSelect.innerHTML = '';
-            if (snapshot.exists()) {
-                snapshot.forEach(katSnapshot => {
-                    const kat = katSnapshot.val();
-                    const option = document.createElement('option');
-                    option.value = kat;
-                    option.textContent = kat.charAt(0).toUpperCase() + kat.slice(1);
-                    editKategoriSelect.appendChild(option);
-                });
-            }
-            editKategoriSelect.value = item.kategori;
-        });
-
-        editIdInput.value = item.id;
-        editJudulInput.value = item.judul;
-        if (item.jenis === 'teks') {
-            editTeksArea.value = item.teks;
-            editTeksGroup.style.display = 'block';
-        } else {
-            editTeksGroup.style.display = 'none';
-        }
-        editModal.style.display = "flex";
-    };
-    const tutupEditModal = () => editModal.style.display = "none";
-
-    const handleSimpanEdit = (e) => {
-        e.preventDefault();
-        const idToUpdate = editIdInput.value;
-        const itemToUpdate = allMyContent.find(c => c.id === idToUpdate);
-        if (!itemToUpdate) return;
-        
-        const updatedData = {
-            judul: editJudulInput.value.trim(),
-            kategori: editKategoriSelect.value,
-            waktu: new Date().toISOString()
+        // --- KONFIGURASI FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
+            authDomain: "rzf-academy-bd.firebaseapp.com",
+            databaseURL: "https://rzf-academy-bd-default-rtdb.firebaseio.com",
+            projectId: "rzf-academy-bd",
+            storageBucket: "rzf-academy-bd.appspot.com",
+            messagingSenderId: "875822158869",
+            appId: "1:875822158869:web:a88c284f1d031d9da3aa1c",
         };
-        if (itemToUpdate.jenis === 'teks') {
-            updatedData.teks = editTeksArea.value;
-        }
 
-        const itemRef = ref(db, 'konten/' + idToUpdate);
-        update(itemRef, updatedData)
-            .then(() => { showToast("Konten berhasil diperbarui."); tutupEditModal(); })
-            .catch(err => showToast("Gagal memperbarui: " + err.message, 'error'));
-    };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
 
-    const handleHapusKonten = (kontenId) => {
-        const item = allMyContent.find(c => c.id === kontenId);
-        if (!item) return;
-        showConfirmModal(() => {
-            const dbRef = ref(db, 'konten/' + kontenId);
-            remove(dbRef).then(() => {
-                if (item.jenis === 'gambar' && item.gambar) {
-                    const imageRef = storageRef(storage, item.gambar);
-                    deleteObject(imageRef).catch(e => console.error("Gagal hapus file dari storage: ", e));
+        let confirmCallback = null;
+        let allMyContent = [];
+
+        // --- Fungsi Utilitas & UI ---
+        function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
+        const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
+
+        const showConfirmModal = (onConfirm) => {
+            confirmCallback = onConfirm;
+            document.getElementById("confirmModal").style.display = "flex";
+            document.body.style.overflow = 'hidden'; // <-- TAMBAHKAN INI
+        };
+        const hideConfirmModal = () => {
+            document.getElementById("confirmModal").style.display = "none";
+            confirmCallback = null;
+            document.body.style.overflow = ''; // <-- TAMBAHKAN INI
+        };
+
+        const previewOverlay = document.getElementById("previewOverlay");
+        const previewImage = document.getElementById("previewImage");
+        const bacaModal = document.getElementById("bacaModal");
+
+        const bukaPreview = (src) => {
+            previewImage.src = src;
+            previewOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+        };
+        const tutupPreview = () => {
+            previewOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+        };
+
+        const bukaBaca = (judul, teks) => {
+            document.getElementById('judulBaca').textContent = judul;
+            document.getElementById('isiBaca').innerHTML = (teks || "").replace(/\n/g, "<br>");
+            bacaModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        };
+        const tutupBaca = () => {
+            bacaModal.style.display = 'none';
+            document.body.style.overflow = ''; //
+        };
+
+        // --- Fungsi Modal Edit ---
+        const editModal = document.getElementById('editModal');
+        const editIdInput = document.getElementById('editId');
+        const editJudulInput = document.getElementById('editJudul');
+        const editKategoriSelect = document.getElementById('editKategori');
+        const editTeksGroup = document.getElementById('editTeksGroup');
+        const editTeksArea = document.getElementById('editTeks');
+
+        const bukaEditModal = (kontenId) => {
+            const item = allMyContent.find(c => c.id === kontenId);
+            if (!item) return;
+
+            const kategoriRef = ref(db, 'kategoriList');
+            get(kategoriRef).then(snapshot => {
+                editKategoriSelect.innerHTML = '';
+                if (snapshot.exists()) {
+                    snapshot.forEach(katSnapshot => {
+                        const kat = katSnapshot.val();
+                        const option = document.createElement('option');
+                        option.value = kat;
+                        option.textContent = kat.charAt(0).toUpperCase() + kat.slice(1);
+                        editKategoriSelect.appendChild(option);
+                    });
                 }
-                showToast("Konten berhasil dihapus.");
-            }).catch(err => showToast("Gagal menghapus: " + err.message, 'error'));
-            hideConfirmModal();
-        });
-    };
-
-    // --- Fungsi Utama untuk Menampilkan Konten ---
-    const tampilKontenSaya = (userId) => {
-        if (!userId || typeof userId !== 'string') return;
-        const kontenContainer = document.getElementById('kontenContainer');
-        const kontenQuery = query(ref(db, 'konten'), orderByChild('userId'), equalTo(userId));
-        onValue(kontenQuery, (snapshot) => {
-            kontenContainer.innerHTML = "";
-            allMyContent = [];
-            if (!snapshot.exists()) {
-                kontenContainer.innerHTML = "<p class='text-gray-500 col-span-full text-center'>Anda belum mengunggah konten apapun. Mulai berkarya!</p>";
-                return;
-            }
-            snapshot.forEach(child => {
-                const data = child.val();
-                allMyContent.push(data);
+                editKategoriSelect.value = item.kategori;
+                document.body.style.overflow = 'hidden';
             });
-            allMyContent.sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).forEach(item => {
-                const card = document.createElement("div");
-                card.className = "bg-white rounded-lg shadow hover:shadow-lg transition flex flex-col p-4";
-                if (item.jenis === 'gambar') {
-                    card.innerHTML = `
+
+            editIdInput.value = item.id;
+            editJudulInput.value = item.judul;
+            if (item.jenis === 'teks') {
+                editTeksArea.value = item.teks;
+                editTeksGroup.style.display = 'block';
+            } else {
+                editTeksGroup.style.display = 'none';
+            }
+            editModal.style.display = "flex";
+        };
+        const tutupEditModal = () => {
+            editModal.style.display = "none";
+            document.body.style.overflow = ''; //
+        };
+
+        const handleSimpanEdit = (e) => {
+            e.preventDefault();
+            const idToUpdate = editIdInput.value;
+            const itemToUpdate = allMyContent.find(c => c.id === idToUpdate);
+            if (!itemToUpdate) return;
+
+            const updatedData = {
+                judul: editJudulInput.value.trim(),
+                kategori: editKategoriSelect.value,
+                waktu: new Date().toISOString()
+            };
+            if (itemToUpdate.jenis === 'teks') {
+                updatedData.teks = editTeksArea.value;
+            }
+
+            const itemRef = ref(db, 'konten/' + idToUpdate);
+            update(itemRef, updatedData)
+                .then(() => { showToast("Konten berhasil diperbarui."); tutupEditModal(); })
+                .catch(err => showToast("Gagal memperbarui: " + err.message, 'error'));
+        };
+
+        const handleHapusKonten = (kontenId) => {
+            const item = allMyContent.find(c => c.id === kontenId);
+            if (!item) return;
+            showConfirmModal(() => {
+                const dbRef = ref(db, 'konten/' + kontenId);
+                remove(dbRef).then(() => {
+                    if (item.jenis === 'gambar' && item.gambar) {
+                        const imageRef = storageRef(storage, item.gambar);
+                        deleteObject(imageRef).catch(e => console.error("Gagal hapus file dari storage: ", e));
+                    }
+                    showToast("Konten berhasil dihapus.");
+                }).catch(err => showToast("Gagal menghapus: " + err.message, 'error'));
+                hideConfirmModal();
+            });
+        };
+
+        // --- Fungsi Utama untuk Menampilkan Konten ---
+        const tampilKontenSaya = (userId) => {
+            if (!userId || typeof userId !== 'string') return;
+            const kontenContainer = document.getElementById('kontenContainer');
+            const kontenQuery = query(ref(db, 'konten'), orderByChild('userId'), equalTo(userId));
+            onValue(kontenQuery, (snapshot) => {
+                kontenContainer.innerHTML = "";
+                allMyContent = [];
+                if (!snapshot.exists()) {
+                    kontenContainer.innerHTML = "<p class='text-gray-500 col-span-full text-center'>Anda belum mengunggah konten apapun. Mulai berkarya!</p>";
+                    return;
+                }
+                snapshot.forEach(child => {
+                    const data = child.val();
+                    allMyContent.push(data);
+                });
+                allMyContent.sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).forEach(item => {
+                    const card = document.createElement("div");
+                    card.className = "bg-white rounded-lg shadow hover:shadow-lg transition flex flex-col p-4";
+                    if (item.jenis === 'gambar') {
+                        card.innerHTML = `
                         <img src="${item.gambar || 'https://placehold.co/300x200?text=Gambar+hilang'}" class="w-full h-48 object-contain border rounded bg-gray-50 mb-3 cursor-pointer preview-img" />
                         <div class="flex-1 flex flex-col">
                             <h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3>
@@ -274,14 +298,14 @@
                                 </div>
                             </div>
                         </div>`;
-                    card.querySelector('.preview-img').addEventListener('click', () => bukaPreview(item.gambar));
-                
-                } else { // --- BLOK TEKS YANG DIPERBAIKI ---
-                    const fullText = item.teks || '';
-                    const preview = fullText.substring(0, 150);
-                    const isLongText = fullText.length > 150;
+                        card.querySelector('.preview-img').addEventListener('click', () => bukaPreview(item.gambar));
 
-                    card.innerHTML = `
+                    } else { // --- BLOK TEKS YANG DIPERBAIKI ---
+                        const fullText = item.teks || '';
+                        const preview = fullText.substring(0, 150);
+                        const isLongText = fullText.length > 150;
+
+                        card.innerHTML = `
                         <div class="flex-1 flex flex-col">
                             <h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3>
                             <p class="break-words text-sm text-gray-600 mt-1 flex-1">
@@ -297,67 +321,67 @@
                             <div class="mt-auto pt-3 border-t flex items-center justify-between">
                                 <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
                                 <div class="space-x-2">
-                                    <button data-id="${item.id}" class="edit-btn px-3 py-1 text-sm bg-sky-500 text-white rounded hover:bg-sky-600">Edit</button>
+                                    <button data-id="${item.id}" class="edit-btn px-3 py-1 text-sm bg-sky-500 text-white rounded hover:bg-sky-600 md:text-center">Edit</button>
                                     <button data-id="${item.id}" class="hapus-btn px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600">Hapus</button>
                                 </div>
                             </div>
                         </div>`;
 
-                    // Tambahkan listener HANYA jika teksnya panjang
-                    if (isLongText) {
-                        const bacaBtn = card.querySelector('.baca-selengkapnya-btn');
-                        if (bacaBtn) {
-                            bacaBtn.addEventListener('click', (e) => {
-                                // Hentikan event agar tidak konflik dengan listener lain
-                                e.stopPropagation(); 
-                                bukaBaca(item.judul, item.teks);
-                            });
+                        // Tambahkan listener HANYA jika teksnya panjang
+                        if (isLongText) {
+                            const bacaBtn = card.querySelector('.baca-selengkapnya-btn');
+                            if (bacaBtn) {
+                                bacaBtn.addEventListener('click', (e) => {
+                                    // Hentikan event agar tidak konflik dengan listener lain
+                                    e.stopPropagation();
+                                    bukaBaca(item.judul, item.teks);
+                                });
+                            }
                         }
                     }
-                }
-                kontenContainer.appendChild(card);
+                    kontenContainer.appendChild(card);
+                });
+                // Pindahkan listener edit/hapus ke luar loop agar lebih efisien
+                document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', (e) => bukaEditModal(e.currentTarget.dataset.id)));
+                document.querySelectorAll('.hapus-btn').forEach(btn => btn.addEventListener('click', (e) => handleHapusKonten(e.currentTarget.dataset.id)));
             });
-            // Pindahkan listener edit/hapus ke luar loop agar lebih efisien
-            document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', (e) => bukaEditModal(e.currentTarget.dataset.id)));
-            document.querySelectorAll('.hapus-btn').forEach(btn => btn.addEventListener('click', (e) => handleHapusKonten(e.currentTarget.dataset.id)));
-        });
-    };
+        };
 
-    // --- Titik Masuk Utama Saat Halaman Dimuat ---
-    document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById('logout-button').addEventListener('click', logout);
-        document.getElementById('batalEdit').addEventListener('click', tutupEditModal);
-        document.getElementById('edit-form').addEventListener('submit', handleSimpanEdit);
-        document.getElementById('confirmModalCancel').addEventListener('click', hideConfirmModal);
-        document.getElementById('confirmModalConfirm').addEventListener('click', () => { if (confirmCallback) confirmCallback(); });
+        // --- Titik Masuk Utama Saat Halaman Dimuat ---
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('logout-button').addEventListener('click', logout);
+            document.getElementById('batalEdit').addEventListener('click', tutupEditModal);
+            document.getElementById('edit-form').addEventListener('submit', handleSimpanEdit);
+            document.getElementById('confirmModalCancel').addEventListener('click', hideConfirmModal);
+            document.getElementById('confirmModalConfirm').addEventListener('click', () => { if (confirmCallback) confirmCallback(); });
 
-        document.getElementById('close-preview').addEventListener('click', tutupPreview);
-        previewOverlay.addEventListener('click', (e) => { if (e.target === previewOverlay) tutupPreview(); });
-        document.getElementById('close-baca').addEventListener('click', tutupBaca);
-        bacaModal.addEventListener('click', (e) => { if (e.target === bacaModal) tutupBaca(); });
-        
-        const toggleBtn = document.getElementById("menu-toggle");
-        const navMenu = document.getElementById("nav-menu");
-        toggleBtn.addEventListener("click", () => { navMenu.classList.toggle("hidden"); });
+            document.getElementById('close-preview').addEventListener('click', tutupPreview);
+            previewOverlay.addEventListener('click', (e) => { if (e.target === previewOverlay) tutupPreview(); });
+            document.getElementById('close-baca').addEventListener('click', tutupBaca);
+            bacaModal.addEventListener('click', (e) => { if (e.target === bacaModal) tutupBaca(); });
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-                if (loggedInUser && loggedInUser.id === user.uid) {
-                    document.getElementById("welcomeUser").textContent = loggedInUser.name;
-                    if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
-                    if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
-                    tampilKontenSaya(loggedInUser.id);
+            const toggleBtn = document.getElementById("menu-toggle");
+            const navMenu = document.getElementById("nav-menu");
+            toggleBtn.addEventListener("click", () => { navMenu.classList.toggle("hidden"); });
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+                    if (loggedInUser && loggedInUser.id === user.uid) {
+                        document.getElementById("welcomeUser").textContent = loggedInUser.name;
+                        if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
+                        if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
+                        tampilKontenSaya(loggedInUser.id);
+                    } else {
+                        logout();
+                    }
                 } else {
-                    logout();
+                    showToast("Silakan login terlebih dahulu.", "error");
+                    setTimeout(() => window.location.href = "login.html", 1500);
                 }
-            } else {
-                showToast("Silakan login terlebih dahulu.", "error");
-                setTimeout(() => window.location.href = "login.html", 1500);
-            }
+            });
         });
-    });
-</script>
+    </script>
 
 </body>
 

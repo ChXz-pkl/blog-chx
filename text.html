@@ -73,13 +73,14 @@
         </div>
     </main>
 
-    <div id="bacaModal" class="fixed inset-0 bg-black bg-opacity-70 hidden justify-center items-center z-[100]">
+    <div id="bacaModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
         <div class="bg-white max-w-xl w-full mx-4 p-6 rounded-xl shadow-lg relative">
             <button id="close-baca"
                 class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold">✖</button>
-            <h2 id="judulBaca" class="text-xl font-bold mb-2 text-blue-700"></h2>
+            <h2 id="judulBaca" class="text-xl font-bold mb-2 text-blue-700 md:text-center"></h2>
             <p id="isiBaca"
-                class="break-words text-gray-800 whitespace-pre-line leading-relaxed text-sm max-h-[60vh] overflow-y-auto"></p>
+                class="break-words text-gray-800 whitespace-pre-line leading-relaxed text-sm max-h-[60vh] overflow-y-auto">
+            </p>
         </div>
     </div>
 
@@ -112,7 +113,10 @@
 
         function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
         const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
-        const tutupBaca = () => { bacaModal.style.display = "none"; };
+        const tutupBaca = () => {
+            bacaModal.style.display = "none";
+            document.body.style.overflow = ''; // <-- TAMBAHKAN INI
+        };
 
         const tampilkanKategori = () => {
             const kategoriRef = ref(db, 'kategoriList');
@@ -211,6 +215,7 @@
                                 document.getElementById('judulBaca').textContent = item.judul;
                                 document.getElementById('isiBaca').innerHTML = fullText.replace(/\n/g, "<br>");
                                 document.getElementById('bacaModal').style.display = 'flex';
+                                document.body.style.overflow = 'hidden';
                             });
                         }
                         teksContainerEl.appendChild(card);

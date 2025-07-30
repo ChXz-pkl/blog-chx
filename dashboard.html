@@ -35,6 +35,8 @@
 
     <div id="toast-container" class="fixed top-5 right-5 z-[120] space-y-2"></div>
 
+
+
     <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center">
             <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
@@ -51,6 +53,7 @@
                 <a id="adminLink" href="admin.html"
                     class="px-3 py-1 bg-red-500 rounded-md text-white font-bold hidden">Panel Admin</a>
             </div>
+
             <div class="flex items-center gap-3 mt-3 md:mt-0">
                 <a href="profil.html" class="flex items-center space-x-2 group">
                     <img id="navbarProfilePicture" src="https://placehold.co/32x32/e2e8f0/718096?text=U"
@@ -70,21 +73,24 @@
             <p class="text-gray-600">Lihat karya-karya terbaru dari semua kreator.</p>
         </div>
         <div id="kategoriBadges" class="flex flex-wrap justify-center gap-2 mb-8"></div>
-        <div id="feedKonten" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        <div id="feedKonten" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div><div id="loading-indicator" class="text-center p-10">
+        <p>Memuat data...</p>
+    </div>
     </main>
-
+    
     <div id="previewOverlay" class="fixed inset-0 bg-black bg-opacity-80 hidden justify-center items-center z-50"><span
             id="close-preview"
             class="absolute top-5 right-6 text-white text-4xl cursor-pointer font-bold">&times;</span><img
             id="previewImage" class="max-w-[90%] max-h-[90%] rounded shadow-2xl" /></div>
+
     <!-- Modal Baca Selengkapnya -->
-    <div id="bacaModal" class="fixed inset-0 bg-black bg-opacity-70 hidden justify-center items-center z-50">
+    <div id="bacaModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
         <div class="bg-white max-w-xl w-full mx-4 p-6 rounded-xl shadow-lg relative">
             <button id="close-baca"
                 class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold">✖</button>
-            <h2 id="judulBaca" class="text-xl font-bold mb-2 text-blue-700"></h2>
+            <h2 id="judulBaca" class="text-xl font-bold mb-2 text-blue-700 md:text-center"></h2>
             <p id="isiBaca"
-                class="text-gray-800 whitespace-pre-line leading-relaxed text-sm max-h-[60vh] overflow-y-auto break-words">
+                class="text-gray-800 whitespace-pre-line leading-relaxed text-sm max-h-[60vh] overflow-y-auto break-words ">
             </p>
         </div>
     </div>
@@ -96,6 +102,7 @@
     </footer>
 
     <script type="module">
+        // Salin dan ganti seluruh script Anda dengan ini
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
         import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
@@ -117,6 +124,7 @@
 
         // --- UI Elements ---
         const container = document.getElementById("feedKonten");
+        const kategoriBadgesContainer = document.getElementById("kategoriBadges"); // <-- BARU
         const logoutBtn = document.getElementById("logout-button");
         const navbarProfilePicture = document.getElementById("navbarProfilePicture");
         const welcomeUser = document.getElementById("welcomeUser");
@@ -124,6 +132,12 @@
         const previewOverlay = document.getElementById("previewOverlay");
         const previewImage = document.getElementById("previewImage");
         const closePreviewBtn = document.getElementById("close-preview");
+        const bacaModal = document.getElementById("bacaModal");
+        const closeBacaBtn = document.getElementById("close-baca");
+
+        // --- VARIABEL BARU UNTUK FILTER ---
+        let semuaKonten = []; // Menyimpan semua data asli
+        let kategoriAktif = "Semua"; // Kategori yang sedang aktif
 
         // --- Utilitas ---
         const showToast = (message, type = 'success') => {
@@ -137,103 +151,130 @@
         const openPreview = (src) => {
             previewImage.src = src;
             previewOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
         };
         const closePreview = () => {
             previewOverlay.style.display = 'none';
+            document.body.style.overflow = '';
         };
 
         // --- Render Konten ---
         const renderKonten = (data) => {
             container.innerHTML = "";
-
             if (data.length === 0) {
-                container.innerHTML = `<p class="text-center text-gray-500">Belum ada konten.</p>`;
+                container.innerHTML = `<p class="text-center text-gray-500 col-span-1 md:col-span-2">Tidak ada konten untuk kategori ini.</p>`;
                 return;
             }
-
             data.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
-
             data.forEach(item => {
                 const card = document.createElement("div");
-                // --- PERUBAHAN 1: Hapus 'justify-between' dari kartu utama ---
-                card.className = "bg-white rounded-lg shadow hover:shadow-lg p-4 flex flex-col";
-
-                // Definisikan placeholder di sini agar aman
+                card.className = "bg-white rounded-lg shadow hover:shadow-lg p-4 flex flex-col transition-shadow";
                 const placeholder = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
 
                 if (item.jenis === 'gambar') {
                     card.innerHTML = `
-                        <div>
-                            <img src="${item.gambar}" alt="${item.judul}"
-                                class="w-full max-h-56 object-contain bg-gray-100 rounded mb-3 shadow-sm" />
-                            <h3 class="text-lg font-semibold text-blue-700 truncate mb-1">${item.judul}</h3>
-                        </div>
-                        
-                        <div class="mt-auto pt-3 border-t flex items-center justify-between">
-                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
-                            <div class="flex items-center gap-2">
-                                <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
-                                <span class="text-gray-500 text-xs">${item.userName}</span>
-                            </div>
-                        </div>
-                    `;
-                    card.addEventListener('click', () => {
+                <div>
+                    <img src="${item.gambar}" alt="${item.judul}" class="w-full h-56 object-contain bg-gray-100 rounded mb-3 shadow-sm cursor-pointer"/>
+                    <h3 class="text-lg font-semibold text-blue-700 truncate mb-1">${item.judul}</h3>
+                </div>
+                <div class="mt-auto pt-3 border-t flex items-center justify-between">
+                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                    <div class="flex items-center gap-2">
+                        <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
+                        <span class="text-gray-500 text-xs">${item.userName}</span>
+                    </div>
+                </div>`;
+                    // Listener untuk preview gambar
+                    const imgElement = card.querySelector('img');
+                    imgElement.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Mencegah event lain terpicu
                         openPreview(item.gambar);
                     });
-
                 } else if (item.jenis === 'teks') {
                     const fullText = item.teks || "";
                     const preview = fullText.slice(0, 200).replace(/\n/g, "<br>");
-
                     card.innerHTML = `
-                        <div>
-                            <h3 class="text-lg font-semibold text-blue-700 mb-2">${item.judul}</h3>
-                            <p class="text-[18px] text-gray-800 leading-relaxed min-h-[64px] break-words">
-                            ${preview}${fullText.length > 200 ? '...' : ''}
-                            </p>
-                            ${fullText.length > 200 ? `
-                            <div class="mt-2">
-                                <button class="text-sm text-blue-600 hover:underline baca-btn">Baca Selengkapnya</button>
-                            </div>
-                            ` : ''}
-                        </div>
-
-                        <div class="mt-auto pt-3 border-t flex items-center justify-between">
-                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
-                            <div class="flex items-center gap-2">
-                                <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
-                                <span class="text-gray-500 text-xs">${item.userName}</span>
-                            </div>
-                        </div>`;
-
-                    // Modal listener
-                    setTimeout(() => {
-                        const bacaBtn = card.querySelector('.baca-btn');
-                        if (bacaBtn) {
-                            bacaBtn.addEventListener('click', () => {
-                                document.getElementById('judulBaca').textContent = item.judul;
-                                document.getElementById('isiBaca').innerHTML = fullText.replace(/\n/g, "<br>");
-                                document.getElementById('bacaModal').style.display = 'flex';
-                            });
-                        }
-                    }, 0);
+                <div>
+                    <h3 class="text-lg font-semibold text-blue-700 mb-2">${item.judul}</h3>
+                    <p class="text-gray-800 leading-relaxed min-h-[64px] break-words">${preview}${fullText.length > 200 ? '...' : ''}</p>
+                    ${fullText.length > 200 ? `<div class="mt-2"><button class="text-sm text-blue-600 hover:underline baca-btn">Baca Selengkapnya</button></div>` : ''}
+                </div>
+                <div class="mt-auto pt-3 border-t flex items-center justify-between">
+                    <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                    <div class="flex items-center gap-2">
+                        <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
+                        <span class="text-gray-500 text-xs">${item.userName}</span>
+                    </div>
+                </div>`;
+                    // Listener untuk modal "Baca Selengkapnya"
+                    const bacaBtn = card.querySelector('.baca-btn');
+                    if (bacaBtn) {
+                        bacaBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            document.getElementById('judulBaca').textContent = item.judul;
+                            document.getElementById('isiBaca').innerHTML = fullText.replace(/\n/g, "<br>");
+                            bacaModal.style.display = 'flex';
+                            document.body.style.overflow = 'hidden';
+                        });
+                    }
                 }
-
                 container.appendChild(card);
             });
         };
-        // --- Ambil Konten dari Firebase ---
+
+        // --- FUNGSI BARU: MEMBUAT TOMBOL KATEGORI ---
+        const renderKategoriBadges = () => {
+            const kategoriUnik = [...new Set(semuaKonten.map(item => item.kategori))];
+            kategoriBadgesContainer.innerHTML = ""; // Kosongkan dulu
+
+            // Buat tombol "Semua"
+            const badgeSemua = document.createElement('span');
+            badgeSemua.className = 'kategori-badge active'; // Langsung aktif
+            badgeSemua.textContent = 'Semua';
+            badgeSemua.dataset.kategori = 'Semua';
+            kategoriBadgesContainer.appendChild(badgeSemua);
+
+            // Buat tombol untuk setiap kategori unik
+            kategoriUnik.forEach(kategori => {
+                const badge = document.createElement('span');
+                badge.className = 'kategori-badge';
+                badge.textContent = kategori;
+                badge.dataset.kategori = kategori;
+                kategoriBadgesContainer.appendChild(badge);
+            });
+        };
+
+        // --- FUNGSI BARU: FILTER DAN RENDER ULANG ---
+        const filterAndRender = () => {
+            let dataToRender;
+            if (kategoriAktif === 'Semua') {
+                dataToRender = semuaKonten; // Tampilkan semua jika "Semua" dipilih
+            } else {
+                dataToRender = semuaKonten.filter(item => item.kategori === kategoriAktif);
+            }
+            renderKonten(dataToRender);
+        };
+
+
+        // --- MODIFIKASI: Ambil Konten dari Firebase ---
         const fetchKonten = () => {
             const kontenRef = ref(db, 'konten');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            loadingIndicator.style.display = 'block'; // Tampilkan saat mulai
+            container.innerHTML = ""; // Kosongkan feed agar tidak ada konten lama
             get(kontenRef).then(snapshot => {
-                let hasil = [];
+                semuaKonten = []; // Reset array setiap kali fetch
                 if (snapshot.exists()) {
                     snapshot.forEach(child => {
-                        const data = child.val();
-                        hasil.push(data);
+                        semuaKonten.push(child.val());
                     });
                 }
-                renderKonten(hasil);
+                filterAndRender(); // Render awal dengan kategori "Semua"
+                renderKategoriBadges(); // Buat tombol kategori
+            }).finally(() => {
+                loadingIndicator.style.display = 'none'; // Sembunyikan setelah selesai (berhasil atau gagal)
+                filterAndRender();
+                renderKategoriBadges();
             }).catch(err => {
                 console.error("❌ Gagal mengambil konten:", err);
                 showToast("Gagal memuat konten", "error");
@@ -257,11 +298,38 @@
 
             logoutBtn.addEventListener("click", logout);
 
+            // Event listener untuk preview gambar
             closePreviewBtn.addEventListener('click', closePreview);
             previewOverlay.addEventListener('click', (e) => {
-                // Hanya tutup jika yang diklik adalah latar belakang gelapnya, bukan gambarnya
-                if (e.target === previewOverlay) {
-                    closePreview();
+                if (e.target === previewOverlay) closePreview();
+            });
+
+            // Event listener untuk modal baca teks
+            closeBacaBtn.addEventListener('click', () => {
+                bacaModal.style.display = 'none';
+                document.body.style.overflow = '';
+            });
+            bacaModal.addEventListener('click', (e) => {
+                if (e.target === bacaModal) {
+                    bacaModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // --- BARU: Event listener untuk filter kategori ---
+            kategoriBadgesContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('kategori-badge')) {
+                    // Update kategori aktif
+                    kategoriAktif = e.target.dataset.kategori;
+
+                    // Update tampilan visual tombol (class 'active')
+                    document.querySelectorAll('.kategori-badge').forEach(badge => {
+                        badge.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+
+                    // Filter dan render ulang konten
+                    filterAndRender();
                 }
             });
 
@@ -274,7 +342,8 @@
                             welcomeUser.textContent = userData.name;
                             if (userData.profilePicture) navbarProfilePicture.src = userData.profilePicture;
                             if (userData.role === 'admin') adminLink.classList.remove('hidden');
-                            fetchKonten();
+
+                            fetchKonten(); // Panggil fungsi fetch utama
                         } else {
                             logout();
                         }
@@ -285,10 +354,6 @@
                 }
             });
         });
-        document.getElementById("close-baca").addEventListener("click", () => {
-            document.getElementById("bacaModal").style.display = "none";
-        });
-
     </script>
 
 </body>
