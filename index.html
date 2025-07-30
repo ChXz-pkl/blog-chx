@@ -6,26 +6,13 @@
     <title>RZF Academy - Platform Kreativitas Anda</title>
     <link rel="stylesheet" href="dist/output.css">
     <style>
-        .blinking-cursor {
-            font-weight: 300;
-            animation: blink 1s step-end infinite;
-        }
-        @keyframes blink {
-            from, to { color: transparent; }
-            50% { color: #2563eb; }
-        }
-        .animate-on-scroll {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-        .animate-on-scroll.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .blinking-cursor { animation: blink 1s step-end infinite; }
+        @keyframes blink { from, to { color: transparent; } 50% { color: #2563eb; } }
+        .animate-on-scroll { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .animate-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
     </style>
 </head>
-<body class="bg-sky-50 min-h-screen flex flex-col">
+<body class="bg-gray-100 min-h-screen flex flex-col">
 
     <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md sticky top-0 z-20">
         <h1 class="text-xl font-bold">RZF Academy</h1>
@@ -38,134 +25,154 @@
     <main class="flex-1 container mx-auto px-4 py-8">
         
         <section class="text-center my-8 md:my-16">
-            <h2 class="text-3xl md:text-5xl font-bold text-blue-600 h-24 md:h-16 flex items-center justify-center">
+            <h2 class="text-3xl md:text-5xl font-bold text-blue-600 h-16 flex items-center justify-center">
                 <span id="typing-text"></span><span class="blinking-cursor">|</span>
             </h2>
-            <p class="text-gray-600 mt-2 text-lg max-w-2xl mx-auto">Platform untuk berbagi dan menemukan inspirasi tanpa batas melalui karya visual dan tulisan.</p>
+            <p class="text-gray-600 mt-2 text-lg max-w-2xl mx-auto">Sebuah ruang untuk berbagi dan menemukan inspirasi tanpa batas.</p>
         </section>
 
         <section class="my-8 md:my-16">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-2 transition-transform duration-300 animate-on-scroll">
-                    <div class="text-blue-500 mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                    </div>
-                    <h4 class="font-semibold text-lg mb-2">Unggah Karya</h4>
-                    <p class="text-gray-600 text-sm">Bagikan ide, gambar, atau tulisan Anda dengan mudah dan cepat kepada dunia.</p>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-on-scroll">
+                    <h4 class="font-semibold text-lg mb-2">Unggah Karyamu</h4>
+                    <p class="text-gray-600 text-sm">Bagikan tulisan atau gambar orisinal buatanmu dengan mudah.</p>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-2 transition-transform duration-300 animate-on-scroll" style="transition-delay: 150ms;">
-                    <div class="text-blue-500 mb-4">
-                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
-                    </div>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-on-scroll" style="transition-delay: 150ms;">
                     <h4 class="font-semibold text-lg mb-2">Temukan Inspirasi</h4>
-                    <p class="text-gray-600 text-sm">Jelajahi feed berisi ribuan karya dari para kreator lain untuk memicu ide baru Anda.</p>
+                    <p class="text-gray-600 text-sm">Jelajahi karya dari kreator lain untuk memicu ide-ide cemerlang.</p>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-2 transition-transform duration-300 animate-on-scroll" style="transition-delay: 300ms;">
-                    <div class="text-blue-500 mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                    </div>
-                    <h4 class="font-semibold text-lg mb-2">Bangun Komunitas</h4>
-                    <p class="text-gray-600 text-sm">Terhubung dengan sesama kreator, berikan apresiasi, dan tumbuh bersama.</p>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-on-scroll" style="transition-delay: 300ms;">
+                    <h4 class="font-semibold text-lg mb-2">Jadi Bagian Komunitas</h4>
+                    <p class="text-gray-600 text-sm">Terhubung dengan sesama pegiat kreatif yang positif dan suportif.</p>
                 </div>
             </div>
         </section>
 
-        <section id="stats-section" class="text-center bg-white py-12 rounded-lg shadow-md my-8 md:my-16 animate-on-scroll">
-            <h3 class="text-2xl font-bold text-gray-800 mb-8">Bergabunglah dengan Komunitas yang Terus Bertumbuh</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-                <div>
-                    <p class="text-4xl font-bold text-blue-600 stat-number" data-goal="248">0</p>
-                    <p class="text-gray-500">Kreator Aktif</p>
+        <section class="my-8 md:my-16">
+            <h3 class="text-2xl font-bold text-center text-gray-800 mb-8 animate-on-scroll">Inspirasi Terbaru dari Komunitas</h3>
+            <div id="latest-posts-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 </div>
-                <div>
-                    <p class="text-4xl font-bold text-blue-600 stat-number" data-goal="1572">0</p>
-                    <p class="text-gray-500">Karya Diterbitkan</p>
-                </div>
-                <div>
-                    <p class="text-4xl font-bold text-blue-600 stat-number" data-goal="8300">0</p>
-                    <p class="text-gray-500">Apresiasi Diberikan</p>
-                </div>
+            <div class="text-center animate-on-scroll">
+                <a href="registrasi.html" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold text-lg transition-transform duration-300 hover:scale-105 shadow-lg">
+                    Lihat Lebih Banyak & Bergabung
+                </a>
             </div>
-            <a href="registrasi.html" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold text-lg transition-transform duration-300 hover:scale-105 shadow-lg">
-                Daftar Sekarang, Gratis!
-            </a>
         </section>
 
     </main>
 
-    <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
+    <footer class="bg-gray-200 text-center text-gray-600 py-4 text-sm mt-auto">
         &copy; 2025 <a href="https://portfolio-chx.netlify.app/" class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
     </footer>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getDatabase, ref, get, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+        // --- Konfigurasi Firebase ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
+            authDomain: "rzf-academy-bd.firebaseapp.com",
+            databaseURL: "https://rzf-academy-bd-default-rtdb.firebaseio.com",
+            projectId: "rzf-academy-bd",
+            storageBucket: "rzf-academy-bd.appspot.com",
+            messagingSenderId: "875822158869",
+            appId: "1:875822158869:web:a88c284f1d031d9da3aa1c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- Logika untuk Animasi, Efek Mengetik, dan Ambil Data ---
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Efek Mengetik ---
+            
+            // --- Efek Mengetik (Teks lebih simpel & nyata) ---
             const typingTextElement = document.getElementById('typing-text');
             if (typingTextElement) {
-                const textsToType = ["Selamat Datang di RZF Academy", "Tempat Berbagi Inspirasi", "Wadah Para Kreator Hebat"];
-                let textIndex = 0, charIndex = 0, isDeleting = false;
-                function typeEffect() { /* ... logika efek mengetik ... */ }
-                typeEffect();
+                const textsToType = ["Bagikan Karyamu.", "Temukan Inspirasi.", "Bangun Komunitas."];
+                // (logika efek mengetik disembunyikan di sini agar ringkas, intinya sama seperti sebelumnya)
+                typeEffect(typingTextElement, textsToType);
             }
 
             // --- Animasi Saat Scroll ---
             const scrollObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                    }
+                    if (entry.isIntersecting) entry.target.classList.add('is-visible');
                 });
             }, { threshold: 0.1 });
             document.querySelectorAll('.animate-on-scroll').forEach(el => scrollObserver.observe(el));
 
-            // --- [BARU] Animasi Angka Statistik ---
-            const statsSection = document.getElementById('stats-section');
-            const numberObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const statNumbers = entry.target.querySelectorAll('.stat-number');
-                        statNumbers.forEach(numberEl => {
-                            const goal = parseInt(numberEl.dataset.goal);
-                            let current = 0;
-                            const increment = Math.ceil(goal / 100); // Agar animasi selesai dalam waktu yg mirip
-                            const interval = setInterval(() => {
-                                current += increment;
-                                if (current > goal) {
-                                    current = goal;
-                                    clearInterval(interval);
-                                }
-                                numberEl.textContent = current.toLocaleString('id-ID');
-                            }, 20); // Kecepatan animasi
+            // --- [BARU] Fungsi untuk mengambil 4 postingan terbaru ---
+            const fetchLatestPosts = async () => {
+                const container = document.getElementById('latest-posts-container');
+                const kontenRef = ref(db, 'konten');
+                const kontenQuery = query(kontenRef, orderByChild('waktu'), limitToLast(4));
+                
+                try {
+                    const snapshot = await get(kontenQuery);
+                    if (snapshot.exists()) {
+                        const posts = [];
+                        snapshot.forEach(child => posts.push(child.val()));
+                        posts.reverse(); // Urutkan dari yang paling baru
+
+                        container.innerHTML = ''; // Kosongkan container
+                        posts.forEach(post => {
+                            const card = document.createElement('a');
+                            card.href = 'registrasi.html';
+                            card.className = 'block bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden animate-on-scroll';
+
+                            let cardContent = '';
+                            if (post.jenis === 'gambar') {
+                                cardContent = `
+                                    <img src="${post.gambar}" alt="${post.judul}" class="w-full h-40 object-cover">
+                                    <div class="p-4">
+                                        <h4 class="font-bold truncate">${post.judul}</h4>
+                                        <p class="text-xs text-gray-500">oleh ${post.userName}</p>
+                                    </div>
+                                `;
+                            } else { // jenis 'teks'
+                                const preview = (post.teks || '').slice(0, 80) + '...';
+                                cardContent = `
+                                    <div class="p-4 flex flex-col h-full">
+                                        <h4 class="font-bold">${post.judul}</h4>
+                                        <p class="text-sm text-gray-600 my-2 flex-grow">${preview}</p>
+                                        <p class="text-xs text-gray-500 mt-auto">oleh ${post.userName}</p>
+                                    </div>
+                                `;
+                            }
+                            card.innerHTML = cardContent;
+                            container.appendChild(card);
                         });
-                        observer.unobserve(entry.target); // Hanya jalankan animasi sekali
+                        // Panggil lagi observer untuk menganimasikan kartu-kartu baru
+                        document.querySelectorAll('.animate-on-scroll').forEach(el => scrollObserver.observe(el));
+                    } else {
+                        container.innerHTML = '<p class="text-gray-500 col-span-4 text-center">Belum ada karya untuk ditampilkan.</p>';
                     }
-                });
-            }, { threshold: 0.5 });
+                } catch (error) {
+                    console.error("Gagal memuat postingan terbaru:", error);
+                    container.innerHTML = '<p class="text-red-500 col-span-4 text-center">Gagal memuat postingan.</p>';
+                }
+            };
 
-            if(statsSection) {
-                numberObserver.observe(statsSection);
-            }
+            // Panggil semua fungsi
+            fetchLatestPosts();
 
-            // [HELPER] Sembunyikan logika efek mengetik agar tidak terlalu panjang
-            function typeEffect() {
-                const typingTextElement = document.getElementById('typing-text');
-                const textsToType = ["Selamat Datang di RZF Academy", "Tempat Berbagi Inspirasi", "Wadah Para Kreator Hebat"];
+            // Definisi fungsi efek mengetik
+            function typeEffect(element, texts) {
                 let textIndex = 0, charIndex = 0, isDeleting = false;
                 const type = () => {
-                    const currentText = textsToType[textIndex];
-                    if (isDeleting) {
-                        typingTextElement.textContent = currentText.substring(0, charIndex - 1);
-                        charIndex--;
+                    const currentText = texts[textIndex];
+                    if(isDeleting) {
+                        element.textContent = currentText.substring(0, charIndex-- -1);
                     } else {
-                        typingTextElement.textContent = currentText.substring(0, charIndex + 1);
-                        charIndex++;
+                        element.textContent = currentText.substring(0, charIndex++ +1);
                     }
                     if (!isDeleting && charIndex === currentText.length) {
                         isDeleting = true; setTimeout(type, 2000); return;
                     } else if (isDeleting && charIndex === 0) {
-                        isDeleting = false; textIndex = (textIndex + 1) % textsToType.length; setTimeout(type, 500); return;
+                        isDeleting = false; textIndex = (textIndex + 1) % texts.length; setTimeout(type, 500); return;
                     }
-                    setTimeout(type, isDeleting ? 75 : 150);
+                    setTimeout(type, isDeleting ? 100 : 200);
                 };
                 type();
             }
