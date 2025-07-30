@@ -12,21 +12,21 @@
             color: #4338ca;
             padding: 4px 12px;
             border-radius: 9999px;
-            font-size: 0.875rem;
-            transition: all 0.2s;
+            font-size: .875rem;
+            transition: all .2s;
             cursor: pointer;
-            border: 1px solid #c7d2fe;
+            border: 1px solid #c7d2fe
         }
 
         .kategori-badge:hover {
-            background-color: #c7d2fe;
+            background-color: #c7d2fe
         }
 
         .kategori-badge.active {
             background-color: #4f46e5;
-            color: white;
+            color: #fff;
             font-weight: 600;
-            border-color: #4f46e5;
+            border-color: #4f46e5
         }
     </style>
 </head>
@@ -41,7 +41,7 @@
             <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">&#9776;</button>
         </div>
         <div id="nav-menu"
-            class="hidden md:flex flex-col md:flex-row mt-3 md:mt-0 md:items-center md:justify-between md:space-x-4">
+            class="hidden md:flex flex-col md:flex-row mt-3 md:mt-0 md:items-center md:justify-between w-full">
             <div class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0 mt-2 md:mt-0">
                 <a href="dashboard.html" class="hover:text-sky-200">Dashboard</a>
                 <a href="galeri.html" class="font-bold">Galeri</a>
@@ -63,22 +63,19 @@
         </div>
     </nav>
 
-
     <main class="flex-1 container mx-auto px-4 py-6">
         <div class="text-center mb-6">
             <h2 class="text-3xl font-bold text-blue-600">Galeri Foto</h2>
             <p class="text-gray-600 mt-1">Jelajahi semua konten visual dari para kreator.</p>
         </div>
         <div id="kategoriBadges" class="flex flex-wrap justify-center gap-2 mb-8"></div>
-        <div id="galeriContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        </div>
+        <div id="galeriContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </main>
 
-    <div id="previewOverlay" class="fixed inset-0 bg-black bg-opacity-80 hidden justify-center items-center z-50">
-        <span id="close-preview"
-            class="absolute top-5 right-6 text-white text-4xl cursor-pointer font-bold">&times;</span>
-        <img id="previewImage" class="max-w-[90%] max-h-[90%] rounded shadow-2xl" />
-    </div>
+    <div id="previewOverlay" class="fixed inset-0 bg-black bg-opacity-80 hidden justify-center items-center z-50"><span
+            id="close-preview"
+            class="absolute top-5 right-6 text-white text-4xl cursor-pointer font-bold">&times;</span><img
+            id="previewImage" class="max-w-[90%] max-h-[90%] rounded shadow-2xl" /></div>
 
     <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
         &copy; 2025 <a href="https://portfolio-chx.netlify.app/"
@@ -88,10 +85,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-        import { get, child } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-        // --- KONFIGURASI FIREBASE (LENGKAP) ---
+        // --- KONFIGURASI FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
             authDomain: "rzf-academy-bd.firebaseapp.com",
@@ -108,22 +104,50 @@
 
         // --- Elemen UI ---
         const galeriContainerEl = document.getElementById('galeriContainer');
-
-        // --- Fungsi Utilitas & UI ---
-        function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
-        const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
-
+        const kategoriBadgesEl = document.getElementById('kategoriBadges');
         const previewOverlay = document.getElementById("previewOverlay");
         const previewImage = document.getElementById("previewImage");
-        const tampilkanPreview = (src) => { previewImage.src = src; previewOverlay.style.display = "flex"; };
-        const tutupPreview = () => { previewOverlay.style.display = "none"; };
 
-        // --- Fungsi Utama Aplikasi ---
+        // --- Cache Global ---
+        let semuaKontenCache = [];
+
+        // --- Fungsi Utilitas ---
+        function showToast(m, t = 'success') {
+            const n = document.getElementById("toast-container");
+            const e = document.createElement("div");
+            const o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" };
+            e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`;
+            e.textContent = m;
+            const a = document.createElement("style");
+            a.id = "toast-animation-style";
+            a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}";
+            document.head.appendChild(a);
+            n.appendChild(e);
+            setTimeout(() => e.remove(), 3000);
+        }
+
+        const logout = () => {
+            signOut(auth).then(() => {
+                localStorage.removeItem("loggedInUser");
+                showToast("Anda berhasil logout.");
+                setTimeout(() => window.location.href = "index.html", 1500);
+            });
+        };
+
+        const tampilkanPreview = (url) => {
+            previewImage.src = url;
+            previewOverlay.style.display = "flex";
+        };
+
+        const tutupPreview = () => {
+            previewOverlay.style.display = "none";
+        };
+
+        // --- Tampilkan Kategori + Event Filter ---
         const tampilkanKategori = () => {
             const kategoriRef = ref(db, 'kategoriList');
-            const kategoriBadgesEl = document.getElementById('kategoriBadges');
             get(kategoriRef).then(snapshot => {
-                let badgeHTML = `<button class="kategori-badge active" data-kategori="semua">Semua</button>`;
+                let badgeHTML = `<button class="kategori-badge" data-kategori="semua">Semua</button>`;
                 if (snapshot.exists()) {
                     snapshot.val().forEach(kat => {
                         const katFormatted = kat.charAt(0).toUpperCase() + kat.slice(1);
@@ -132,93 +156,115 @@
                 }
                 kategoriBadgesEl.innerHTML = badgeHTML;
 
-                kategoriBadgesEl.querySelectorAll('.kategori-badge').forEach(badge => {
-                    badge.addEventListener('click', (e) => {
-                        kategoriBadgesEl.querySelector('.active').classList.remove('active');
+                // Setelah badge dimuat, pilih salah satu kategori & tampilkan
+                const firstBadge = kategoriBadgesEl.querySelector('[data-kategori="semua"]');
+
+                if (firstBadge) {
+                    firstBadge.classList.add('active');
+                }
+
+                kategoriBadgesEl.querySelectorAll('.kategori-badge').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        kategoriBadgesEl.querySelector('.active')?.classList.remove('active');
                         e.currentTarget.classList.add('active');
-                        tampilGambar();
+                        if (semuaKontenCache.length > 0) renderGambar();
                     });
                 });
+
+                // Panggil renderGambar setelah kategori aktif diset
+                if (semuaKontenCache.length > 0) renderGambar();
             });
         };
 
-        const tampilGambar = () => {
+        // --- Tampilkan Galeri ---
+        const renderGambar = () => {
             const activeBadge = document.querySelector('#kategoriBadges .kategori-badge.active');
             const kategoriFilter = activeBadge ? activeBadge.dataset.kategori : 'semua';
-            const kontenRef = ref(db, 'konten');
 
-            galeriContainerEl.innerHTML = "<p class='col-span-full text-center text-gray-500'>Memuat gambar...</p>";
+            galeriContainerEl.innerHTML = "";
 
-            get(kontenRef).then(snapshot => {
-                const semuaKonten = [];
-                if (snapshot.exists()) {
-                    snapshot.forEach(child => semuaKonten.push(child.val()));
-                }
+            const gambarKonten = semuaKontenCache.filter(item => item.jenis === 'gambar' && item.gambar);
+            const hasil = kategoriFilter === 'semua'
+                ? gambarKonten
+                : gambarKonten.filter(k => k.kategori === kategoriFilter);
 
-                // Filter 1: Hanya ambil yang jenisnya 'gambar'
-                const gambarKonten = semuaKonten.filter(item => item.jenis === 'gambar');
+            if (hasil.length === 0) {
+                galeriContainerEl.innerHTML = "<p class='col-span-full text-gray-500 text-center'>Tidak ada gambar untuk kategori ini.</p>";
+                return;
+            }
 
-                // Filter 2: Berdasarkan kategori yang aktif
-                let hasil = kategoriFilter === 'semua' ? gambarKonten : gambarKonten.filter(k => k.kategori === kategoriFilter);
-
-                galeriContainerEl.innerHTML = "";
-
-                if (hasil.length === 0) {
-                    galeriContainerEl.innerHTML = "<p class='col-span-full text-gray-500 text-center'>Tidak ada gambar untuk kategori ini.</p>";
-                    return;
-                }
-
-                hasil.sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).forEach(item => {
-                    const card = document.createElement("div");
-                    card.className = "bg-white rounded-lg shadow hover:shadow-lg transition p-4";
-                    const placeholderImg = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
-
-                    card.innerHTML = `
-                        <img src="${item.gambar}" alt="${item.judul}" class="w-full h-56 object-contain cursor-pointer border rounded bg-gray-50 mb-4">
-                        <h3 class="font-semibold text-lg text-blue-700 truncate">${item.judul}</h3>
-                        <div class="mt-2 pt-2 border-t flex items-center justify-between">
-                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
-                            <div class="flex items-center gap-2">
-                                <img src="${item.userProfilePicture || placeholderImg}" alt="Author" class="w-6 h-6 rounded-full object-cover">
-                                <span class="text-gray-500 text-xs">${item.userName}</span>
-                            </div>
-                        </div>
-                    `;
-                    card.querySelector('img').addEventListener('click', () => tampilkanPreview(item.gambar));
-                    galeriContainerEl.appendChild(card);
-                });
-            }, { onlyOnce: false }); // Gunakan 'onValue' untuk pembaruan real-time
+            hasil.sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).forEach(item => {
+                const card = document.createElement("div");
+                card.className = "bg-white rounded-lg shadow hover:shadow-lg transition p-4";
+                const placeholder = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
+                card.innerHTML = `
+            <img src="${item.gambar}" alt="${item.judul}" class="w-full h-56 object-contain cursor-pointer border rounded bg-gray-50 mb-4">
+            <h3 class="font-semibold text-lg text-blue-700 truncate">${item.judul}</h3>
+            <div class="mt-2 pt-2 border-t flex items-center justify-between">
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                <div class="flex items-center gap-2">
+                    <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
+                    <span class="text-gray-500 text-xs">${item.userName}</span>
+                </div>
+            </div>`;
+                card.querySelector('img').addEventListener('click', () => tampilkanPreview(item.gambar));
+                galeriContainerEl.appendChild(card);
+            });
         };
 
-        // --- Titik Masuk Utama Saat Halaman Dimuat ---
-        document.addEventListener("DOMContentLoaded", () => {
-            // Event Listener untuk elemen statis
-            document.getElementById('logout-button').addEventListener('click', logout);
-            document.getElementById('close-preview').addEventListener('click', tutupPreview);
-            previewOverlay.addEventListener('click', (e) => { if (e.target === previewOverlay) tutupPreview(); });
-            // --- Hamburger Toggle ---
-            const toggleBtn = document.getElementById("menu-toggle");
-            const navMenu = document.getElementById("nav-menu");
-            toggleBtn.addEventListener("click", () => {
-                navMenu.classList.toggle("hidden");
+        // --- Ambil Semua Konten Sekali ---
+        const fetchAllContentAndRender = () => {
+            const kontenRef = ref(db, 'konten');
+            galeriContainerEl.innerHTML = "<p class='col-span-full text-center text-gray-500'>Memuat gambar...</p>";
+
+            get(ref(db, 'konten')).then(snapshot => {
+                console.log("📡 Ambil data konten:", snapshot.exists());
+
+                semuaKontenCache = [];
+
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const data = child.val();
+                        console.log("➡️ Item:", data); // LOG DATA NYATA
+                        semuaKontenCache.push(data);
+                    });
+                } else {
+                    console.warn("⚠️ Tidak ada data ditemukan.");
+                }
+
+                console.log("📦 Total item:", semuaKontenCache.length);
+                renderGambar();
             });
 
-            // Cek status otentikasi pengguna
+        };
+
+        // --- INIT ---
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('logout-button').addEventListener('click', logout);
+            document.getElementById('menu-toggle').addEventListener('click', () => {
+                document.getElementById('nav-menu').classList.toggle("hidden");
+            });
+            document.getElementById('close-preview').addEventListener('click', tutupPreview);
+            previewOverlay.addEventListener('click', e => {
+                if (e.target === previewOverlay) tutupPreview();
+            });
+
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-                    if (loggedInUser && loggedInUser.id === user.uid) {
-                        document.getElementById("welcomeUser").textContent = loggedInUser.name;
-                        if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
-                        if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
+                    get(ref(db, 'users/' + user.uid)).then(snapshot => {
+                        if (snapshot.exists()) {
+                            const userProfile = snapshot.val();
+                            localStorage.setItem('loggedInUser', JSON.stringify(userProfile));
+                            document.getElementById("welcomeUser").textContent = userProfile.name;
+                            if (userProfile.profilePicture) document.getElementById("navbarProfilePicture").src = userProfile.profilePicture;
+                            if (userProfile.role === 'admin') document.getElementById("adminLink").classList.remove('hidden');
 
-                        // Muat data utama halaman
-                        tampilkanKategori();
-                        tampilGambar();
-                    } else {
-                        // Jika localStorage tidak sinkron, paksa logout untuk login ulang
-                        logout();
-                    }
+                            tampilkanKategori();             // ⬅️ tampilkan tombol filter
+                            fetchAllContentAndRender();      // ⬅️ ambil semua gambar
+                        } else {
+                            logout();
+                        }
+                    });
                 } else {
                     showToast("Silakan login terlebih dahulu.", "error");
                     setTimeout(() => window.location.href = "login.html", 1500);
@@ -226,6 +272,7 @@
             });
         });
     </script>
+
 </body>
 
 </html>

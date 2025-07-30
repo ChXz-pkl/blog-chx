@@ -63,7 +63,6 @@
         </div>
     </nav>
 
-
     <main class="flex-1 container mx-auto px-4 py-6">
         <div class="text-center mb-6">
             <h2 class="text-3xl font-bold text-blue-600">Konten Teks</h2>
@@ -74,13 +73,13 @@
         </div>
     </main>
 
-    <div id="bacaModal" class="fixed inset-0 bg-black bg-opacity-70 hidden justify-center items-center z-50">
+    <div id="bacaModal" class="fixed inset-0 bg-black bg-opacity-70 hidden justify-center items-center z-[100]">
         <div class="bg-white max-w-xl w-full mx-4 p-6 rounded-xl shadow-lg relative">
             <button id="close-baca"
                 class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold">✖</button>
             <h2 id="judulBaca" class="text-xl font-bold mb-2 text-blue-700"></h2>
             <p id="isiBaca"
-                class="text-gray-800 whitespace-pre-line leading-relaxed text-sm max-h-[60vh] overflow-y-auto"></p>
+                class="break-words text-gray-800 whitespace-pre-line leading-relaxed text-sm max-h-[60vh] overflow-y-auto"></p>
         </div>
     </div>
 
@@ -92,10 +91,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-        import { get, child } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-        // --- KONFIGURASI FIREBASE (LENGKAP) ---
         const firebaseConfig = {
             apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
             authDomain: "rzf-academy-bd.firebaseapp.com",
@@ -110,44 +107,36 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // --- Elemen UI ---
         const teksContainerEl = document.getElementById('teksContainer');
+        const bacaModal = document.getElementById("bacaModal");
 
-        // --- Fungsi Utilitas & UI ---
         function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
         const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
-
-        const bacaModal = document.getElementById("bacaModal");
-        const judulBaca = document.getElementById("judulBaca");
-        const isiBaca = document.getElementById("isiBaca");
-        const bukaBaca = (teks, judul) => {
-            judulBaca.textContent = decodeURIComponent(judul);
-            isiBaca.textContent = decodeURIComponent(teks);
-            bacaModal.style.display = "flex";
-        };
         const tutupBaca = () => { bacaModal.style.display = "none"; };
 
-        // --- Fungsi Utama Aplikasi ---
         const tampilkanKategori = () => {
             const kategoriRef = ref(db, 'kategoriList');
             const kategoriBadgesEl = document.getElementById('kategoriBadges');
             get(kategoriRef).then(snapshot => {
                 let badgeHTML = `<button class="kategori-badge active" data-kategori="semua">Semua</button>`;
                 if (snapshot.exists()) {
-                    snapshot.val().forEach(kat => {
+                    snapshot.forEach(katSnapshot => {
+                        const kat = katSnapshot.val();
                         const katFormatted = kat.charAt(0).toUpperCase() + kat.slice(1);
                         badgeHTML += `<button class="kategori-badge" data-kategori="${kat}">${katFormatted}</button>`;
                     });
                 }
                 kategoriBadgesEl.innerHTML = badgeHTML;
-
                 kategoriBadgesEl.querySelectorAll('.kategori-badge').forEach(badge => {
                     badge.addEventListener('click', (e) => {
-                        kategoriBadgesEl.querySelector('.active').classList.remove('active');
+                        kategoriBadgesEl.querySelector('.active')?.classList.remove('active');
                         e.currentTarget.classList.add('active');
                         tampilTeks();
                     });
                 });
+            }).catch(err => {
+                console.error("❌ Gagal memuat kategori:", err);
+                kategoriBadgesEl.innerHTML = `<button class="kategori-badge active" data-kategori="semua">Semua</button>`;
             });
         };
 
@@ -156,72 +145,94 @@
             const kategoriFilter = activeBadge ? activeBadge.dataset.kategori : 'semua';
             const kontenRef = ref(db, 'konten');
 
-            teksContainerEl.innerHTML = "<p class='col-span-full text-center text-gray-500'>Memuat tulisan...</p>";
+            teksContainerEl.innerHTML = `<p class="col-span-full text-center text-gray-500">Memuat tulisan...</p>`;
 
             get(kontenRef).then(snapshot => {
                 const semuaKonten = [];
                 if (snapshot.exists()) {
-                    snapshot.forEach(child => semuaKonten.push(child.val()));
+                    // --- UBAH CARA AMBIL DATA ---
+                    // Ambil semua data sebagai satu objek besar
+                    const dataObjek = snapshot.val();
+                    // Ubah objek tersebut menjadi array secara manual
+                    for (const key in dataObjek) {
+                        semuaKonten.push(dataObjek[key]);
+                    }
                 }
 
-                // Filter 1: Hanya ambil yang jenisnya 'teks'
-                const teksKonten = semuaKonten.filter(item => item.jenis === 'teks');
-
-                // Filter 2: Berdasarkan kategori yang aktif
-                let hasil = kategoriFilter === 'semua' ? teksKonten : teksKonten.filter(k => k.kategori === kategoriFilter);
+                const teksKonten = semuaKonten.filter(item => item && item.jenis === 'teks');
+                let hasil = kategoriFilter === 'semua' ? teksKonten : teksKonten.filter(k => k && k.kategori === kategoriFilter);
 
                 teksContainerEl.innerHTML = "";
 
+                console.log(`[DEBUG] Ditemukan ${hasil.length} data teks untuk kategori '${kategoriFilter}'.`);
+
                 if (hasil.length === 0) {
-                    teksContainerEl.innerHTML = "<p class='col-span-full text-gray-500 text-center'>Tidak ada tulisan untuk kategori ini.</p>";
+                    teksContainerEl.innerHTML = `<p class="col-span-full text-gray-500 text-center">Tidak ada tulisan untuk kategori ini.</p>`;
                     return;
                 }
 
-                hasil.sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).forEach(item => {
-                    const card = document.createElement("div");
-                    card.className = "bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col";
-                    const placeholderImg = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
-                    const kalimat = item.teks ? item.teks.match(/[^.!?]+[.!?]+/g) || [] : [];
-                    const preview = kalimat.slice(0, 3).join(' ');
+                hasil.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
 
-                    card.innerHTML = `
-                        <div class="flex-1 flex flex-col">
-                            <h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3>
-                            <p class="text-sm text-gray-600 mt-1 flex-grow">${(item.teks && item.teks.length > 150) ? '...' : ''}</p>
-                            ${item.teks.length > 150 ? `<button class="baca-selengkapnya-btn mt-2 text-blue-500 hover:underline text-sm font-semibold self-start">Baca Selengkapnya</button>` : ''}
-                            <div class="mt-auto pt-3 border-t flex flex-wrap items-center gap-x-4 gap-y-2">
-                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">${item.kategori}</span>
-                                <div class="flex items-center gap-2">
-                                    <img src="${item.userProfilePicture || placeholderImg}" alt="Author" class="w-6 h-6 rounded-full object-cover">
-                                    <span class="text-gray-500 text-xs">Oleh: ${item.userName}</span>
-                                </div>
-                            </div>
+                hasil.forEach((item, index) => {
+                    try {
+                        if (!item) return;
+                        console.log(`[DEBUG] Memproses item #${index + 1}: "${item.judul}"`);
+
+                        const card = document.createElement("div");
+                        card.className = "bg-white rounded-lg shadow hover:shadow-lg p-4 flex flex-col justify-between";
+
+                        const placeholderImg = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
+                        const fullText = item.teks || "";
+                        const preview = fullText.slice(0, 200);
+
+                        card.innerHTML = `
+                    <div>
+                        <h3 class="text-lg font-semibold text-blue-700 mb-2">${item.judul || 'Tanpa Judul'}</h3>
+                        <p class="text-sm text-gray-700 leading-relaxed min-h-[64px] break-words">
+                            ${preview.replace(/\n/g, "<br>")}${fullText.length > 200 ? '...' : ''}
+                        </p>
+                        ${fullText.length > 200 ? `
+                        <div class="mt-2">
+                            <button class="text-sm text-blue-600 hover:underline baca-selengkapnya-btn">Baca Selengkapnya</button>
                         </div>
-                    `;
+                        ` : ''}
+                    </div>
+                    <div class="mt-3 pt-3 border-t flex items-center justify-between">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori || '-'}</span>
+                        <div class="flex items-center gap-2">
+                            <img src="${item.userProfilePicture || placeholderImg}" class="w-6 h-6 rounded-full object-cover" />
+                            <span class="text-gray-500 text-xs">${item.userName || 'Anonim'}</span>
+                        </div>
+                    </div>`;
 
-                    const bacaBtn = card.querySelector('.baca-selengkapnya-btn');
-                    if (bacaBtn) {
-                        bacaBtn.addEventListener('click', () => bukaBaca(encodeURIComponent(item.teks), encodeURIComponent(item.judul)));
+                        const bacaBtn = card.querySelector('.baca-selengkapnya-btn');
+                        if (bacaBtn) {
+                            bacaBtn.addEventListener('click', () => {
+                                document.getElementById('judulBaca').textContent = item.judul;
+                                document.getElementById('isiBaca').innerHTML = fullText.replace(/\n/g, "<br>");
+                                document.getElementById('bacaModal').style.display = 'flex';
+                            });
+                        }
+                        teksContainerEl.appendChild(card);
+
+                    } catch (error) {
+                        console.error(`[ERROR] Gagal memproses item "${item.judul}". Penyebab:`, error);
                     }
-                    teksContainerEl.appendChild(card);
                 });
+
+            }).catch(err => {
+                teksContainerEl.innerHTML = `<p class="col-span-full text-red-500 text-center">Gagal memuat data.</p>`;
+                console.error("❌ Error saat ambil konten teks:", err);
             });
         };
-
-        // --- Titik Masuk Utama Saat Halaman Dimuat ---
         document.addEventListener("DOMContentLoaded", () => {
-            // Event Listener untuk elemen statis
             document.getElementById('logout-button').addEventListener('click', logout);
             document.getElementById('close-baca').addEventListener('click', tutupBaca);
             bacaModal.addEventListener('click', (e) => { if (e.target === bacaModal) tutupBaca(); });
-            // --- Hamburger Toggle ---
-            const toggleBtn = document.getElementById("menu-toggle");
-            const navMenu = document.getElementById("nav-menu");
-            toggleBtn.addEventListener("click", () => {
-                navMenu.classList.toggle("hidden");
+            document.getElementById("menu-toggle").addEventListener("click", () => {
+                document.getElementById("nav-menu").classList.toggle("hidden");
             });
 
-            // Cek status otentikasi pengguna
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
@@ -229,8 +240,6 @@
                         document.getElementById("welcomeUser").textContent = loggedInUser.name;
                         if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
                         if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
-
-                        // Muat data utama halaman
                         tampilkanKategori();
                         tampilTeks();
                     } else {

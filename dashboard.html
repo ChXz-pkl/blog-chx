@@ -77,14 +77,18 @@
             id="close-preview"
             class="absolute top-5 right-6 text-white text-4xl cursor-pointer font-bold">&times;</span><img
             id="previewImage" class="max-w-[90%] max-h-[90%] rounded shadow-2xl" /></div>
+    <!-- Modal Baca Selengkapnya -->
     <div id="bacaModal" class="fixed inset-0 bg-black bg-opacity-70 hidden justify-center items-center z-50">
-        <div class="bg-white max-w-xl w-full mx-4 p-6 rounded-xl shadow-lg relative"><button id="close-baca"
+        <div class="bg-white max-w-xl w-full mx-4 p-6 rounded-xl shadow-lg relative">
+            <button id="close-baca"
                 class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold">✖</button>
             <h2 id="judulBaca" class="text-xl font-bold mb-2 text-blue-700"></h2>
             <p id="isiBaca"
-                class="text-gray-800 whitespace-pre-line leading-relaxed text-sm max-h-[60vh] overflow-y-auto"></p>
+                class="text-gray-800 whitespace-pre-line leading-relaxed text-sm max-h-[60vh] overflow-y-auto break-words">
+            </p>
         </div>
     </div>
+
 
     <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
         &copy; 2025 <a href="https://portfolio-chx.netlify.app/"
@@ -94,10 +98,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-        import { get, child } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-        // --- KONFIGURASI FIREBASE (LENGKAP) ---
+        // --- Konfigurasi Firebase ---
         const firebaseConfig = {
             apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
             authDomain: "rzf-academy-bd.firebaseapp.com",
@@ -105,115 +108,167 @@
             projectId: "rzf-academy-bd",
             storageBucket: "rzf-academy-bd.appspot.com",
             messagingSenderId: "875822158869",
-            appId: "1:875822158869:web:a88c284f1d031d9da3aa1c",
+            appId: "1:875822158869:web:a88c284f1d031d9da3aa1c"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // --- Fungsi Utilitas & UI ---
-        function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
-        const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
+        // --- UI Elements ---
+        const container = document.getElementById("feedKonten");
+        const logoutBtn = document.getElementById("logout-button");
+        const navbarProfilePicture = document.getElementById("navbarProfilePicture");
+        const welcomeUser = document.getElementById("welcomeUser");
+        const adminLink = document.getElementById("adminLink");
 
-        const previewOverlay = document.getElementById("previewOverlay"), previewImage = document.getElementById("previewImage"), bacaModal = document.getElementById("bacaModal"), judulBaca = document.getElementById("judulBaca"), isiBaca = document.getElementById("isiBaca");
-        const tampilkanPreview = (src) => { previewImage.src = src; previewOverlay.style.display = "flex"; };
-        const tutupPreview = () => previewOverlay.style.display = "none";
-        const bukaBaca = (teks, judul) => { judulBaca.textContent = decodeURIComponent(judul); isiBaca.textContent = decodeURIComponent(teks); bacaModal.style.display = "flex"; };
-        const tutupBaca = () => bacaModal.style.display = "none";
-
-        // --- Fungsi Utama Aplikasi ---
-        const tampilkanKategori = () => {
-            const kategoriRef = ref(db, 'kategoriList');
-            get(kategoriRef).then(snapshot => {
-                let badgeHTML = `<button class="kategori-badge active" data-kategori="semua">Semua</button>`;
-                if (snapshot.exists()) snapshot.val().forEach(kat => badgeHTML += `<button class="kategori-badge" data-kategori="${kat}">${kat.charAt(0).toUpperCase() + kat.slice(1)}</button>`);
-                document.getElementById('kategoriBadges').innerHTML = badgeHTML;
-                document.querySelectorAll('.kategori-badge').forEach(b => b.addEventListener('click', (e) => { document.querySelector('.kategori-badge.active').classList.remove('active'); e.currentTarget.classList.add('active'); tampilkanFeed(); }));
-            });
+        // --- Utilitas ---
+        const showToast = (message, type = 'success') => {
+            const toastContainer = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-fade ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         };
 
-        const tampilkanFeed = () => {
-            const filter = document.querySelector('#kategoriBadges .kategori-badge.active')?.dataset.kategori || 'semua';
+        // --- Render Konten ---
+        const renderKonten = (data) => {
+            container.innerHTML = "";
+
+            if (data.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500">Belum ada konten.</p>`;
+                return;
+            }
+
+            data.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
+
+            data.forEach(item => {
+                const card = document.createElement("div");
+                // --- PERUBAHAN 1: Hapus 'justify-between' dari kartu utama ---
+                card.className = "bg-white rounded-lg shadow hover:shadow-lg p-4 flex flex-col";
+
+                // Definisikan placeholder di sini agar aman
+                const placeholder = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
+
+                if (item.jenis === 'gambar') {
+                    card.innerHTML = `
+                        <div>
+                            <img src="${item.gambar}" alt="${item.judul}"
+                                class="w-full max-h-56 object-contain bg-gray-100 rounded mb-3 shadow-sm" />
+                            <h3 class="text-lg font-semibold text-blue-700 truncate mb-1">${item.judul}</h3>
+                        </div>
+                        
+                        <div class="mt-auto pt-3 border-t flex items-center justify-between">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                            <div class="flex items-center gap-2">
+                                <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
+                                <span class="text-gray-500 text-xs">${item.userName}</span>
+                            </div>
+                        </div>
+                    `;
+                } else if (item.jenis === 'teks') {
+                    const fullText = item.teks || "";
+                    const preview = fullText.slice(0, 200).replace(/\n/g, "<br>");
+
+                    card.innerHTML = `
+                        <div>
+                            <h3 class="text-lg font-semibold text-blue-700 mb-2">${item.judul}</h3>
+                            <p class="text-[18px] text-gray-800 leading-relaxed min-h-[64px] break-words">
+                            ${preview}${fullText.length > 200 ? '...' : ''}
+                            </p>
+                            ${fullText.length > 200 ? `
+                            <div class="mt-2">
+                                <button class="text-sm text-blue-600 hover:underline baca-btn">Baca Selengkapnya</button>
+                            </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="mt-auto pt-3 border-t flex items-center justify-between">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                            <div class="flex items-center gap-2">
+                                <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
+                                <span class="text-gray-500 text-xs">${item.userName}</span>
+                            </div>
+                        </div>`;
+
+                    // Modal listener
+                    setTimeout(() => {
+                        const bacaBtn = card.querySelector('.baca-btn');
+                        if (bacaBtn) {
+                            bacaBtn.addEventListener('click', () => {
+                                document.getElementById('judulBaca').textContent = item.judul;
+                                document.getElementById('isiBaca').innerHTML = fullText.replace(/\n/g, "<br>");
+                                document.getElementById('bacaModal').style.display = 'flex';
+                            });
+                        }
+                    }, 0);
+                }
+
+                container.appendChild(card);
+            });
+        };
+        // --- Ambil Konten dari Firebase ---
+        const fetchKonten = () => {
             const kontenRef = ref(db, 'konten');
-            const container = document.getElementById("feedKonten");
-
             get(kontenRef).then(snapshot => {
-                container.innerHTML = "<p class='col-span-full text-center text-gray-500'>Memuat...</p>";
-                const semuaKonten = [];
-                if (snapshot.exists()) snapshot.forEach(child => semuaKonten.push(child.val()));
-
-                let hasil = filter === 'semua' ? semuaKonten : semuaKonten.filter(k => k.kategori === filter);
-                container.innerHTML = "";
-                if (hasil.length === 0) { container.innerHTML = "<p class='col-span-full text-gray-500 text-center'>Belum ada konten untuk kategori ini.</p>"; return; }
-
-                hasil.sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).forEach(item => {
-                    const card = document.createElement("div");
-                    const placeholder = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
-                    if (item.jenis === 'gambar') {
-                        card.className = "bg-white rounded-lg shadow hover:shadow-lg transition flex items-start gap-4 p-4";
-                        card.innerHTML = `<img src="${item.gambar}" class="w-32 h-32 object-contain cursor-pointer border rounded bg-gray-50" /><div class="flex-1"><h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3><div class="mt-3 pt-2 border-t flex items-center gap-2"><img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover"><span class="text-gray-500 text-xs">Oleh: ${item.userName}</span></div></div>`;
-                        card.querySelector('img').addEventListener('click', () => tampilkanPreview(item.gambar));
-                    } else {
-                        card.className = "bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col";
-                        const preview = (item.teks || '').substring(0, 150);
-                        card.innerHTML = `<div class="flex-1 flex flex-col"><h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3><p class="text-sm text-gray-600 mt-1">${preview}${item.teks.length > 120 ? '...' : ''}</p>${item.teks.length > 120 ? `<button class="baca-btn mt-2 text-blue-500 hover:underline text-sm font-semibold self-start">Baca Selengkapnya</button>` : ''}<div class="mt-auto pt-3 border-t flex items-center gap-2"><img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover"><span class="text-gray-500 text-xs">Oleh: ${item.userName}</span></div></div>`;
-                        const btn = card.querySelector('.baca-btn');
-                        if (btn) btn.addEventListener('click', () => bukaBaca(encodeURIComponent(item.teks), encodeURIComponent(item.judul)));
-                    }
-                    container.appendChild(card);
-                });
+                let hasil = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const data = child.val();
+                        hasil.push(data);
+                    });
+                }
+                renderKonten(hasil);
+            }).catch(err => {
+                console.error("❌ Gagal mengambil konten:", err);
+                showToast("Gagal memuat konten", "error");
             });
         };
 
-        // --- TITIK MASUK UTAMA HALAMAN (LOGIKA BARU YANG LEBIH BAIK) ---
+        // --- Logout ---
+        const logout = () => {
+            signOut(auth).then(() => {
+                localStorage.removeItem("loggedInUser");
+                showToast("Berhasil logout.");
+                setTimeout(() => window.location.href = "index.html", 1500);
+            });
+        };
+
+        // --- DOM Loaded ---
         document.addEventListener("DOMContentLoaded", () => {
-            // Event listener untuk elemen statis
-            document.getElementById('logout-button').addEventListener('click', logout);
-            document.getElementById('close-preview').addEventListener('click', tutupPreview);
-            document.getElementById('close-baca').addEventListener('click', tutupBaca);
-            previewOverlay.addEventListener('click', (e) => { if (e.target === previewOverlay) tutupPreview(); });
-            bacaModal.addEventListener('click', (e) => { if (e.target === bacaModal) tutupBaca(); });
-            const toggleBtn = document.getElementById("menu-toggle");
-            const navMenu = document.getElementById("nav-menu");
-            toggleBtn.addEventListener("click", () => {
-                navMenu.classList.toggle("hidden");
+            document.getElementById("menu-toggle").addEventListener("click", () => {
+                document.getElementById("nav-menu").classList.toggle("hidden");
             });
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        // 1. Pengguna terautentikasi oleh Firebase.
-                        const userRef = ref(db, 'users/' + user.uid);
 
-                        // 2. Ambil profil lengkap dari Realtime Database.
-                        get(userRef).then(snapshot => {
-                            if (snapshot.exists()) {
-                                const userProfile = snapshot.val();
-                                // 3. Simpan profil ke localStorage agar halaman lain bisa pakai.
-                                localStorage.setItem('loggedInUser', JSON.stringify(userProfile));
+            logoutBtn.addEventListener("click", logout);
 
-                                // 4. Update UI Navbar.
-                                document.getElementById("welcomeUser").textContent = userProfile.name;
-                                if (userProfile.profilePicture) document.getElementById("navbarProfilePicture").src = userProfile.profilePicture;
-                                if (userProfile.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
-
-                                // 5. Setelah semua data siap, baru muat konten halaman.
-                                tampilkanKategori();
-                                tampilkanFeed();
-                            } else {
-                                // Kasus aneh: User ada di Auth tapi tidak di DB. Logout paksa.
-                                showToast("Data profil Anda tidak ditemukan.", "error");
-                                logout();
-                            }
-                        }, { onlyOnce: true }); // Cukup ambil data sekali saat halaman dimuat
-                    } else {
-                        // Jika tidak ada sesi aktif di Firebase, arahkan ke login.
-                        showToast("Silakan login terlebih dahulu.", "error");
-                        setTimeout(() => window.location.href = "login.html", 1500);
-                    }
-                });
-
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    get(ref(db, 'users/' + user.uid)).then(snapshot => {
+                        if (snapshot.exists()) {
+                            const userData = snapshot.val();
+                            localStorage.setItem('loggedInUser', JSON.stringify(userData));
+                            welcomeUser.textContent = userData.name;
+                            if (userData.profilePicture) navbarProfilePicture.src = userData.profilePicture;
+                            if (userData.role === 'admin') adminLink.classList.remove('hidden');
+                            fetchKonten();
+                        } else {
+                            logout();
+                        }
+                    });
+                } else {
+                    showToast("Silakan login terlebih dahulu", "error");
+                    setTimeout(() => window.location.href = "login.html", 1500);
+                }
             });
+        });
+        document.getElementById("close-baca").addEventListener("click", () => {
+            document.getElementById("bacaModal").style.display = "none";
+        });
+
     </script>
+
 </body>
 
 </html>
