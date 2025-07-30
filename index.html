@@ -3,179 +3,119 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>RZF Academy - Platform Kreativitas Anda</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>RZF Academy - Platform Kolaborasi Kreator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .blinking-cursor { animation: blink 1s step-end infinite; }
-        @keyframes blink { from, to { color: transparent; } 50% { color: #2563eb; } }
-        .animate-on-scroll { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
-        .animate-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
+        /* CSS untuk animasi scroll */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .animate-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body class="bg-gray-900 text-gray-200 min-h-screen flex flex-col font-sans">
 
-    <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md sticky top-0 z-20">
+    <nav class="bg-gray-900/80 backdrop-blur-sm text-white px-4 md:px-8 py-4 flex justify-between items-center sticky top-0 z-20 border-b border-gray-700">
         <h1 class="text-xl font-bold">RZF Academy</h1>
         <div class="space-x-2">
-            <a href="login.html" class="px-4 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold transition">Login</a>
-            <a href="registrasi.html" class="px-4 py-1 bg-white text-blue-600 rounded hover:bg-blue-100 text-sm font-bold transition">Register</a>
+            <a href="login.html" class="px-4 py-2 border border-gray-600 rounded-md hover:bg-gray-800 text-sm font-semibold transition">Login</a>
+            <a href="registrasi.html" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 text-sm font-bold transition">Register</a>
         </div>
     </nav>
 
     <main class="flex-1 container mx-auto px-4 py-8">
         
-        <section class="text-center my-8 md:my-16">
-            <h2 class="text-3xl md:text-5xl font-bold text-blue-600 h-16 flex items-center justify-center">
-                <span id="typing-text"></span><span class="blinking-cursor">|</span>
+        <section class="text-center my-16 md:my-24">
+            <div class="relative w-64 h-64 md:w-80 md:h-80 mx-auto mb-8 flex items-center justify-center">
+                <div class="absolute inset-0 bg-blue-500 rounded-full blur-2xl opacity-30"></div>
+                <svg viewBox="0 0 100 100" class="relative z-10 animate-pulse">
+                    <defs>
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="50" cy="50" r="45" stroke="url(#grad1)" stroke-width="2" fill="none" />
+                    <circle cx="50" cy="50" r="30" stroke="rgba(255,255,255,0.2)" stroke-width="1" fill="none" />
+                    <text x="50" y="55" font-family="monospace" font-size="12" fill="white" text-anchor="middle">RZF</text>
+                </svg>
+            </div>
+            
+            <h2 class="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+                Platform Kolaborasi untuk<br class="hidden md:block"/> <span class="text-blue-400">Kreator Masa Depan</span>
             </h2>
-            <p class="text-gray-600 mt-2 text-lg max-w-2xl mx-auto">Sebuah ruang untuk berbagi dan menemukan inspirasi tanpa batas.</p>
+            <p class="text-gray-400 mt-4 text-lg max-w-2xl mx-auto">
+                Bagikan karya, temukan inspirasi, dan bangun portofolio Anda di dalam komunitas developer dan desainer.
+            </p>
+            <a href="registrasi.html" class="mt-8 inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 font-bold text-lg transition-transform duration-300 hover:scale-105 shadow-lg shadow-blue-500/20">
+                Mulai Berkarya, Gratis!
+            </a>
         </section>
 
-        <section class="my-8 md:my-16">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-on-scroll">
-                    <h4 class="font-semibold text-lg mb-2">Unggah Karyamu</h4>
-                    <p class="text-gray-600 text-sm">Bagikan tulisan atau gambar orisinal buatanmu dengan mudah.</p>
+        <section class="my-16 md:my-24">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700 hover:border-blue-500 transition-colors duration-300 animate-on-scroll">
+                    <h4 class="font-semibold text-lg mb-2 text-white">🚀 Unggah Cepat</h4>
+                    <p class="text-gray-400 text-sm">Bagikan cuplikan kode, desain, atau tulisan Anda dalam hitungan detik. Tanpa proses yang rumit.</p>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-on-scroll" style="transition-delay: 150ms;">
-                    <h4 class="font-semibold text-lg mb-2">Temukan Inspirasi</h4>
-                    <p class="text-gray-600 text-sm">Jelajahi karya dari kreator lain untuk memicu ide-ide cemerlang.</p>
+                <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700 hover:border-blue-500 transition-colors duration-300 animate-on-scroll" style="transition-delay: 150ms;">
+                    <h4 class="font-semibold text-lg mb-2 text-white">💡 Temukan Inspirasi</h4>
+                    <p class="text-gray-400 text-sm">Jelajahi feed tanpa akhir yang berisi karya-karya dari komunitas untuk memicu ide brilian Anda berikutnya.</p>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-on-scroll" style="transition-delay: 300ms;">
-                    <h4 class="font-semibold text-lg mb-2">Jadi Bagian Komunitas</h4>
-                    <p class="text-gray-600 text-sm">Terhubung dengan sesama pegiat kreatif yang positif dan suportif.</p>
+                <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700 hover:border-blue-500 transition-colors duration-300 animate-on-scroll" style="transition-delay: 300ms;">
+                    <h4 class="font-semibold text-lg mb-2 text-white">🌐 Bangun Portofolio</h4>
+                    <p class="text-gray-400 text-sm">Setiap karya yang Anda bagikan secara otomatis membangun portofolio publik yang mengesankan.</p>
                 </div>
             </div>
         </section>
 
-        <section class="my-8 md:my-16">
-            <h3 class="text-2xl font-bold text-center text-gray-800 mb-8 animate-on-scroll">Inspirasi Terbaru dari Komunitas</h3>
-            <div id="latest-posts-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <section class="my-16 md:my-24 animate-on-scroll">
+            <h3 class="text-3xl font-bold text-center text-white mb-12">Sederhana dan Terstruktur</h3>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-4 text-center">
+                <div class="bg-gray-800 p-6 rounded-lg w-full md:w-1/4">
+                    <p class="text-blue-400 font-mono text-lg mb-2">01</p>
+                    <h4 class="font-semibold text-white">Buat & Unggah</h4>
+                    <p class="text-sm text-gray-400 mt-1">Tulis kode atau desain sesuatu yang keren.</p>
                 </div>
-            <div class="text-center animate-on-scroll">
-                <a href="registrasi.html" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold text-lg transition-transform duration-300 hover:scale-105 shadow-lg">
-                    Lihat Lebih Banyak & Bergabung
-                </a>
+                <div class="text-gray-500 font-mono hidden md:block">---></div>
+                <div class="bg-gray-800 p-6 rounded-lg w-full md:w-1/4">
+                    <p class="text-blue-400 font-mono text-lg mb-2">02</p>
+                    <h4 class="font-semibold text-white">Dapat Apresiasi</h4>
+                    <p class="text-sm text-gray-400 mt-1">Dapatkan umpan balik dan dukungan dari komunitas.</p>
+                </div>
+                <div class="text-gray-500 font-mono hidden md:block">---></div>
+                <div class="bg-gray-800 p-6 rounded-lg w-full md:w-1/4">
+                    <p class="text-blue-400 font-mono text-lg mb-2">03</p>
+                    <h4 class="font-semibold text-white">Kembangkan Diri</h4>
+                    <p class="text-sm text-gray-400 mt-1">Portofolio Anda berkembang seiring skill Anda.</p>
+                </div>
             </div>
         </section>
 
     </main>
 
-    <footer class="bg-gray-200 text-center text-gray-600 py-4 text-sm mt-auto">
-        &copy; 2025 <a href="https://portfolio-chx.netlify.app/" class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
+    <footer class="bg-gray-900 border-t border-gray-700 text-center text-gray-500 py-6 text-sm">
+        &copy; 2025 RZF Academy & CHX • All rights reserved.
     </footer>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import { getDatabase, ref, get, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-
-        // --- Konfigurasi Firebase ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
-            authDomain: "rzf-academy-bd.firebaseapp.com",
-            databaseURL: "https://rzf-academy-bd-default-rtdb.firebaseio.com",
-            projectId: "rzf-academy-bd",
-            storageBucket: "rzf-academy-bd.appspot.com",
-            messagingSenderId: "875822158869",
-            appId: "1:875822158869:web:a88c284f1d031d9da3aa1c"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // --- Logika untuk Animasi, Efek Mengetik, dan Ambil Data ---
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- Efek Mengetik (Teks lebih simpel & nyata) ---
-            const typingTextElement = document.getElementById('typing-text');
-            if (typingTextElement) {
-                const textsToType = ["Bagikan Karyamu.", "Temukan Inspirasi.", "Bangun Komunitas."];
-                // (logika efek mengetik disembunyikan di sini agar ringkas, intinya sama seperti sebelumnya)
-                typeEffect(typingTextElement, textsToType);
-            }
-
-            // --- Animasi Saat Scroll ---
-            const scrollObserver = new IntersectionObserver((entries) => {
+            const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    if (entry.isIntersecting) entry.target.classList.add('is-visible');
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
                 });
-            }, { threshold: 0.1 });
-            document.querySelectorAll('.animate-on-scroll').forEach(el => scrollObserver.observe(el));
-
-            // --- [BARU] Fungsi untuk mengambil 4 postingan terbaru ---
-            const fetchLatestPosts = async () => {
-                const container = document.getElementById('latest-posts-container');
-                const kontenRef = ref(db, 'konten');
-                const kontenQuery = query(kontenRef, orderByChild('waktu'), limitToLast(4));
-                
-                try {
-                    const snapshot = await get(kontenQuery);
-                    if (snapshot.exists()) {
-                        const posts = [];
-                        snapshot.forEach(child => posts.push(child.val()));
-                        posts.reverse(); // Urutkan dari yang paling baru
-
-                        container.innerHTML = ''; // Kosongkan container
-                        posts.forEach(post => {
-                            const card = document.createElement('a');
-                            card.href = 'registrasi.html';
-                            card.className = 'block bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden animate-on-scroll';
-
-                            let cardContent = '';
-                            if (post.jenis === 'gambar') {
-                                cardContent = `
-                                    <img src="${post.gambar}" alt="${post.judul}" class="w-full h-40 object-cover">
-                                    <div class="p-4">
-                                        <h4 class="font-bold truncate">${post.judul}</h4>
-                                        <p class="text-xs text-gray-500">oleh ${post.userName}</p>
-                                    </div>
-                                `;
-                            } else { // jenis 'teks'
-                                const preview = (post.teks || '').slice(0, 80) + '...';
-                                cardContent = `
-                                    <div class="p-4 flex flex-col h-full">
-                                        <h4 class="font-bold">${post.judul}</h4>
-                                        <p class="text-sm text-gray-600 my-2 flex-grow">${preview}</p>
-                                        <p class="text-xs text-gray-500 mt-auto">oleh ${post.userName}</p>
-                                    </div>
-                                `;
-                            }
-                            card.innerHTML = cardContent;
-                            container.appendChild(card);
-                        });
-                        // Panggil lagi observer untuk menganimasikan kartu-kartu baru
-                        document.querySelectorAll('.animate-on-scroll').forEach(el => scrollObserver.observe(el));
-                    } else {
-                        container.innerHTML = '<p class="text-gray-500 col-span-4 text-center">Belum ada karya untuk ditampilkan.</p>';
-                    }
-                } catch (error) {
-                    console.error("Gagal memuat postingan terbaru:", error);
-                    container.innerHTML = '<p class="text-red-500 col-span-4 text-center">Gagal memuat postingan.</p>';
-                }
-            };
-
-            // Panggil semua fungsi
-            fetchLatestPosts();
-
-            // Definisi fungsi efek mengetik
-            function typeEffect(element, texts) {
-                let textIndex = 0, charIndex = 0, isDeleting = false;
-                const type = () => {
-                    const currentText = texts[textIndex];
-                    if(isDeleting) {
-                        element.textContent = currentText.substring(0, charIndex-- -1);
-                    } else {
-                        element.textContent = currentText.substring(0, charIndex++ +1);
-                    }
-                    if (!isDeleting && charIndex === currentText.length) {
-                        isDeleting = true; setTimeout(type, 2000); return;
-                    } else if (isDeleting && charIndex === 0) {
-                        isDeleting = false; textIndex = (textIndex + 1) % texts.length; setTimeout(type, 500); return;
-                    }
-                    setTimeout(type, isDeleting ? 100 : 200);
-                };
-                type();
-            }
+            }, {
+                threshold: 0.1
+            });
+            const elementsToAnimate = document.querySelectorAll('.animate-on-scroll');
+            elementsToAnimate.forEach(el => observer.observe(el));
         });
     </script>
 </body>
