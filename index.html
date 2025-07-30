@@ -5,17 +5,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>RZF Academy - Beranda</title>
-   <link rel="stylesheet" href="dist/output.css">
+    <link rel="stylesheet" href="dist/output.css">
 </head>
 
 <body class="bg-sky-50 min-h-screen flex flex-col">
 
-    <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md">
+    <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md sticky top-0 z-10">
         <h1 class="text-xl font-bold">RZF Academy</h1>
         <div class="space-x-2">
             <a href="login.html"
-                class="px-4 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Login</a>
-            <a href="registrasi.html" class="px-4 py-1 bg-white text-blue-600 rounded hover:bg-blue-100 text-sm font-bold">Register</a>
+                class="px-4 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold transition">Login</a>
+            <a href="registrasi.html" class="px-4 py-1 bg-white text-blue-600 rounded hover:bg-blue-100 text-sm font-bold transition">Register</a>
         </div>
     </nav>
 
@@ -25,37 +25,8 @@
             <p class="text-gray-600 mt-2 text-lg">Platform untuk berbagi dan menemukan inspirasi melalui karya visual dan tulisan.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition flex flex-col md:flex-row items-start gap-4 p-4">
-                <img id="showcase-img" src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=500&q=80" alt="Contoh Gambar" class="w-full md:w-32 h-32 object-cover cursor-pointer border rounded bg-gray-50" />
-                <div class="flex-1">
-                    <h3 class="font-semibold text-lg text-blue-700">Ruang Kerja Kreatif</h3>
-                    <div class="mt-3 pt-2 border-t flex flex-wrap items-center gap-x-4 gap-y-2">
-                        <span class="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full">inspirasi</span>
-                        <div class="flex items-center gap-2">
-                            <img src="https://i.pravatar.cc/24?u=pengguna1" alt="Author" class="w-6 h-6 rounded-full object-cover">
-                            <span class="text-gray-500 text-xs">Oleh: Budi Sanjaya</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition p-4 flex flex-col">
-                <div class="flex-1 flex flex-col">
-                    <h3 class="font-semibold text-lg text-blue-700">Memulai Perjalanan Koding</h3>
-                    <p class="text-sm text-gray-600 mt-1">Setiap programmer hebat memulai perjalanannya dari baris kode pertama. Jangan takut untuk membuat kesalahan, karena dari situlah kita belajar dan bertumbuh...</p>
-                    <button id="showcase-text-btn" class="mt-2 text-blue-500 hover:underline text-sm font-semibold self-start">Baca Selengkapnya</button>
-                    <div class="mt-auto pt-3 border-t flex flex-wrap items-center gap-x-4 gap-y-2">
-                        <span class="bg-green-200 text-green-800 text-xs px-2 py-1 rounded-full">motivasi</span>
-                        <div class="flex items-center gap-2">
-                            <img src="https://i.pravatar.cc/24?u=pengguna2" alt="Author" class="w-6 h-6 rounded-full object-cover">
-                            <span class="text-gray-500 text-xs">Oleh: Citra Lestari</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+        <div id="showcase-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <p id="loading-text" class="text-center text-gray-500 md:col-span-2">Memuat karya terbaru...</p>
         </div>
     </main>
 
@@ -76,48 +47,121 @@
         &copy; 2025 <a href="https://portfolio-chx.netlify.app/" class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
     </footer>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const previewOverlay = document.getElementById("previewOverlay");
-            const previewImage = document.getElementById("previewImage");
-            const bacaModal = document.getElementById("bacaModal");
-            const judulBaca = document.getElementById("judulBaca");
-            const isiBaca = document.getElementById("isiBaca");
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getDatabase, ref, get, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-            // Fungsi untuk menampilkan modal
-            const tampilkanPreview = (src) => {
-                previewImage.src = src;
-                previewOverlay.style.display = "flex";
-            };
+        // --- Konfigurasi Firebase (sama seperti dashboard) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
+            authDomain: "rzf-academy-bd.firebaseapp.com",
+            databaseURL: "https://rzf-academy-bd-default-rtdb.firebaseio.com",
+            projectId: "rzf-academy-bd",
+            storageBucket: "rzf-academy-bd.appspot.com",
+            messagingSenderId: "875822158869",
+            appId: "1:875822158869:web:a88c284f1d031d9da3aa1c"
+        };
 
-            const bukaBaca = (judul, teks) => {
-                judulBaca.textContent = judul;
-                isiBaca.textContent = teks;
-                bacaModal.style.display = "flex";
-            };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-            // Fungsi untuk menutup modal
-            const tutupPreview = () => previewOverlay.style.display = "none";
-            const tutupBaca = () => bacaModal.style.display = "none";
+        // --- Elemen UI ---
+        const showcaseContainer = document.getElementById("showcase-container");
+        const loadingText = document.getElementById("loading-text");
+        const previewOverlay = document.getElementById("previewOverlay");
+        const previewImage = document.getElementById("previewImage");
+        const bacaModal = document.getElementById("bacaModal");
+        const judulBaca = document.getElementById("judulBaca");
+        const isiBaca = document.getElementById("isiBaca");
 
-            // Event listener untuk elemen-elemen di halaman
-            document.getElementById("showcase-img").addEventListener('click', () => {
-                tampilkanPreview('https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1200&q=80');
-            });
+        // --- Fungsi Modal (tidak berubah) ---
+        const tampilkanPreview = (src) => {
+            previewImage.src = src;
+            previewOverlay.style.display = "flex";
+        };
+        const bukaBaca = (judul, teks) => {
+            judulBaca.textContent = judul;
+            isiBaca.innerHTML = teks.replace(/\n/g, '<br>'); // Mengganti newline dengan <br>
+            bacaModal.style.display = "flex";
+        };
+        const tutupPreview = () => previewOverlay.style.display = "none";
+        const tutupBaca = () => bacaModal.style.display = "none";
 
-            document.getElementById("showcase-text-btn").addEventListener('click', () => {
-                const judul = "Memulai Perjalanan Koding";
-                const teks = "Setiap programmer hebat memulai perjalanannya dari baris kode pertama. Jangan takut untuk membuat kesalahan, karena dari situlah kita belajar dan bertumbuh. Kunci utamanya adalah konsistensi dan rasa ingin tahu yang tidak pernah padam.\n\nMulailah dengan proyek kecil yang Anda sukai. Apakah itu membuat situs web sederhana, game simpel, atau otomatisasi tugas sehari-hari. Dengan mengerjakan sesuatu yang menarik bagi Anda, proses belajar akan terasa lebih menyenangkan dan memotivasi.";
-                bukaBaca(judul, teks);
-            });
+        document.getElementById("close-preview").addEventListener('click', tutupPreview);
+        document.getElementById("close-baca").addEventListener('click', tutupBaca);
+        previewOverlay.addEventListener('click', (e) => { if (e.target === previewOverlay) tutupPreview(); });
+        bacaModal.addEventListener('click', (e) => { if (e.target === bacaModal) tutupBaca(); });
+
+        // --- FUNGSI BARU: Ambil dan Render Showcase ---
+        const fetchShowcase = async () => {
+            const kontenRef = ref(db, 'konten');
+            // Mengambil 2 konten paling baru berdasarkan 'waktu'
+            const kontenQuery = query(kontenRef, orderByChild('waktu'), limitToLast(2));
             
-            // Event listener untuk menutup modal
-            document.getElementById("close-preview").addEventListener('click', tutupPreview);
-            document.getElementById("close-baca").addEventListener('click', tutupBaca);
-            previewOverlay.addEventListener('click', (e) => { if (e.target === previewOverlay) tutupPreview(); });
-            bacaModal.addEventListener('click', (e) => { if (e.target === bacaModal) tutupBaca(); });
-        });
-    </script>
+            try {
+                const snapshot = await get(kontenQuery);
+                showcaseContainer.innerHTML = ''; // Kosongkan container
 
+                if (snapshot.exists()) {
+                    const fetchedData = [];
+                    snapshot.forEach(child => fetchedData.push(child.val()));
+                    fetchedData.reverse(); // Balik urutan agar yang paling baru di depan
+
+                    fetchedData.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = "bg-white rounded-lg shadow-lg hover:shadow-xl transition p-4 flex flex-col";
+                        
+                        const placeholderUserImg = 'https://i.pravatar.cc/24';
+
+                        if (item.jenis === 'gambar') {
+                            card.innerHTML = `
+                                <div class="flex flex-col md:flex-row items-start gap-4">
+                                    <img src="${item.gambar}" alt="${item.judul}" class="w-full md:w-32 h-32 object-cover cursor-pointer border rounded bg-gray-50 showcase-img-item" />
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3>
+                                        <div class="mt-3 pt-2 border-t flex flex-wrap items-center gap-x-4 gap-y-2">
+                                            <span class="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full">${item.kategori}</span>
+                                            <div class="flex items-center gap-2">
+                                                <img src="${item.userProfilePicture || placeholderUserImg}" alt="Author" class="w-6 h-6 rounded-full object-cover">
+                                                <span class="text-gray-500 text-xs">Oleh: ${item.userName}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            card.querySelector('.showcase-img-item').addEventListener('click', () => tampilkanPreview(item.gambar));
+
+                        } else if (item.jenis === 'teks') {
+                            const previewTeks = (item.teks || '').slice(0, 150) + '...';
+                            card.innerHTML = `
+                                <div class="flex-1 flex flex-col">
+                                    <h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3>
+                                    <p class="text-sm text-gray-600 mt-1 flex-1">${previewTeks}</p>
+                                    <button class="mt-2 text-blue-500 hover:underline text-sm font-semibold self-start showcase-text-btn">Baca Selengkapnya</button>
+                                    <div class="mt-auto pt-3 border-t flex flex-wrap items-center gap-x-4 gap-y-2">
+                                        <span class="bg-green-200 text-green-800 text-xs px-2 py-1 rounded-full">${item.kategori}</span>
+                                        <div class="flex items-center gap-2">
+                                            <img src="${item.userProfilePicture || placeholderUserImg}" alt="Author" class="w-6 h-6 rounded-full object-cover">
+                                            <span class="text-gray-500 text-xs">Oleh: ${item.userName}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            card.querySelector('.showcase-text-btn').addEventListener('click', () => bukaBaca(item.judul, item.teks));
+                        }
+                        showcaseContainer.appendChild(card);
+                    });
+                } else {
+                    loadingText.textContent = "Belum ada karya untuk ditampilkan.";
+                }
+            } catch (error) {
+                console.error("Gagal memuat showcase:", error);
+                loadingText.textContent = "Gagal memuat karya.";
+            }
+        };
+
+        // Panggil fungsi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', fetchShowcase);
+    </script>
 </body>
 </html>
