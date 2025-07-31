@@ -91,7 +91,8 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
         import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-        import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
+        // Hapus impor Firebase Storage:
+        // import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
         import { get, child } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
         // --- KONFIGURASI FIREBASE (LENGKAP) ---
@@ -108,11 +109,17 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        const storage = getStorage(app);
+        // Hapus inisialisasi Firebase Storage:
+        // const storage = getStorage(app);
         let loggedInUser = null;
 
         // --- Fungsi Utilitas & UI ---
-        function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
+        function showToast(m, t = 'success') { 
+            const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; 
+            e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; 
+            const a = document.createElement("style"); 
+            a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) 
+        }
         const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
 
         const toggleField = () => {
@@ -123,10 +130,11 @@
             document.getElementById("teks").required = jenis === "teks";
         };
 
-        const isiDropdownKategori = () => {
+        const isiDropdownKategori = async () => {
             const dropdown = document.getElementById('kategori');
             const kategoriRef = ref(db, 'kategoriList');
-            get(kategoriRef).then(snapshot => {
+            try {
+                const snapshot = await get(kategoriRef);
                 dropdown.innerHTML = '<option value="">-- Pilih Kategori --</option>';
                 if (snapshot.exists()) {
                     snapshot.val().forEach(kat => {
@@ -136,7 +144,16 @@
                         dropdown.appendChild(option);
                     });
                 }
-            }, { onlyOnce: true });
+            } catch (error) {
+                console.error("Error fetching categories for dropdown:", error);
+                showToast("Gagal memuat kategori.", "error");
+            }
+        };
+
+        // Fungsi untuk mereset formulir
+        const resetForm = () => {
+            document.getElementById("upload-form").reset();
+            toggleField(); // Sembunyikan field gambar/teks setelah reset
         };
 
         // --- Fungsi Utama untuk Unggah Konten ---
@@ -170,43 +187,67 @@
                     return;
                 }
 
+                // Validasi ukuran file (misal: maksimal 5MB)
+                const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+                if (file.size > MAX_FILE_SIZE) {
+                    showToast("Ukuran gambar terlalu besar (maks 5MB).", "error");
+                    submitButton.disabled = false;
+                    submitButton.textContent = "Upload";
+                    return;
+                }
+
+                // Tampilkan indikator progres
+                document.getElementById('upload-progress-overlay').style.display = 'flex';
+                document.getElementById('progress-text').textContent = 'Mengunggah gambar ke Cloudinary...';
+                document.getElementById('progress-bar').style.width = '0%'; // Reset progress bar
+
                 const formData = new FormData();
                 formData.append('file', file);
-                formData.append('upload_preset', 'rzf-unsigned');
+                formData.append('upload_preset', 'rzf-unsigned'); // Ganti dengan upload preset Cloudinary Anda
 
-                const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dvrbdmikf/image/upload';
-
-                document.getElementById('upload-progress-overlay').style.display = 'flex';
-                document.getElementById('progress-bar').style.width = '10%';
-                document.getElementById('progress-text').textContent = 'Mengunggah ke Cloudinary...';
+                const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dvrbdmikf/image/upload'; // Ganti dengan Cloudinary Cloud Name Anda
 
                 try {
+                    // Lakukan unggahan ke Cloudinary
                     const response = await fetch(cloudinaryUrl, {
                         method: 'POST',
                         body: formData
                     });
 
-                    if (!response.ok) throw new Error('Upload ke Cloudinary gagal.');
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error.message || 'Unggahan ke Cloudinary gagal.');
+                    }
 
                     const data = await response.json();
-                    kontenData.gambar = data.secure_url;
+                    kontenData.gambar = data.secure_url; // Dapatkan URL gambar dari respons Cloudinary
 
+                    // Simpan metadata ke Firebase Realtime Database
                     await set(newKontenRef, kontenData);
                     document.getElementById('progress-bar').style.width = '100%';
                     showToast("Konten gambar berhasil diunggah!");
+                    resetForm(); // Reset formulir setelah berhasil
                     setTimeout(() => window.location.href = "my.html", 1000);
                 } catch (error) {
-                    showToast("Gagal: " + error.message, "error");
-                    submitButton.disabled = false;
-                    submitButton.textContent = "Upload";
+                    console.error("Upload to Cloudinary failed:", error);
+                    showToast("Gagal mengunggah gambar: " + error.message, "error");
                 } finally {
                     document.getElementById('upload-progress-overlay').style.display = 'none';
+                    submitButton.disabled = false;
+                    submitButton.textContent = "Upload";
                 }
 
             } else if (kontenData.jenis === "teks") {
                 kontenData.teks = document.getElementById("teks").value.trim();
+                if (!kontenData.teks) {
+                    showToast("Isi teks tidak boleh kosong.", "error");
+                    submitButton.disabled = false;
+                    submitButton.textContent = "Upload";
+                    return;
+                }
                 set(newKontenRef, kontenData).then(() => {
                     showToast("Konten teks berhasil diunggah!");
+                    resetForm(); // Reset formulir setelah berhasil
                     setTimeout(() => window.location.href = "my.html", 1000);
                 }).catch(err => {
                     showToast("Gagal: " + err.message, "error");

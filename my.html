@@ -6,6 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Konten Saya - RZF Academy</title>
     <link rel="stylesheet" href="dist/output.css">
+    <style>
+        /* Gaya untuk indikator loading */
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 
 <body class="bg-sky-50 min-h-screen flex flex-col">
@@ -55,6 +72,13 @@
         </div>
         <div id="kontenContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         </div>
+        <div id="loading-indicator" class="text-center p-10 hidden">
+            <div class="loading-spinner"></div>
+            <p class="mt-3 text-gray-600">Memuat data...</p>
+        </div>
+        <div class="text-center mt-8">
+            <button id="load-more-button" class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 hidden">Muat Lebih Banyak</button>
+        </div>
     </main>
 
     <div id="editModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
@@ -70,6 +94,17 @@
                             class="block text-sm font-medium text-gray-700 mb-1">Kategori</label><select
                             id="editKategori" class="w-full px-3 py-2 border border-gray-300 rounded-md"
                             required></select></div>
+                    
+                    <!-- NEW: Field untuk edit gambar -->
+                    <div id="fieldEditGambar" style="display: none;">
+                        <label for="editGambar" class="block text-sm font-medium text-gray-700 mb-1">Ganti Gambar</label>
+                        <img id="editImagePreview" src="" alt="Pratinjau Gambar" class="w-24 h-24 object-contain border rounded bg-gray-50 mb-2"/>
+                        <input type="file" id="editGambar"
+                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"
+                            accept=".jpg,.jpeg,.png,.gif" />
+                        <p class="text-xs text-gray-500 mt-1">Biarkan kosong jika tidak ingin mengubah gambar.</p>
+                    </div>
+
                     <div id="editTeksGroup" style="display: none;"><label for="editTeks"
                             class="block text-sm font-medium text-gray-700 mb-1">Isi Teks</label><textarea id="editTeks"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="5"></textarea></div>
@@ -77,7 +112,7 @@
                 <div class="mt-6 flex justify-end space-x-3">
                     <button type="button" id="batalEdit"
                         class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Simpan
+                    <button type="submit" id="simpanEditBtn" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Simpan
                         Perubahan</button>
                 </div>
             </form>
@@ -98,7 +133,7 @@
         </div>
     </div>
 
-    <div id="previewOverlay" class="fixed inset-0 bg-black bg-opacity-80 hidden justify-center items-center z-[120]">
+    <div id="previewOverlay" class="fixed inset-0 bg-black/80 hidden justify-center items-center z-[120]">
         <span id="close-preview"
             class="absolute top-5 right-6 text-white text-4xl cursor-pointer font-bold">&times;</span>
         <img id="previewImage" class="max-w-[90%] max-h-[90%] rounded shadow-2xl" />
@@ -123,8 +158,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { getDatabase, ref, query, orderByChild, equalTo, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-        import { getStorage, ref as storageRef, deleteObject } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
+        import { getDatabase, ref, query, orderByChild, equalTo, remove, update, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+        import { getStorage, ref as storageRef, deleteObject } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js"; 
 
         // --- KONFIGURASI FIREBASE ---
         const firebaseConfig = {
@@ -132,7 +167,7 @@
             authDomain: "rzf-academy-bd.firebaseapp.com",
             databaseURL: "https://rzf-academy-bd-default-rtdb.firebaseio.com",
             projectId: "rzf-academy-bd",
-            storageBucket: "rzf-academy-bd.appspot.com",
+            storageBucket: "rzf-academy-bd.appspot.com", 
             messagingSenderId: "875822158869",
             appId: "1:875822158869:web:a88c284f1d031d9da3aa1c",
         };
@@ -140,24 +175,53 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        const storage = getStorage(app);
+        const storage = getStorage(app); 
 
         let confirmCallback = null;
-        let allMyContent = [];
+        let loggedInUser = null; 
+        let semuaKontenCache = []; 
+        let lastVisibleKey = null; 
+        const ITEMS_PER_PAGE = 6; 
+
+        // --- UI Elements ---
+        const kontenContainer = document.getElementById('kontenContainer');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const loadMoreButton = document.getElementById('load-more-button');
+
+        // Edit Modal Elements
+        const editModal = document.getElementById('editModal');
+        const editIdInput = document.getElementById('editId');
+        const editJudulInput = document.getElementById('editJudul');
+        const editKategoriSelect = document.getElementById('editKategori');
+        const editTeksGroup = document.getElementById('editTeksGroup');
+        const editTeksArea = document.getElementById('editTeks');
+        const fieldEditGambar = document.getElementById('fieldEditGambar'); 
+        const editImagePreview = document.getElementById('editImagePreview'); 
+        const editGambarInput = document.getElementById('editGambar'); 
+        const simpanEditBtn = document.getElementById('simpanEditBtn'); 
+
+        let editSelectedFile = null; 
+
 
         // --- Fungsi Utilitas & UI ---
-        function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
+        function showToast(m, t = 'success') { 
+            const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; 
+            e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; 
+            const a = document.createElement("style"); 
+            a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) 
+        }
         const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
 
-        const showConfirmModal = (onConfirm) => {
+        const showConfirmModal = (message, onConfirm) => {
+            document.getElementById("confirmModalMessage").textContent = message;
             confirmCallback = onConfirm;
             document.getElementById("confirmModal").style.display = "flex";
-            document.body.style.overflow = 'hidden'; // <-- TAMBAHKAN INI
+            document.body.style.overflow = 'hidden'; 
         };
         const hideConfirmModal = () => {
             document.getElementById("confirmModal").style.display = "none";
             confirmCallback = null;
-            document.body.style.overflow = ''; // <-- TAMBAHKAN INI
+            document.body.style.overflow = ''; 
         };
 
         const previewOverlay = document.getElementById("previewOverlay");
@@ -168,7 +232,6 @@
             previewImage.src = src;
             previewOverlay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-
         };
         const tutupPreview = () => {
             previewOverlay.style.display = 'none';
@@ -183,27 +246,66 @@
         };
         const tutupBaca = () => {
             bacaModal.style.display = 'none';
-            document.body.style.overflow = ''; //
+            document.body.style.overflow = ''; 
+        };
+
+        // NEW: Function to preview image in edit modal with resizing
+        const previewEditImage = () => {
+            editSelectedFile = editGambarInput.files[0];
+            if (editSelectedFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const MAX_WIDTH = 96; // Max width for preview
+                        const MAX_HEIGHT = 96; // Max height for preview
+                        let width = img.width;
+                        let height = img.height;
+
+                        // Calculate new dimensions while maintaining aspect ratio
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        ctx.drawImage(img, 0, 0, width, height);
+                        editImagePreview.src = canvas.toDataURL('image/jpeg', 0.7); // Convert to JPEG with 70% quality
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(editSelectedFile);
+            } else {
+                editImagePreview.src = ""; // Clear preview if no file selected
+            }
         };
 
         // --- Fungsi Modal Edit ---
-        const editModal = document.getElementById('editModal');
-        const editIdInput = document.getElementById('editId');
-        const editJudulInput = document.getElementById('editJudul');
-        const editKategoriSelect = document.getElementById('editKategori');
-        const editTeksGroup = document.getElementById('editTeksGroup');
-        const editTeksArea = document.getElementById('editTeks');
-
-        const bukaEditModal = (kontenId) => {
-            const item = allMyContent.find(c => c.id === kontenId);
+        const bukaEditModal = async (kontenId) => {
+            const item = semuaKontenCache.find(c => c.id === kontenId);
             if (!item) return;
 
+            // Reset file input dan preview saat modal dibuka
+            editSelectedFile = null;
+            editGambarInput.value = ''; // Clear selected file in input
+            editImagePreview.src = ""; // Clear image preview
+
             const kategoriRef = ref(db, 'kategoriList');
-            get(kategoriRef).then(snapshot => {
+            try {
+                const snapshot = await get(kategoriRef);
                 editKategoriSelect.innerHTML = '';
                 if (snapshot.exists()) {
-                    snapshot.forEach(katSnapshot => {
-                        const kat = katSnapshot.val();
+                    snapshot.val().forEach(kat => {
                         const option = document.createElement('option');
                         option.value = kat;
                         option.textContent = kat.charAt(0).toUpperCase() + kat.slice(1);
@@ -212,81 +314,146 @@
                 }
                 editKategoriSelect.value = item.kategori;
                 document.body.style.overflow = 'hidden';
-            });
+            } catch (error) {
+                console.error("Gagal memuat kategori untuk edit:", error);
+                showToast("Gagal memuat kategori.", "error");
+            }
 
             editIdInput.value = item.id;
             editJudulInput.value = item.judul;
+
+            // Tampilkan atau sembunyikan field gambar/teks berdasarkan jenis konten
             if (item.jenis === 'teks') {
                 editTeksArea.value = item.teks;
                 editTeksGroup.style.display = 'block';
-            } else {
+                fieldEditGambar.style.display = 'none';
+            } else if (item.jenis === 'gambar') {
                 editTeksGroup.style.display = 'none';
+                fieldEditGambar.style.display = 'block';
+                // Set current image for preview (no resizing needed for existing URL)
+                editImagePreview.src = item.gambar || "https://placehold.co/96x96/e2e8f0/718096?text=Gambar"; 
             }
             editModal.style.display = "flex";
         };
+
         const tutupEditModal = () => {
             editModal.style.display = "none";
-            document.body.style.overflow = ''; //
+            document.body.style.overflow = ''; 
         };
 
-        const handleSimpanEdit = (e) => {
+        const handleSimpanEdit = async (e) => {
             e.preventDefault();
             const idToUpdate = editIdInput.value;
-            const itemToUpdate = allMyContent.find(c => c.id === idToUpdate);
+            const itemToUpdate = semuaKontenCache.find(c => c.id === idToUpdate);
             if (!itemToUpdate) return;
 
-            const updatedData = {
-                judul: editJudulInput.value.trim(),
-                kategori: editKategoriSelect.value,
-                waktu: new Date().toISOString()
-            };
-            if (itemToUpdate.jenis === 'teks') {
-                updatedData.teks = editTeksArea.value;
-            }
+            simpanEditBtn.disabled = true;
+            simpanEditBtn.textContent = 'Menyimpan...';
 
-            const itemRef = ref(db, 'konten/' + idToUpdate);
-            update(itemRef, updatedData)
-                .then(() => { showToast("Konten berhasil diperbarui."); tutupEditModal(); })
-                .catch(err => showToast("Gagal memperbarui: " + err.message, 'error'));
+            let newImageUrl = itemToUpdate.gambar; // Default to old image URL
+
+            try {
+                if (editSelectedFile) { // If a new image file is selected
+                    const file = editSelectedFile;
+                    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+                    if (file.size > MAX_FILE_SIZE) {
+                        showToast("Ukuran gambar terlalu besar (maks 5MB).", "error");
+                        simpanEditBtn.disabled = false;
+                        simpanEditBtn.textContent = 'Simpan Perubahan';
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('upload_preset', 'rzf-unsigned'); // Your Cloudinary upload preset
+
+                    const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dvrbdmikf/image/upload'; // Your Cloudinary Cloud Name
+                    
+                    showToast("Mengunggah gambar baru...", 'info');
+                    const response = await fetch(cloudinaryUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error.message || 'Unggahan gambar ke Cloudinary gagal.');
+                    }
+
+                    const data = await response.json();
+                    newImageUrl = data.secure_url; // Get new image URL from Cloudinary
+
+                    // Opsional: Jika Anda ingin menghapus gambar lama dari Cloudinary,
+                    // ini biasanya memerlukan server-side karena otentikasi API Cloudinary.
+                    // Jika Anda tidak memiliki server-side, gambar lama akan tetap ada.
+                    // Contoh: if (itemToUpdate.gambar) { /* Panggil server-side untuk hapus gambar lama */ }
+                }
+
+                const updatedData = {
+                    judul: editJudulInput.value.trim(),
+                    kategori: editKategoriSelect.value,
+                    waktu: new Date().toISOString()
+                };
+
+                if (itemToUpdate.jenis === 'teks') {
+                    updatedData.teks = editTeksArea.value;
+                } else if (itemToUpdate.jenis === 'gambar') {
+                    updatedData.gambar = newImageUrl; // Update with new or old image URL
+                }
+
+                const itemRef = ref(db, 'konten/' + idToUpdate);
+                await update(itemRef, updatedData);
+                
+                showToast("Konten berhasil diperbarui!");
+                tutupEditModal();
+                editSelectedFile = null; // Clear selected file after successful update
+                fetchMyContent(false); // Muat ulang konten untuk refresh tampilan
+            } catch (err) {
+                showToast("Gagal memperbarui: " + err.message, 'error');
+            } finally {
+                simpanEditBtn.disabled = false;
+                simpanEditBtn.textContent = 'Simpan Perubahan';
+            }
         };
 
         const handleHapusKonten = (kontenId) => {
-            const item = allMyContent.find(c => c.id === kontenId);
+            const item = semuaKontenCache.find(c => c.id === kontenId);
             if (!item) return;
-            showConfirmModal(() => {
+            showConfirmModal("Apakah Anda yakin ingin menghapus konten ini secara permanen?", async () => {
                 const dbRef = ref(db, 'konten/' + kontenId);
-                remove(dbRef).then(() => {
-                    if (item.jenis === 'gambar' && item.gambar) {
-                        const imageRef = storageRef(storage, item.gambar);
-                        deleteObject(imageRef).catch(e => console.error("Gagal hapus file dari storage: ", e));
-                    }
+                try {
+                    await remove(dbRef);
+                    // Jika gambar di Cloudinary, Anda tidak bisa menghapusnya langsung dari client-side
+                    // tanpa mengekspos kunci API atau menggunakan signed deletion yang kompleks.
+                    // Jika Anda menggunakan Firebase Storage, logika deleteObject ini akan berfungsi.
+                    // if (item.jenis === 'gambar' && item.gambar) {
+                    //     const imageRef = storageRef(storage, item.gambar); // Ini untuk Firebase Storage
+                    //     await deleteObject(imageRef).catch(e => console.error("Gagal hapus file dari storage: ", e));
+                    // }
                     showToast("Konten berhasil dihapus.");
-                }).catch(err => showToast("Gagal menghapus: " + err.message, 'error'));
-                hideConfirmModal();
+                    hideConfirmModal();
+                    fetchMyContent(false); 
+                } catch (err) {
+                    showToast("Gagal menghapus: " + err.message, 'error');
+                    hideConfirmModal();
+                }
             });
         };
 
         // --- Fungsi Utama untuk Menampilkan Konten ---
-        const tampilKontenSaya = (userId) => {
-            if (!userId || typeof userId !== 'string') return;
-            const kontenContainer = document.getElementById('kontenContainer');
-            const kontenQuery = query(ref(db, 'konten'), orderByChild('userId'), equalTo(userId));
-            onValue(kontenQuery, (snapshot) => {
-                kontenContainer.innerHTML = "";
-                allMyContent = [];
-                if (!snapshot.exists()) {
-                    kontenContainer.innerHTML = "<p class='text-gray-500 col-span-full text-center'>Anda belum mengunggah konten apapun. Mulai berkarya!</p>";
-                    return;
-                }
-                snapshot.forEach(child => {
-                    const data = child.val();
-                    allMyContent.push(data);
-                });
-                allMyContent.sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).forEach(item => {
-                    const card = document.createElement("div");
-                    card.className = "bg-white rounded-lg shadow hover:shadow-lg transition flex flex-col p-4";
-                    if (item.jenis === 'gambar') {
-                        card.innerHTML = `
+        const renderMyContent = (dataToRender) => {
+            kontenContainer.innerHTML = ""; 
+            
+            if (dataToRender.length === 0) {
+                kontenContainer.innerHTML = "<p class='text-gray-500 col-span-full text-center'>Anda belum mengunggah konten apapun. Mulai berkarya!</p>";
+                return;
+            }
+            
+            dataToRender.sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).forEach(item => {
+                const card = document.createElement("div");
+                card.className = "bg-white rounded-lg shadow hover:shadow-lg transition flex flex-col p-4";
+                if (item.jenis === 'gambar') {
+                    card.innerHTML = `
                         <img src="${item.gambar || 'https://placehold.co/300x200?text=Gambar+hilang'}" class="w-full h-48 object-contain border rounded bg-gray-50 mb-3 cursor-pointer preview-img" />
                         <div class="flex-1 flex flex-col">
                             <h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3>
@@ -298,14 +465,14 @@
                                 </div>
                             </div>
                         </div>`;
-                        card.querySelector('.preview-img').addEventListener('click', () => bukaPreview(item.gambar));
+                    card.querySelector('.preview-img').addEventListener('click', () => bukaPreview(item.gambar));
 
-                    } else { // --- BLOK TEKS YANG DIPERBAIKI ---
-                        const fullText = item.teks || '';
-                        const preview = fullText.substring(0, 150);
-                        const isLongText = fullText.length > 150;
+                } else { 
+                    const fullText = item.teks || '';
+                    const preview = fullText.substring(0, 150);
+                    const isLongText = fullText.length > 150;
 
-                        card.innerHTML = `
+                    card.innerHTML = `
                         <div class="flex-1 flex flex-col">
                             <h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3>
                             <p class="break-words text-sm text-gray-600 mt-1 flex-1">
@@ -327,24 +494,72 @@
                             </div>
                         </div>`;
 
-                        // Tambahkan listener HANYA jika teksnya panjang
-                        if (isLongText) {
-                            const bacaBtn = card.querySelector('.baca-selengkapnya-btn');
-                            if (bacaBtn) {
-                                bacaBtn.addEventListener('click', (e) => {
-                                    // Hentikan event agar tidak konflik dengan listener lain
-                                    e.stopPropagation();
-                                    bukaBaca(item.judul, item.teks);
-                                });
-                            }
+                    if (isLongText) {
+                        const bacaBtn = card.querySelector('.baca-selengkapnya-btn');
+                        if (bacaBtn) {
+                            bacaBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                bukaBaca(item.judul, item.teks);
+                            });
                         }
                     }
-                    kontenContainer.appendChild(card);
-                });
-                // Pindahkan listener edit/hapus ke luar loop agar lebih efisien
-                document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', (e) => bukaEditModal(e.currentTarget.dataset.id)));
-                document.querySelectorAll('.hapus-btn').forEach(btn => btn.addEventListener('click', (e) => handleHapusKonten(e.currentTarget.dataset.id)));
+                }
+                kontenContainer.appendChild(card);
             });
+            document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', (e) => bukaEditModal(e.currentTarget.dataset.id)));
+            document.querySelectorAll('.hapus-btn').forEach(btn => btn.addEventListener('click', (e) => handleHapusKonten(e.currentTarget.dataset.id)));
+        };
+
+        // --- Ambil Konten Saya dari Firebase dengan Pagination (Client-side) ---
+        const fetchMyContent = async (append = false) => {
+            loadingIndicator.style.display = 'flex'; 
+            loadMoreButton.style.display = 'none'; 
+
+            if (!loggedInUser || !loggedInUser.id) {
+                showToast("ID pengguna tidak tersedia.", "error");
+                loadingIndicator.style.display = 'none';
+                return;
+            }
+
+            const kontenRef = ref(db, 'konten');
+            const userContentQuery = query(kontenRef, orderByChild('userId'), equalTo(loggedInUser.id));
+
+            try {
+                const snapshot = await get(userContentQuery);
+                let allUserItems = [];
+                snapshot.forEach(child => {
+                    allUserItems.push(child.val());
+                });
+
+                allUserItems.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
+
+                let startIndex = append ? semuaKontenCache.length : 0;
+                let endIndex = startIndex + ITEMS_PER_PAGE;
+
+                let itemsForCurrentPage = allUserItems.slice(startIndex, endIndex);
+
+                if (append) {
+                    semuaKontenCache = semuaKontenCache.concat(itemsForCurrentPage);
+                } else {
+                    semuaKontenCache = itemsForCurrentPage;
+                }
+
+                lastVisibleKey = (endIndex < allUserItems.length) ? true : null; 
+
+                renderMyContent(semuaKontenCache); 
+
+                if (lastVisibleKey) {
+                    loadMoreButton.style.display = 'block';
+                } else {
+                    loadMoreButton.style.display = 'none';
+                }
+
+            } catch (err) {
+                console.error("❌ Gagal mengambil konten saya:", err);
+                showToast("Gagal memuat konten Anda.", "error");
+            } finally {
+                loadingIndicator.style.display = 'none'; 
+            }
         };
 
         // --- Titik Masuk Utama Saat Halaman Dimuat ---
@@ -364,14 +579,27 @@
             const navMenu = document.getElementById("nav-menu");
             toggleBtn.addEventListener("click", () => { navMenu.classList.toggle("hidden"); });
 
+            // NEW: Event listener for edit image input
+            editGambarInput.addEventListener('change', previewEditImage);
+
+            // Event listener untuk tombol "Muat Lebih Banyak"
+            loadMoreButton.addEventListener('click', () => {
+                loadingIndicator.style.display = 'flex'; 
+                fetchMyContent(true); 
+            });
+
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+                    loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
                     if (loggedInUser && loggedInUser.id === user.uid) {
                         document.getElementById("welcomeUser").textContent = loggedInUser.name;
                         if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
                         if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
-                        tampilKontenSaya(loggedInUser.id);
+                        
+                        if (semuaKontenCache.length === 0) {
+                            loadingIndicator.style.display = 'flex';
+                        }
+                        fetchMyContent(); 
                     } else {
                         logout();
                     }

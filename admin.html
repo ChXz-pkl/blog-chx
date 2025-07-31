@@ -146,14 +146,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
         import { getDatabase, ref, onValue, set, remove, update, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-        import { getStorage, ref as storageRef, deleteObject } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
+        // Hapus impor Firebase Storage jika tidak digunakan untuk operasi lain:
+        // import { getStorage, ref as storageRef, deleteObject } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
             authDomain: "rzf-academy-bd.firebaseapp.com",
             databaseURL: "https://rzf-academy-bd-default-rtdb.firebaseio.com",
             projectId: "rzf-academy-bd",
-            storageBucket: "rzf-academy-bd.appspot.com",
+            storageBucket: "rzf-academy-bd.appspot.com", // Jika tidak ada Firebase Storage sama sekali, ini bisa dihapus
             messagingSenderId: "875822158869",
             appId: "1:875822158869:web:a88c284f1d031d9da3aa1c",
         };
@@ -161,12 +162,18 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        const storage = getStorage(app);
+        // Hapus inisialisasi Firebase Storage jika tidak digunakan:
+        // const storage = getStorage(app);
 
         let confirmCallback = null;
 
         // --- Fungsi Utilitas & UI ---
-        function showToast(m, t = 'success') { const s = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const n = document.createElement("style"); n.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(n), s.appendChild(e), setTimeout(() => e.remove(), 3e3) }
+        function showToast(m, t = 'success') { 
+            const s = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500" }; 
+            e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; 
+            const n = document.createElement("style"); 
+            n.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(n), s.appendChild(e), setTimeout(() => e.remove(), 3e3) 
+        }
         const logout = () => signOut(auth).then(() => (localStorage.removeItem("loggedInUser"), showToast("Anda telah berhasil logout."), setTimeout(() => window.location.href = "index.html", 1500)));
         const showConfirmModal = (message, onConfirm) => {
             document.getElementById("confirmModalMessage").textContent = message;
@@ -201,14 +208,19 @@
                         userTableBody.appendChild(row);
                     });
                     document.querySelectorAll('.jadikan-admin-btn').forEach(btn => btn.addEventListener('click', (e) => jadikanAdmin(e.currentTarget.dataset.userid)));
+                } else {
+                    userTableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Tidak ada pengguna ditemukan.</td></tr>`;
                 }
+            }).catch(error => {
+                console.error("Error fetching users:", error);
+                showToast("Gagal memuat daftar pengguna.", "error");
             });
         };
         const jadikanAdmin = (userId) => {
             showConfirmModal("Yakin ingin mengangkat user ini sebagai admin?", () => {
                 const userRoleRef = ref(db, `users/${userId}/role`);
                 set(userRoleRef, 'admin')
-                    .then(() => (showToast("User berhasil dijadikan admin."), hideConfirmModal()))
+                    .then(() => (showToast("User berhasil dijadikan admin."), hideConfirmModal(), tampilkanPengguna())) // Refresh user list
                     .catch(e => (showToast("Gagal: " + e.message, 'error'), hideConfirmModal()));
             });
         };
@@ -220,8 +232,14 @@
                 const kontenContainer = document.getElementById('kontenContainer');
                 kontenContainer.innerHTML = '';
                 if (snapshot.exists()) {
+                    // Convert snapshot to array and sort by time (newest first)
+                    const allContent = [];
                     snapshot.forEach(child => {
-                        const item = child.val();
+                        allContent.push(child.val());
+                    });
+                    allContent.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
+
+                    allContent.forEach(item => {
                         const card = document.createElement('div');
                         card.className = "bg-white rounded-lg shadow flex items-center gap-4 p-4";
                         card.innerHTML = `
@@ -235,20 +253,31 @@
                         kontenContainer.appendChild(card);
                     });
                     document.querySelectorAll('.hapus-konten-btn').forEach(btn => btn.addEventListener('click', (e) => hapusKonten(e.currentTarget.dataset.kontenid, e.currentTarget.dataset.imageurl)));
+                } else {
+                    kontenContainer.innerHTML = "<p class='col-span-full text-center text-gray-500'>Tidak ada konten ditemukan.</p>";
                 }
+            }).catch(error => {
+                console.error("Error fetching content:", error);
+                showToast("Gagal memuat daftar konten.", "error");
             });
         };
         const hapusKonten = (kontenId, imageUrl) => {
-            showConfirmModal("Hapus konten ini secara permanen? Aksi ini tidak bisa dibatalkan.", () => {
+            showConfirmModal("Hapus konten ini secara permanen? Aksi ini tidak bisa dibatalkan.", async () => {
                 const dbRef = ref(db, 'konten/' + kontenId);
-                remove(dbRef).then(() => {
-                    if (imageUrl) {
-                        const imageRef = storageRef(storage, imageUrl);
-                        deleteObject(imageRef).catch(e => console.error("Gagal hapus gambar dari storage:", e));
-                    }
+                try {
+                    await remove(dbRef);
+                    // Jika gambar diunggah ke Cloudinary, menghapusnya dari client-side
+                    // memerlukan otentikasi API Cloudinary atau signed deletion yang kompleks.
+                    // Oleh karena itu, logika penghapusan file gambar dari Firebase Storage
+                    // atau Cloudinary tidak disertakan di sini untuk keamanan dan kesederhanaan.
+                    // File gambar mungkin tetap ada di Cloudinary/Firebase Storage.
                     showToast("Konten berhasil dihapus.");
                     hideConfirmModal();
-                }).catch(e => (showToast("Gagal hapus: " + e.message, 'error'), hideConfirmModal()));
+                    tampilkanKonten(); // Refresh content list
+                } catch (e) {
+                    showToast("Gagal hapus: " + e.message, 'error');
+                    hideConfirmModal();
+                }
             });
         };
 
@@ -267,7 +296,12 @@
                         listContainer.appendChild(item);
                     });
                     document.querySelectorAll('.hapus-kategori-btn').forEach(btn => btn.addEventListener('click', (e) => hapusKategori(e.currentTarget.dataset.kategori)));
+                } else {
+                    listContainer.innerHTML = `<p class="text-center text-gray-500">Tidak ada kategori ditemukan.</p>`;
                 }
+            }).catch(error => {
+                console.error("Error fetching categories:", error);
+                showToast("Gagal memuat daftar kategori.", "error");
             });
         };
         const tambahKategori = async (e) => {
@@ -277,27 +311,38 @@
             if (!newKat) return;
 
             const kategoriRef = ref(db, 'kategoriList');
-            const snapshot = await get(kategoriRef);
-            let kategoriList = snapshot.exists() ? snapshot.val() : [];
+            try {
+                const snapshot = await get(kategoriRef);
+                let kategoriList = snapshot.exists() ? snapshot.val() : [];
 
-            if (kategoriList.includes(newKat)) {
-                showToast("Kategori sudah ada!", "error");
-            } else {
-                kategoriList.push(newKat);
-                set(kategoriRef, kategoriList)
-                    .then(() => (showToast("Kategori berhasil ditambahkan."), input.value = ''))
-                    .catch(err => showToast("Gagal: " + err.message, 'error'));
+                if (kategoriList.includes(newKat)) {
+                    showToast("Kategori sudah ada!", "error");
+                } else {
+                    kategoriList.push(newKat);
+                    await set(kategoriRef, kategoriList);
+                    showToast("Kategori berhasil ditambahkan.");
+                    input.value = '';
+                    tampilkanKategori(); // Refresh category list
+                }
+            } catch (err) {
+                showToast("Gagal: " + err.message, 'error');
             }
         };
         const hapusKategori = async (kategoriNama) => {
             showConfirmModal(`Yakin ingin menghapus kategori "${kategoriNama}"?`, async () => {
                 const kategoriRef = ref(db, 'kategoriList');
-                const snapshot = await get(kategoriRef);
-                let kategoriList = snapshot.exists() ? snapshot.val() : [];
-                const newList = kategoriList.filter(k => k !== kategoriNama);
-                set(kategoriRef, newList)
-                    .then(() => (showToast("Kategori berhasil dihapus."), hideConfirmModal()))
-                    .catch(e => (showToast("Gagal: " + e.message, 'error'), hideConfirmModal()));
+                try {
+                    const snapshot = await get(kategoriRef);
+                    let kategoriList = snapshot.exists() ? snapshot.val() : [];
+                    const newList = kategoriList.filter(k => k !== kategoriNama);
+                    await set(kategoriRef, newList);
+                    showToast("Kategori berhasil dihapus.");
+                    hideConfirmModal();
+                    tampilkanKategori(); // Refresh category list
+                } catch (e) {
+                    showToast("Gagal: " + e.message, 'error');
+                    hideConfirmModal();
+                }
             });
         };
 
@@ -308,7 +353,21 @@
             document.getElementById('kategori-form').addEventListener('submit', tambahKategori);
             document.getElementById('confirmModalCancel').addEventListener('click', hideConfirmModal);
             document.getElementById('confirmModalConfirm').addEventListener('click', () => { if (confirmCallback) confirmCallback(); });
-            document.querySelectorAll('.tab-button').forEach(btn => btn.addEventListener('click', (e) => switchTab(e.currentTarget.dataset.tab)));
+            
+            // Event listener untuk tab switching
+            document.querySelectorAll('.tab-button').forEach(btn => btn.addEventListener('click', (e) => {
+                const tabId = e.currentTarget.dataset.tab;
+                switchTab(tabId);
+                // Muat data yang relevan saat tab diaktifkan
+                if (tabId === 'userTabPanel') {
+                    tampilkanPengguna();
+                } else if (tabId === 'kontenTabPanel') {
+                    tampilkanKonten();
+                } else if (tabId === 'kategoriTabPanel') {
+                    tampilkanKategori();
+                }
+            }));
+            
             // --- Hamburger Toggle ---
             const toggleBtn = document.getElementById("menu-toggle");
             const navMenu = document.getElementById("nav-menu");
@@ -322,10 +381,11 @@
                     if (loggedInUser && loggedInUser.id === user.uid && loggedInUser.role === 'admin') {
                         document.getElementById("welcomeUser").textContent = loggedInUser.name;
                         if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
-                        // Muat semua data untuk admin
+                        // Pastikan adminLink selalu terlihat untuk admin
+                        document.getElementById("adminLink").classList.remove('hidden');
+                        
+                        // Muat data untuk tab yang aktif secara default (Pengguna)
                         tampilkanPengguna();
-                        tampilkanKonten();
-                        tampilkanKategori();
                     } else {
                         showToast("Akses ditolak. Hanya untuk Admin.", "error");
                         setTimeout(() => window.location.href = "dashboard.html", 1500);

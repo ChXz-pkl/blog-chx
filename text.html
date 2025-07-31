@@ -28,6 +28,22 @@
             font-weight: 600;
             border-color: #4f46e5;
         }
+
+        /* Gaya untuk indikator loading */
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 
@@ -71,6 +87,13 @@
         <div id="kategoriBadges" class="flex flex-wrap justify-center gap-2 mb-8"></div>
         <div id="teksContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         </div>
+        <div id="loading-indicator" class="text-center p-10 hidden">
+            <div class="loading-spinner"></div>
+            <p class="mt-3 text-gray-600">Memuat data...</p>
+        </div>
+        <div class="text-center mt-8">
+            <button id="load-more-button" class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 hidden">Muat Lebih Banyak</button>
+        </div>
     </main>
 
     <div id="bacaModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
@@ -92,7 +115,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+        import { getDatabase, ref, get, query, orderByChild, endBefore, limitToLast } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
@@ -109,87 +132,82 @@
         const db = getDatabase(app);
 
         const teksContainerEl = document.getElementById('teksContainer');
+        const kategoriBadgesEl = document.getElementById('kategoriBadges');
         const bacaModal = document.getElementById("bacaModal");
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const loadMoreButton = document.getElementById('load-more-button');
 
-        function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
+        let semuaKontenCache = []; // Menyimpan semua data teks yang sudah dimuat
+        let kategoriAktif = "semua"; // Kategori yang sedang aktif
+        let lastVisibleKey = null; // Key dari item terakhir yang dimuat untuk pagination
+        const ITEMS_PER_PAGE = 6; // Jumlah item per halaman
+
+        function showToast(m, t = 'success') { 
+            const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; 
+            e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; 
+            const a = document.createElement("style"); 
+            a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) 
+        }
+
         const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
         const tutupBaca = () => {
             bacaModal.style.display = "none";
-            document.body.style.overflow = ''; // <-- TAMBAHKAN INI
+            document.body.style.overflow = ''; 
         };
 
-        const tampilkanKategori = () => {
+        const tampilkanKategori = async () => {
             const kategoriRef = ref(db, 'kategoriList');
-            const kategoriBadgesEl = document.getElementById('kategoriBadges');
-            get(kategoriRef).then(snapshot => {
-                let badgeHTML = `<button class="kategori-badge active" data-kategori="semua">Semua</button>`;
-                if (snapshot.exists()) {
-                    snapshot.forEach(katSnapshot => {
-                        const kat = katSnapshot.val();
-                        const katFormatted = kat.charAt(0).toUpperCase() + kat.slice(1);
-                        badgeHTML += `<button class="kategori-badge" data-kategori="${kat}">${katFormatted}</button>`;
-                    });
-                }
-                kategoriBadgesEl.innerHTML = badgeHTML;
+            try {
+                const snapshot = await get(kategoriRef);
+                const kategoriList = snapshot.exists() ? snapshot.val() : [];
+                kategoriBadgesEl.innerHTML = `<button class="kategori-badge" data-kategori="semua">Semua</button>`;
+                kategoriList.forEach(kat => {
+                    const katFormatted = kat.charAt(0).toUpperCase() + kat.slice(1);
+                    kategoriBadgesEl.innerHTML += `<button class="kategori-badge" data-kategori="${kat}">${katFormatted}</button>`;
+                });
+                kategoriBadgesEl.querySelector(`[data-kategori="${kategoriAktif}"]`).classList.add('active');
+
                 kategoriBadgesEl.querySelectorAll('.kategori-badge').forEach(badge => {
                     badge.addEventListener('click', (e) => {
                         kategoriBadgesEl.querySelector('.active')?.classList.remove('active');
                         e.currentTarget.classList.add('active');
-                        tampilTeks();
+                        kategoriAktif = e.currentTarget.dataset.kategori; // Update kategori aktif
+                        loadingIndicator.style.display = 'flex'; // Tampilkan loading
+                        fetchTextContent(false); // Muat ulang dari awal untuk kategori baru
                     });
                 });
-            }).catch(err => {
+            } catch (err) {
                 console.error("❌ Gagal memuat kategori:", err);
                 kategoriBadgesEl.innerHTML = `<button class="kategori-badge active" data-kategori="semua">Semua</button>`;
-            });
+                showToast("Gagal memuat kategori.", "error");
+            }
         };
 
-        const tampilTeks = () => {
-            const activeBadge = document.querySelector('#kategoriBadges .kategori-badge.active');
-            const kategoriFilter = activeBadge ? activeBadge.dataset.kategori : 'semua';
-            const kontenRef = ref(db, 'konten');
+        const renderText = (dataToRender) => {
+            teksContainerEl.innerHTML = ""; // Selalu kosongkan kontainer sebelum merender
 
-            teksContainerEl.innerHTML = `<p class="col-span-full text-center text-gray-500">Memuat tulisan...</p>`;
+            if (dataToRender.length === 0) {
+                teksContainerEl.innerHTML = `<p class="col-span-full text-gray-500 text-center">Tidak ada tulisan untuk kategori ini.</p>`;
+                return;
+            }
 
-            get(kontenRef).then(snapshot => {
-                const semuaKonten = [];
-                if (snapshot.exists()) {
-                    // --- UBAH CARA AMBIL DATA ---
-                    // Ambil semua data sebagai satu objek besar
-                    const dataObjek = snapshot.val();
-                    // Ubah objek tersebut menjadi array secara manual
-                    for (const key in dataObjek) {
-                        semuaKonten.push(dataObjek[key]);
-                    }
-                }
+            // Urutkan data berdasarkan waktu terbaru (descending)
+            dataToRender.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
 
-                const teksKonten = semuaKonten.filter(item => item && item.jenis === 'teks');
-                let hasil = kategoriFilter === 'semua' ? teksKonten : teksKonten.filter(k => k && k.kategori === kategoriFilter);
+            const fragment = document.createDocumentFragment();
 
-                teksContainerEl.innerHTML = "";
+            dataToRender.forEach((item, index) => {
+                try {
+                    if (!item) return;
 
-                console.log(`[DEBUG] Ditemukan ${hasil.length} data teks untuk kategori '${kategoriFilter}'.`);
+                    const card = document.createElement("div");
+                    card.className = "bg-white rounded-lg shadow hover:shadow-lg p-4 flex flex-col justify-between";
 
-                if (hasil.length === 0) {
-                    teksContainerEl.innerHTML = `<p class="col-span-full text-gray-500 text-center">Tidak ada tulisan untuk kategori ini.</p>`;
-                    return;
-                }
+                    const placeholderImg = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
+                    const fullText = item.teks || "";
+                    const preview = fullText.slice(0, 200);
 
-                hasil.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
-
-                hasil.forEach((item, index) => {
-                    try {
-                        if (!item) return;
-                        console.log(`[DEBUG] Memproses item #${index + 1}: "${item.judul}"`);
-
-                        const card = document.createElement("div");
-                        card.className = "bg-white rounded-lg shadow hover:shadow-lg p-4 flex flex-col justify-between";
-
-                        const placeholderImg = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
-                        const fullText = item.teks || "";
-                        const preview = fullText.slice(0, 200);
-
-                        card.innerHTML = `
+                    card.innerHTML = `
                     <div>
                         <h3 class="text-lg font-semibold text-blue-700 mb-2">${item.judul || 'Tanpa Judul'}</h3>
                         <p class="text-sm text-gray-700 leading-relaxed min-h-[64px] break-words">
@@ -209,33 +227,114 @@
                         </div>
                     </div>`;
 
-                        const bacaBtn = card.querySelector('.baca-selengkapnya-btn');
-                        if (bacaBtn) {
-                            bacaBtn.addEventListener('click', () => {
-                                document.getElementById('judulBaca').textContent = item.judul;
-                                document.getElementById('isiBaca').innerHTML = fullText.replace(/\n/g, "<br>");
-                                document.getElementById('bacaModal').style.display = 'flex';
-                                document.body.style.overflow = 'hidden';
-                            });
-                        }
-                        teksContainerEl.appendChild(card);
-
-                    } catch (error) {
-                        console.error(`[ERROR] Gagal memproses item "${item.judul}". Penyebab:`, error);
+                    const bacaBtn = card.querySelector('.baca-selengkapnya-btn');
+                    if (bacaBtn) {
+                        bacaBtn.addEventListener('click', () => {
+                            document.getElementById('judulBaca').textContent = item.judul;
+                            document.getElementById('isiBaca').innerHTML = fullText.replace(/\n/g, "<br>");
+                            document.getElementById('bacaModal').style.display = 'flex';
+                            document.body.style.overflow = 'hidden';
+                        });
                     }
+                    fragment.appendChild(card);
+
+                } catch (error) {
+                    console.error(`[ERROR] Gagal memproses item "${item.judul}". Penyebab:`, error);
+                }
+            });
+            teksContainerEl.appendChild(fragment);
+        };
+
+        const fetchTextContent = async (append = false) => {
+            loadMoreButton.style.display = 'none'; // Sembunyikan tombol "Muat Lebih Banyak" saat memuat
+
+            const kontenRef = ref(db, 'konten');
+            let queryRef;
+
+            if (append && lastVisibleKey) {
+                // Untuk memuat lebih banyak, mulai dari key terakhir yang terlihat.
+                // Kita ambil 1 item ekstra untuk menentukan lastVisibleKey berikutnya.
+                // endBefore() akan mengecualikan item dengan lastVisibleKey, jadi kita tidak perlu slice(1)
+                queryRef = query(kontenRef, orderByChild('waktu'), endBefore(lastVisibleKey), limitToLast(ITEMS_PER_PAGE + 1));
+            } else {
+                // Untuk pemuatan awal atau ganti kategori, mulai dari awal.
+                semuaKontenCache = []; // Kosongkan data jika bukan append
+                lastVisibleKey = null; // Reset lastVisibleKey
+                queryRef = query(kontenRef, orderByChild('waktu'), limitToLast(ITEMS_PER_PAGE + 1));
+            }
+
+            try {
+                const snapshot = await get(queryRef);
+                let itemsArray = [];
+                snapshot.forEach(child => {
+                    itemsArray.push(child.val());
                 });
 
-            }).catch(err => {
-                teksContainerEl.innerHTML = `<p class="col-span-full text-red-500 text-center">Gagal memuat data.</p>`;
+                // Karena kita menggunakan limitToLast dan endBefore, data akan datang dalam urutan ASC.
+                // Kita perlu membalik urutannya agar yang terbaru di atas.
+                itemsArray.reverse();
+
+                let newLastKey = null;
+                let fetchedItems = [];
+
+                if (itemsArray.length > ITEMS_PER_PAGE) {
+                    // Jika ada lebih banyak item dari ITEMS_PER_PAGE, berarti ada halaman berikutnya.
+                    // lastVisibleKey adalah item terakhir dari halaman saat ini (yang paling lama)
+                    newLastKey = itemsArray[ITEMS_PER_PAGE - 1].waktu;
+                    fetchedItems = itemsArray.slice(0, ITEMS_PER_PAGE); // Ambil hanya ITEMS_PER_PAGE
+                } else {
+                    // Ini adalah halaman terakhir, atau kurang dari ITEMS_PER_PAGE item yang diambil.
+                    fetchedItems = itemsArray;
+                    newLastKey = null; // Tidak ada halaman lagi
+                }
+                
+                // Filter berdasarkan jenis konten 'teks' dan kategori aktif
+                const filteredFetchedItems = fetchedItems.filter(item => {
+                    const isText = item.jenis === 'teks';
+                    const isCategoryMatch = kategoriAktif === 'semua' || item.kategori === kategoriAktif;
+                    return isText && isCategoryMatch;
+                });
+
+                if (append) {
+                    // Hanya tambahkan item yang belum ada di cache
+                    const existingIds = new Set(semuaKontenCache.map(item => item.id));
+                    const newUniqueItems = filteredFetchedItems.filter(item => !existingIds.has(item.id));
+                    semuaKontenCache = semuaKontenCache.concat(newUniqueItems);
+                } else {
+                    semuaKontenCache = filteredFetchedItems; // Untuk pemuatan awal, cukup tetapkan
+                }
+
+                lastVisibleKey = newLastKey; // Update key terakhir yang terlihat
+
+                renderText(semuaKontenCache); // Selalu render seluruh cache yang terakumulasi
+
+                if (lastVisibleKey) {
+                    loadMoreButton.style.display = 'block';
+                } else {
+                    loadMoreButton.style.display = 'none';
+                }
+
+            } catch (err) {
                 console.error("❌ Error saat ambil konten teks:", err);
-            });
+                showToast("Gagal memuat tulisan.", "error");
+            } finally {
+                loadingIndicator.style.display = 'none'; // Sembunyikan setelah selesai
+            }
         };
+
+
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('logout-button').addEventListener('click', logout);
             document.getElementById('close-baca').addEventListener('click', tutupBaca);
             bacaModal.addEventListener('click', (e) => { if (e.target === bacaModal) tutupBaca(); });
             document.getElementById("menu-toggle").addEventListener("click", () => {
                 document.getElementById("nav-menu").classList.toggle("hidden");
+            });
+
+            // Event listener untuk tombol "Muat Lebih Banyak"
+            loadMoreButton.addEventListener('click', () => {
+                loadingIndicator.style.display = 'flex'; // Tampilkan loading
+                fetchTextContent(true); // Muat lebih banyak (append)
             });
 
             onAuthStateChanged(auth, (user) => {
@@ -245,8 +344,13 @@
                         document.getElementById("welcomeUser").textContent = loggedInUser.name;
                         if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
                         if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
+                        
                         tampilkanKategori();
-                        tampilTeks();
+                        // Tampilkan loading indicator untuk pemuatan awal
+                        if (semuaKontenCache.length === 0) {
+                            loadingIndicator.style.display = 'flex';
+                        }
+                        fetchTextContent();
                     } else {
                         logout();
                     }

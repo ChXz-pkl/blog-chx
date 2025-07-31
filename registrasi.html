@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Registrasi - RZF Academy</title>
     <link rel="stylesheet" href="dist/output.css">
+    <style>
+        /* Gaya untuk ikon mata */
+        .password-toggle-container {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6b7280; /* gray-500 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .password-toggle-container:hover {
+            color: #4f46e5; /* indigo-600 */
+        }
+    </style>
 </head>
 <body class="bg-gradient-to-r from-blue-600 to-sky-400 min-h-screen flex flex-col justify-center items-center px-4 py-8">
 
@@ -23,19 +40,55 @@
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <input type="email" id="email" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" required />
                     </div>
-                    <div>
+                    <div class="relative"> <!-- Tambahkan relative positioning untuk ikon mata -->
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password (min. 6 karakter)</label>
-                        <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" required />
+                        <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 pr-10" required />
+                        <input type="checkbox" id="togglePasswordCheckbox1" class="hidden">
+                        <label for="togglePasswordCheckbox1" class="password-toggle-container">
+                            <svg id="eyeOpen1" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <svg id="eyeClosed1" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 .47 0 .929.043 1.375.128M12 17.5c-2.485 0-4.5-2.015-4.5-4.5S9.515 8.5 12 8.5c.47 0 .929.043 1.375.128M12 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 .47 0 .929.043 1.375.128M12 17.5c-2.485 0-4.5-2.015-4.5-4.5S9.515 8.5 12 8.5c.47 0 .929.043 1.375.128M12 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </label>
                     </div>
-                    <div>
+                    <div class="relative"> <!-- Tambahkan relative positioning untuk ikon mata -->
                         <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Ulangi Password</label>
-                        <input type="password" id="confirmPassword" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400" required />
+                        <input type="password" id="confirmPassword" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 pr-10" required />
+                        <input type="checkbox" id="togglePasswordCheckbox2" class="hidden">
+                        <label for="togglePasswordCheckbox2" class="password-toggle-container">
+                            <svg id="eyeOpen2" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <svg id="eyeClosed2" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 .47 0 .929.043 1.375.128M12 17.5c-2.485 0-4.5-2.015-4.5-4.5S9.515 8.5 12 8.5c.47 0 .929.043 1.375.128M12 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 .47 0 .929.043 1.375.128M12 17.5c-2.485 0-4.5-2.015-4.5-4.5S9.515 8.5 12 8.5c.47 0 .929.043 1.375.128M12 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </label>
                     </div>
                 </div>
                 <button type="submit" class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 transition duration-300">Daftar</button>
                 <p class="text-center text-sm text-gray-600 pt-2">
                     Sudah punya akun? <a href="login.html" class="font-semibold text-blue-500 hover:underline">Login di sini</a>
                 </p>
+                <div class="pt-4 text-center">
+                    <a href="index.html" class="inline-flex items-center text-blue-500 hover:underline text-sm font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Kembali ke Beranda
+                    </a>
+                </div>
             </form>
         </div>
     </main>
@@ -103,6 +156,43 @@
                 })
                 .catch(error => showToast("Registrasi gagal: " + error.message, 'error'));
         };
+
+        // --- TOGGLE PASSWORD VISIBILITY ---
+        // Untuk Password Pertama
+        const togglePasswordCheckbox1 = document.getElementById('togglePasswordCheckbox1');
+        const passwordInput1 = document.getElementById('password');
+        const eyeOpen1 = document.getElementById('eyeOpen1');
+        const eyeClosed1 = document.getElementById('eyeClosed1');
+
+        togglePasswordCheckbox1.addEventListener('change', function () {
+            if (this.checked) {
+                passwordInput1.setAttribute('type', 'text');
+                eyeOpen1.classList.add('hidden');
+                eyeClosed1.classList.remove('hidden');
+            } else {
+                passwordInput1.setAttribute('type', 'password');
+                eyeOpen1.classList.remove('hidden');
+                eyeClosed1.classList.add('hidden');
+            }
+        });
+
+        // Untuk Konfirmasi Password Kedua
+        const togglePasswordCheckbox2 = document.getElementById('togglePasswordCheckbox2');
+        const passwordInput2 = document.getElementById('confirmPassword');
+        const eyeOpen2 = document.getElementById('eyeOpen2');
+        const eyeClosed2 = document.getElementById('eyeClosed2');
+
+        togglePasswordCheckbox2.addEventListener('change', function () {
+            if (this.checked) {
+                passwordInput2.setAttribute('type', 'text');
+                eyeOpen2.classList.add('hidden');
+                eyeClosed2.classList.remove('hidden');
+            } else {
+                passwordInput2.setAttribute('type', 'password');
+                eyeOpen2.classList.remove('hidden');
+                eyeClosed2.classList.add('hidden');
+            }
+        });
 
         document.getElementById('registrasi-form').addEventListener('submit', handleRegister);
     </script>

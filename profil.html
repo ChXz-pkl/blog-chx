@@ -73,7 +73,7 @@
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
                                 readonly>
                         </div>
-                        <button type="submit"
+                        <button type="submit" id="simpan-perubahan-btn"
                             class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 transition duration-300">Simpan
                             Perubahan</button>
                     </form>
@@ -94,7 +94,7 @@
                             <input type="password" id="confirmPassword"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
                         </div>
-                        <button type="submit"
+                        <button type="submit" id="ubah-password-btn"
                             class="w-full bg-red-500 text-white font-bold py-2 px-4 rounded-md hover:bg-red-600 transition duration-300">Ubah
                             Kata Sandi</button>
                     </form>
@@ -112,7 +112,8 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
         import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
+        // Hapus impor Firebase Storage:
+        // import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
@@ -127,7 +128,8 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        const storage = getStorage(app);
+        // Hapus inisialisasi Firebase Storage:
+        // const storage = getStorage(app);
 
         let loggedInUser = null;
         let selectedFile = null;
@@ -136,14 +138,23 @@
         const profilePictureInput = document.getElementById('profilePictureInput');
         const namaInput = document.getElementById('nama');
         const emailInput = document.getElementById('email');
+        const simpanPerubahanBtn = document.getElementById('simpan-perubahan-btn');
+        const ubahPasswordBtn = document.getElementById('ubah-password-btn');
 
-        function showToast(m, t = 'success') { const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; const a = document.createElement("style"); a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) }
+
+        function showToast(m, t = 'success') { 
+            const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; 
+            e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; 
+            const a = document.createElement("style"); 
+            a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) 
+        }
         const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
 
         const loadProfileData = () => {
             namaInput.value = loggedInUser.name;
             emailInput.value = loggedInUser.email;
-            profilePicturePreview.src = loggedInUser.profilePicture || "https://placehold.co/128x128/e2e8f0/718096?text=U";
+            // Tambahkan timestamp untuk menghindari caching browser
+            profilePicturePreview.src = (loggedInUser.profilePicture ? loggedInUser.profilePicture + '?' + new Date().getTime() : "https://placehold.co/128x128/e2e8f0/718096?text=U");
         };
 
         const previewImage = () => {
@@ -158,7 +169,6 @@
         const handleProfileUpdate = async (e) => {
             e.preventDefault();
             const user = auth.currentUser;
-            const submitButton = e.target.querySelector('button[type="submit"]');
             if (!user) return;
 
             const newName = namaInput.value.trim();
@@ -169,23 +179,37 @@
                 return showToast("Tidak ada perubahan untuk disimpan.", 'info');
             }
 
-            submitButton.disabled = true;
-            submitButton.textContent = 'Menyimpan...';
+            simpanPerubahanBtn.disabled = true;
+            simpanPerubahanBtn.textContent = 'Menyimpan...';
 
             try {
                 let newProfilePictureUrl = loggedInUser.profilePicture;
                 if (isFileSelected) {
-                    const formData = new FormData();
-                    formData.append('file', selectedFile);
-                    formData.append('upload_preset', 'rzf-unsigned');
+                    const file = selectedFile;
+                    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+                    if (file.size > MAX_FILE_SIZE) {
+                        showToast("Ukuran gambar terlalu besar (maks 5MB).", "error");
+                        simpanPerubahanBtn.disabled = false;
+                        simpanPerubahanBtn.textContent = 'Simpan Perubahan';
+                        return;
+                    }
 
-                    const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dvrbdmikf/image/upload';
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('upload_preset', 'rzf-unsigned'); // Ganti dengan upload preset Cloudinary Anda
+
+                    const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dvrbdmikf/image/upload'; // Ganti dengan Cloudinary Cloud Name Anda
+                    
+                    showToast("Mengunggah foto profil...", 'info'); // Indikator singkat
                     const response = await fetch(cloudinaryUrl, {
                         method: 'POST',
                         body: formData
                     });
 
-                    if (!response.ok) throw new Error('Upload ke Cloudinary gagal.');
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error.message || 'Unggahan ke Cloudinary gagal.');
+                    }
 
                     const data = await response.json();
                     newProfilePictureUrl = data.secure_url;
@@ -202,7 +226,9 @@
                     authUpdates.photoURL = newProfilePictureUrl;
                 }
 
-                await update(ref(db), dbUpdates);
+                if (Object.keys(dbUpdates).length > 0) {
+                    await update(ref(db), dbUpdates);
+                }
                 if (Object.keys(authUpdates).length > 0) {
                     await updateProfile(user, authUpdates);
                 }
@@ -212,38 +238,48 @@
                 localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
 
                 document.getElementById("welcomeUser").textContent = newName;
-                if (newProfilePictureUrl) document.getElementById("navbarProfilePicture").src = newProfilePictureUrl;
-                selectedFile = null;
+                // Tambahkan timestamp untuk menghindari caching browser pada navbar
+                document.getElementById("navbarProfilePicture").src = (newProfilePictureUrl ? newProfilePictureUrl + '?' + new Date().getTime() : "https://placehold.co/32x32/e2e8f0/718096?text=U");
+                profilePicturePreview.src = (newProfilePictureUrl ? newProfilePictureUrl + '?' + new Date().getTime() : "https://placehold.co/128x128/e2e8f0/718096?text=U");
+
+                selectedFile = null; // Reset selected file
                 showToast("Profil berhasil diperbarui!");
 
             } catch (error) {
                 showToast("Gagal memperbarui profil: " + error.message, 'error');
             } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Simpan Perubahan';
+                simpanPerubahanBtn.disabled = false;
+                simpanPerubahanBtn.textContent = 'Simpan Perubahan';
             }
         };
 
-        const handlePasswordChange = (e) => {
+        const handlePasswordChange = async (e) => {
             e.preventDefault();
             const user = auth.currentUser;
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
+            if (!user) return;
+
             if (newPassword.length < 6) return showToast("Password baru minimal 6 karakter.", 'error');
             if (newPassword !== confirmPassword) return showToast("Password baru tidak cocok.", 'error');
 
-            updatePassword(user, newPassword)
-                .then(() => {
-                    showToast("Password berhasil diubah!");
-                    e.target.reset();
-                })
-                .catch(error => {
-                    showToast("Gagal ubah password: " + error.message, 'error');
-                    if (error.code === 'auth/requires-recent-login') {
-                        showToast("Demi keamanan, silakan logout dan login kembali untuk mengubah password.", 'info');
-                    }
-                });
+            ubahPasswordBtn.disabled = true;
+            ubahPasswordBtn.textContent = 'Mengubah...';
+
+            try {
+                await updatePassword(user, newPassword);
+                showToast("Password berhasil diubah!");
+                e.target.reset(); // Reset form password
+            } catch (error) {
+                showToast("Gagal ubah password: " + error.message, 'error');
+                if (error.code === 'auth/requires-recent-login') {
+                    showToast("Demi keamanan, silakan logout dan login kembali untuk mengubah password.", 'info');
+                }
+            } finally {
+                ubahPasswordBtn.disabled = false;
+                ubahPasswordBtn.textContent = 'Ubah Kata Sandi';
+            }
         };
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -264,7 +300,8 @@
                     loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
                     if (loggedInUser && loggedInUser.id === user.uid) {
                         document.getElementById("welcomeUser").textContent = loggedInUser.name;
-                        if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
+                        // Tambahkan timestamp untuk menghindari caching browser pada navbar saat load awal
+                        if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture + '?' + new Date().getTime();
                         if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
                         loadProfileData();
                     } else {

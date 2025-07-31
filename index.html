@@ -1,301 +1,367 @@
 <!DOCTYPE html>
-<html lang="id" class="dark"> 
+<html lang="id">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>RZF Academy - Platform Kolaborasi Kreator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
+    <title>RZF Academy - Beranda</title>
+    <link rel="stylesheet" href="dist/output.css">
     <style>
-        .animate-on-scroll {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        /* Cursor berkedip untuk efek typing */
+        .typing-cursor {
+            display: inline-block;
+            width: 3px;
+            background-color: white;
+            animation: blink 0.7s infinite;
+            margin-left: 2px;
+            vertical-align: middle;
+            height: 1.2em;
+            /* Sesuaikan dengan tinggi font teks */
         }
-        .animate-on-scroll.is-visible {
-            opacity: 1;
-            transform: translateY(0);
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
-        /* [BARU] Atur warna SVG berdasarkan tema */
-        .hero-svg-stroke { stroke: #3b82f6; }
-        .hero-svg-text { fill: white; }
-        html:not(.dark) .hero-svg-stroke { stroke: #475569; }
-        html:not(.dark) .hero-svg-text { fill: #1e293b; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-gray-900 text-slate-800 dark:text-gray-200 min-h-screen flex flex-col font-sans transition-colors duration-300">
 
-    <nav class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm px-4 md:px-8 py-4 flex justify-between items-center sticky top-0 z-20 border-b border-slate-200 dark:border-gray-700">
-        <h1 class="text-xl font-bold text-slate-900 dark:text-white">RZF Academy</h1>
-        <div class="flex items-center space-x-2">
-            <a href="login.html" class="px-4 py-2 border border-slate-300 dark:border-gray-600 text-slate-700 dark:text-gray-200 rounded-md hover:bg-slate-100 dark:hover:bg-gray-800 text-sm font-semibold transition">Login</a>
-            <a href="registrasi.html" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 text-sm font-bold transition">Register</a>
-            <button id="theme-toggle" type="button" class="px-3 py-2 border border-slate-300 dark:border-gray-600 rounded-md hover:bg-slate-100 dark:hover:bg-gray-800 transition text-slate-600 dark:text-gray-300">
-                <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
-                <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm-.707 10.607a1 1 0 011.414 0l.707-.707a1 1 0 111.414 1.414l-.707.707a1 1 0 01-1.414 0zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"></path></svg>
-            </button>
+<body class="bg-sky-50 min-h-screen flex flex-col">
+
+    <nav
+        class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-bold">RZF Academy</h1>
+        <div class="space-x-2">
+            <a href="login.html"
+                class="px-4 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Login</a>
+            <a href="registrasi.html"
+                class="px-4 py-1 bg-white text-blue-600 rounded hover:bg-blue-100 text-sm font-bold">Register</a>
         </div>
     </nav>
 
     <main class="flex-1 container mx-auto px-4 py-8">
-        
-        <section class="text-center my-16 md:my-24">
-            <div class="relative w-64 h-64 md:w-80 md:h-80 mx-auto mb-8 flex items-center justify-center">
-                <div class="absolute inset-0 bg-blue-500/10 dark:bg-blue-500/30 rounded-full blur-2xl"></div>
-                <svg viewBox="0 0 100 100" class="relative z-10">
-                    <circle cx="50" cy="50" r="45" class="hero-svg-stroke transition-all duration-300" stroke-width="2" fill="none" />
-                    <circle cx="50" cy="50" r="30" class="stroke-slate-300 dark:stroke-gray-700 transition-all duration-300" stroke-width="1" fill="none" />
-                    <text x="50" y="55" font-family="monospace" font-size="12" class="hero-svg-text transition-all duration-300" text-anchor="middle">RZF</text>
-                </svg>
-            </div>
-            <h2 class="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight">
-                Platform Kolaborasi untuk<br class="hidden md:block"/> <span class="text-blue-600 dark:text-blue-400">Kreator Masa Depan</span>
+        <!-- Hero Section -->
+        <section
+            class="text-center mb-16 py-16 bg-gradient-to-br from-blue-500 to-sky-300 text-white rounded-xl shadow-lg">
+            <h2 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">
+                Selamat Datang di <span class="block text-yellow-200">RZF Academy</span>
             </h2>
-            <p class="text-slate-600 dark:text-gray-400 mt-4 text-lg max-w-2xl mx-auto">
-                Bagikan karya, temukan inspirasi, dan bangun portofolio Anda di dalam komunitas developer dan desainer.
+            <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
+                Platform inovatif untuk berbagi dan menemukan inspirasi melalui
+                <span id="typing-text" class="font-semibold text-yellow-100"></span><span class="typing-cursor"></span>
             </p>
-            <a href="registrasi.html" class="mt-8 inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 font-bold text-lg transition-transform duration-300 hover:scale-105 shadow-lg shadow-blue-500/20">
-                Mulai Berkarya, Gratis!
+            <div class="space-x-4">
+                <a href="registrasi.html"
+                    class="bg-white text-blue-600 px-6 py-3 rounded-full font-bold text-lg hover:bg-blue-100 transition duration-300 shadow-md">
+                    Gabung Sekarang!
+                </a>
+                <a href="login.html"
+                    class="border border-white text-white px-6 py-3 rounded-full font-semibold text-lg hover:bg-white hover:text-blue-600 transition duration-300 shadow-md">
+                    Login Sekarang
+                </a>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="mb-16 py-8">
+            <h3 class="text-3xl font-bold text-blue-600 text-center mb-8">Tentang RZF Academy</h3>
+            <div class="bg-white p-8 rounded-xl shadow-lg max-w-3xl mx-auto text-gray-700 leading-relaxed">
+                <p class="mb-4">
+                    RZF Academy adalah wadah digital yang dirancang untuk para kreator dan penikmat seni. Kami percaya
+                    bahwa setiap orang memiliki potensi kreatif yang unik, dan platform ini hadir untuk memfasilitasi
+                    Anda dalam berbagi ide, karya, serta mendapatkan inspirasi dari orang lain.
+                </p>
+                <p class="mb-4">
+                    Mulai dari fotografer, penulis, desainer, hingga siapa pun yang memiliki cerita untuk dibagikan, RZF
+                    Academy menyediakan ruang yang intuitif dan menarik. Kami berkomitmen untuk membangun komunitas yang
+                    suportif dan inspiratif, di mana setiap karya dihargai.
+                </p>
+                <p>
+                    Bergabunglah dengan kami dan jadilah bagian dari gerakan kreatif yang terus berkembang!
+                </p>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="mb-16 py-8">
+            <h3 class="text-3xl font-bold text-blue-600 text-center mb-8">Fitur Unggulan Kami</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center hover:shadow-xl transition duration-300">
+                    <div class="text-blue-500 text-5xl mb-4">🖼️</div>
+                    <h4 class="font-bold text-xl text-gray-800 mb-2">Galeri Visual Memukau</h4>
+                    <p class="text-gray-600">Unggah dan jelajahi berbagai foto dan karya visual dari komunitas.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center hover:shadow-xl transition duration-300">
+                    <div class="text-green-500 text-5xl mb-4">✍️</div>
+                    <h4 class="font-bold text-xl text-gray-800 mb-2">Konten Teks Inspiratif</h4>
+                    <p class="text-gray-600">Baca dan bagikan artikel, cerita, atau puisi yang menggugah pikiran.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center hover:shadow-xl transition duration-300">
+                    <div class="text-purple-500 text-5xl mb-4">🚀</div>
+                    <h4 class="font-bold text-xl text-gray-800 mb-2">Unggah Karya Mudah</h4>
+                    <p class="text-gray-600">Antarmuka sederhana untuk mengunggah dan mengelola konten Anda.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Latest Content Section -->
+        <section class="mb-16 py-8">
+            <h3 class="text-3xl font-bold text-blue-600 text-center mb-8">Konten Terbaru</h3>
+            <div id="latestContentContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <!-- Konten terbaru akan dimuat di sini oleh JavaScript -->
+                <p id="loadingLatestContent" class="col-span-full text-center text-gray-500">Memuat konten terbaru...
+                </p>
+            </div>
+            <div class="text-center mt-8">
+                <a href="login.html"
+                    class="inline-block bg-blue-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-600 transition duration-300 shadow-md">
+                    Lihat Semua Konten
+                </a>
+            </div>
+        </section>
+
+        <!-- Call to Action Section -->
+        <section class="text-center py-12 bg-gradient-to-tl from-sky-400 to-blue-600 text-white rounded-xl shadow-lg">
+            <h3 class="text-3xl md:text-4xl font-bold mb-4">Siap Berkreasi?</h3>
+            <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
+                Daftar sekarang dan mulailah perjalanan kreatif Anda bersama RZF Academy!
+            </p>
+            <a href="registrasi.html"
+                class="bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-xl hover:bg-blue-100 transition duration-300 shadow-lg">
+                Daftar Gratis
             </a>
         </section>
 
-        <section class="my-16 md:my-24">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-                <div class="bg-white dark:bg-gray-800/50 p-6 rounded-lg border border-slate-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors duration-300 animate-on-scroll">
-                    <h4 class="font-semibold text-lg mb-2 text-slate-900 dark:text-white">🚀 Unggah Cepat</h4>
-                    <p class="text-slate-600 dark:text-gray-400 text-sm">Bagikan cuplikan kode, desain, atau tulisan Anda dalam hitungan detik. Tanpa proses yang rumit.</p>
-                </div>
-                <div class="bg-white dark:bg-gray-800/50 p-6 rounded-lg border border-slate-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors duration-300 animate-on-scroll" style="transition-delay: 150ms;">
-                    <h4 class="font-semibold text-lg mb-2 text-slate-900 dark:text-white">💡 Temukan Inspirasi</h4>
-                    <p class="text-slate-600 dark:text-gray-400 text-sm">Jelajahi feed tanpa akhir yang berisi karya-karya dari komunitas untuk memicu ide brilian Anda berikutnya.</p>
-                </div>
-                <div class="bg-white dark:bg-gray-800/50 p-6 rounded-lg border border-slate-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors duration-300 animate-on-scroll" style="transition-delay: 300ms;">
-                    <h4 class="font-semibold text-lg mb-2 text-slate-900 dark:text-white">🌐 Bangun Portofolio</h4>
-                    <p class="text-slate-600 dark:text-gray-400 text-sm">Setiap karya yang Anda bagikan secara otomatis membangun portofolio publik yang mengesankan.</p>
-                </div>
-            </div>
-        </section>
-        
-        </main>
+    </main>
 
-    <footer class="bg-slate-100 dark:bg-gray-900 border-t border-slate-200 dark:border-gray-700 text-center text-slate-500 dark:text-gray-400 py-6 text-sm">
-        &copy; 2025 RZF Academy & CHX • All rights reserved.
+    <!-- Modal for content preview (re-added for latest content section) -->
+    <div id="previewOverlay" class="fixed inset-0 bg-black bg-opacity-80 hidden justify-center items-center z-50">
+        <span id="close-preview"
+            class="absolute top-5 right-6 text-white text-4xl cursor-pointer font-bold">&times;</span>
+        <img id="previewImage" class="max-w-[90%] max-h-[90%] rounded shadow-2xl" />
+    </div>
+
+    <div id="bacaModal" class="fixed inset-0 bg-black bg-opacity-70 hidden justify-center items-center z-50">
+        <div class="bg-white max-w-xl w-full mx-4 p-6 rounded-xl shadow-lg relative">
+            <button id="close-baca"
+                class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold">✖</button>
+            <h2 id="judulBaca" class="text-xl font-bold mb-2 text-blue-700"></h2>
+            <p id="isiBaca"
+                class="text-gray-800 whitespace-pre-line leading-relaxed text-sm max-h-[60vh] overflow-y-auto"></p>
+        </div>
+    </div>
+
+
+    <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
+        &copy; 2025 <a href="https://portfolio-chx.netlify.app/"
+            class="font-semibold text-black hover:underline">CHX</a> • All rights reserved.
     </footer>
-<script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Logika untuk Animasi Saat Scroll ---
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                    }
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getDatabase, ref, get, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+        // --- KONFIGURASI FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
+            authDomain: "rzf-academy-bd.firebaseapp.com",
+            databaseURL: "https://rzf-academy-bd-default-rtdb.firebaseio.com",
+            projectId: "rzf-academy-bd",
+            storageBucket: "rzf-academy-bd.appspot.com",
+            messagingSenderId: "875822158869",
+            appId: "1:875822158869:web:a88c284f1d031d9da3aa1c",
+        };
+
+        // --- INISIALISASI FIREBASE ---
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- UI Elements for Modals ---
+        const previewOverlay = document.getElementById("previewOverlay");
+        const previewImage = document.getElementById("previewImage");
+        const bacaModal = document.getElementById("bacaModal");
+        const judulBaca = document.getElementById("judulBaca");
+        const isiBaca = document.getElementById("isiBaca");
+
+        // --- Utility Functions for Modals ---
+        const tampilkanPreview = (src) => {
+            previewImage.src = src;
+            previewOverlay.style.display = "flex";
+            document.body.style.overflow = 'hidden';
+        };
+
+        const bukaBaca = (judul, teks) => {
+            judulBaca.textContent = judul;
+            isiBaca.innerHTML = teks.replace(/\n/g, "<br>"); // Use innerHTML for line breaks
+            bacaModal.style.display = "flex";
+            document.body.style.overflow = 'hidden';
+        };
+
+        const tutupPreview = () => {
+            previewOverlay.style.display = "none";
+            document.body.style.overflow = '';
+        };
+        const tutupBaca = () => {
+            bacaModal.style.display = "none";
+            document.body.style.overflow = '';
+        };
+
+
+        // --- TYPING EFFECT LOGIC ---
+        const typingTextElement = document.getElementById('typing-text');
+        const phrases = [
+            "karya visual",
+            "tulisan inspiratif",
+            "ide kreatif",
+            "pengalaman baru"
+        ];
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typingSpeed = 100; // milliseconds per character
+        const deletingSpeed = 50; // milliseconds per character
+        const pauseBeforeDelete = 1500; // milliseconds
+        const pauseBeforeType = 500; // milliseconds
+
+        function typeEffect() {
+            const currentPhrase = phrases[phraseIndex];
+            if (isDeleting) {
+                typingTextElement.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typingTextElement.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let currentSpeed = isDeleting ? deletingSpeed : typingSpeed;
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                currentSpeed = pauseBeforeDelete;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                currentSpeed = pauseBeforeType;
+            }
+
+            setTimeout(typeEffect, currentSpeed);
+        }
+
+
+        // --- FETCH LATEST CONTENT LOGIC ---
+        const latestContentContainer = document.getElementById('latestContentContainer');
+        const loadingLatestContent = document.getElementById('loadingLatestContent');
+        const ITEMS_TO_SHOW = 2; // Hanya tampilkan 2 data terbaru
+
+        const fetchLatestContent = async () => {
+            loadingLatestContent.style.display = 'block'; // Tampilkan loading
+            latestContentContainer.innerHTML = ''; // Kosongkan container
+
+            const kontenRef = ref(db, 'konten');
+            // Ambil N item terbaru berdasarkan waktu (limitToLast akan mengambil N item terakhir secara kronologis)
+            const latestContentQuery = query(kontenRef, orderByChild('waktu'), limitToLast(ITEMS_TO_SHOW));
+
+            try {
+                const snapshot = await get(latestContentQuery);
+                const fetchedItems = [];
+                snapshot.forEach(child => {
+                    fetchedItems.push(child.val());
                 });
-            }, { threshold: 0.1 });
-            document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
 
-            // --- Logika untuk Light/Dark Mode Toggle ---
-            const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
-            const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
-            const themeToggleButton = document.getElementById('theme-toggle');
-            const htmlElement = document.documentElement;
+                // Karena limitToLast mengambil yang paling lama dari N terakhir, kita perlu membalik urutannya
+                fetchedItems.reverse();
 
-            // Fungsi untuk mengganti tema
-            const toggleTheme = () => {
-                const isDarkMode = htmlElement.classList.toggle('dark');
-                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-                updateIcon(isDarkMode);
-            };
+                if (fetchedItems.length === 0) {
+                    latestContentContainer.innerHTML = `<p class="col-span-full text-center text-gray-500">Belum ada konten terbaru.</p>`;
+                    return;
+                }
 
-            // Fungsi untuk update ikon
-            const updateIcon = (isDarkMode) => {
-                themeToggleDarkIcon.classList.toggle('hidden', !isDarkMode);
-                themeToggleLightIcon.classList.toggle('hidden', isDarkMode);
-            };
+                fetchedItems.forEach(item => {
+                    const card = document.createElement("div");
+                    card.className = "bg-white rounded-lg shadow hover:shadow-lg p-4 flex flex-col transition-shadow";
+                    const placeholder = 'https://placehold.co/24x24/e2e8f0/718096?text=U'; // Placeholder untuk gambar profil
 
-            // Cek tema saat halaman dimuat
-            const currentTheme = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
-            let isDarkMode;
-            if (currentTheme === 'dark') {
-                isDarkMode = true;
-            } else if (currentTheme === 'light') {
-                isDarkMode = false;
-            } else {
-                isDarkMode = prefersDark;
+                    if (item.jenis === 'gambar') {
+                        card.innerHTML = `
+                            <div>
+                                <img src="${item.gambar || 'https://placehold.co/400x250?text=Gambar+Hilang'}" alt="${item.judul}" class="w-full h-48 object-contain bg-gray-100 rounded mb-3 shadow-sm cursor-pointer"/>
+                                <h4 class="text-lg font-semibold text-blue-700 truncate mb-1">${item.judul}</h4>
+                            </div>
+                            <div class="mt-auto pt-3 border-t flex items-center justify-between">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                                <div class="flex items-center gap-2">
+                                    <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
+                                    <span class="text-gray-500 text-xs">${item.userName}</span>
+                                </div>
+                            </div>`;
+                        // Listener untuk preview gambar
+                        const imgElement = card.querySelector('img');
+                        imgElement.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            tampilkanPreview(item.gambar);
+                        });
+                    } else if (item.jenis === 'teks') {
+                        const fullText = item.teks || "";
+                        const preview = fullText.slice(0, 150).replace(/\n/g, "<br>"); // Preview 150 karakter
+                        card.innerHTML = `
+                            <div>
+                                <h4 class="text-lg font-semibold text-blue-700 mb-2">${item.judul}</h4>
+                                <p class="text-gray-800 leading-relaxed min-h-[64px] break-words">${preview}${fullText.length > 150 ? '...' : ''}</p>
+                                ${fullText.length > 150 ? `<div class="mt-2"><button class="text-sm text-blue-600 hover:underline baca-btn">Baca Selengkapnya</button></div>` : ''}
+                            </div>
+                            <div class="mt-auto pt-3 border-t flex items-center justify-between">
+                                <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                                <div class="flex items-center gap-2">
+                                    <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
+                                    <span class="text-gray-500 text-xs">${item.userName}</span>
+                                </div>
+                            </div>`;
+                        // Listener untuk modal "Baca Selengkapnya"
+                        const bacaBtn = card.querySelector('.baca-btn');
+                        if (bacaBtn) {
+                            bacaBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                bukaBaca(item.judul, item.teks);
+                            });
+                        }
+                    }
+                    latestContentContainer.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error("Error fetching latest content:", error);
+                latestContentContainer.innerHTML = `<p class="col-span-full text-center text-red-500">Gagal memuat konten terbaru.</p>`;
+            } finally {
+                loadingLatestContent.style.display = 'none'; // Sembunyikan loading
             }
+        };
 
-            if (isDarkMode) {
-                htmlElement.classList.add('dark');
-            } else {
-                htmlElement.classList.remove('dark');
-            }
-            updateIcon(isDarkMode);
 
-            // Event listener untuk tombol
-            themeToggleButton.addEventListener('click', toggleTheme);
+        // --- DOM Loaded ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Start typing effect
+            typeEffect();
+
+            // Fetch and display latest content
+            fetchLatestContent();
+
+            // Event listeners for modals
+            document.getElementById("close-preview").addEventListener('click', tutupPreview);
+            previewOverlay.addEventListener('click', (e) => { if (e.target === previewOverlay) tutupPreview(); });
+            document.getElementById("close-baca").addEventListener('click', tutupBaca);
+            bacaModal.addEventListener('click', (e) => { if (e.target === bacaModal) tutupBaca(); });
         });
     </script>
+
 </body>
-</html>
-## Penjelasan Cara Kerjanya
-Konfigurasi Tailwind (di <head>)
-Baris <script> tailwind.config = { darkMode: 'class' } </script> memberitahu Tailwind untuk mencari class dark pada elemen <html> untuk menerapkan gaya mode gelap.
 
-Tombol Switch (di <nav>)
-Tombol baru ditambahkan dengan ID theme-toggle. Di dalamnya ada dua ikon SVG (matahari dan bulan) yang akan ditampilkan atau disembunyikan sesuai tema yang aktif.
-
-Class dark: di Seluruh Elemen
-Setiap elemen kini memiliki dua set class. Contoh: bg-white dark:bg-gray-900.
-
-bg-white: Digunakan saat mode normal (light).
-
-dark:bg-gray-900: Digunakan saat class dark ada di tag <html>.
-
-Logika JavaScript (di akhir <body>)
-
-Saat Halaman Dimuat: Script akan memeriksa apakah Anda pernah menyimpan pilihan tema di localStorage. Jika tidak, ia akan memeriksa preferensi tema dari sistem operasi Anda. Berdasarkan itu, ia akan menambahkan atau menghapus class dark dari <html>.
-
-Saat Tombol Diklik: Script akan menambahkan/menghapus class dark dari <html>, menyimpan pilihan baru Anda ke localStorage, dan mengganti ikon matahari/bulan.
-
-Sekarang halaman depan Anda tidak hanya terlihat profesional dengan tema gelap, tetapi juga fleksibel dengan mode terang yang bersih.
-
-
-Sumber
-
-Jelekkkk light mode nya
-
-
-
-
-Tampilkan alur berpikir
-Tentu, saya setuju! Mode terang yang sebelumnya memang terlalu standar dan membosankan. Mari kitarombak total agar versi terangnya juga terlihat berkarakter, bersih, dan profesional seperti mode gelapnya.
-
-Konsep untuk mode terang yang baru ini adalah "Clean & Modern". Kita akan menggunakan palet warna yang lebih lembut (putih gading dan abu-abu terang), tipografi yang tegas, dan bayangan yang halus untuk memberikan kesan premium.
-
-Mode gelap favorit Anda tidak akan berubah sama sekali. Perubahan ini hanya berlaku untuk mode terang.
-
-Kode index.html dengan Desain Light Mode Baru
-Silakan ganti seluruh isi file index.html Anda dengan kode yang sudah diperbarui di bawah ini.
-
-HTML
-
-<!DOCTYPE html>
-<html lang="id" class="dark"> 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>RZF Academy - Platform Kolaborasi Kreator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
-    <style>
-        .animate-on-scroll {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-        .animate-on-scroll.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        /* [BARU] Atur warna SVG berdasarkan tema */
-        .hero-svg-stroke { stroke: #3b82f6; }
-        .hero-svg-text { fill: white; }
-        html:not(.dark) .hero-svg-stroke { stroke: #475569; }
-        html:not(.dark) .hero-svg-text { fill: #1e293b; }
-    </style>
-</head>
-<body class="bg-slate-50 dark:bg-gray-900 text-slate-800 dark:text-gray-200 min-h-screen flex flex-col font-sans transition-colors duration-300">
-
-    <nav class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm px-4 md:px-8 py-4 flex justify-between items-center sticky top-0 z-20 border-b border-slate-200 dark:border-gray-700">
-        <h1 class="text-xl font-bold text-slate-900 dark:text-white">RZF Academy</h1>
-        <div class="flex items-center space-x-2">
-            <a href="login.html" class="px-4 py-2 border border-slate-300 dark:border-gray-600 text-slate-700 dark:text-gray-200 rounded-md hover:bg-slate-100 dark:hover:bg-gray-800 text-sm font-semibold transition">Login</a>
-            <a href="registrasi.html" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 text-sm font-bold transition">Register</a>
-            <button id="theme-toggle" type="button" class="px-3 py-2 border border-slate-300 dark:border-gray-600 rounded-md hover:bg-slate-100 dark:hover:bg-gray-800 transition text-slate-600 dark:text-gray-300">
-                <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
-                <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm-.707 10.607a1 1 0 011.414 0l.707-.707a1 1 0 111.414 1.414l-.707.707a1 1 0 01-1.414 0zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"></path></svg>
-            </button>
-        </div>
-    </nav>
-
-    <main class="flex-1 container mx-auto px-4 py-8">
-        
-        <section class="text-center my-16 md:my-24">
-            <div class="relative w-64 h-64 md:w-80 md:h-80 mx-auto mb-8 flex items-center justify-center">
-                <div class="absolute inset-0 bg-blue-500/10 dark:bg-blue-500/30 rounded-full blur-2xl"></div>
-                <svg viewBox="0 0 100 100" class="relative z-10">
-                    <circle cx="50" cy="50" r="45" class="hero-svg-stroke transition-all duration-300" stroke-width="2" fill="none" />
-                    <circle cx="50" cy="50" r="30" class="stroke-slate-300 dark:stroke-gray-700 transition-all duration-300" stroke-width="1" fill="none" />
-                    <text x="50" y="55" font-family="monospace" font-size="12" class="hero-svg-text transition-all duration-300" text-anchor="middle">RZF</text>
-                </svg>
-            </div>
-            <h2 class="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight">
-                Platform Kolaborasi untuk<br class="hidden md:block"/> <span class="text-blue-600 dark:text-blue-400">Kreator Masa Depan</span>
-            </h2>
-            <p class="text-slate-600 dark:text-gray-400 mt-4 text-lg max-w-2xl mx-auto">
-                Bagikan karya, temukan inspirasi, dan bangun portofolio Anda di dalam komunitas developer dan desainer.
-            </p>
-            <a href="registrasi.html" class="mt-8 inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 font-bold text-lg transition-transform duration-300 hover:scale-105 shadow-lg shadow-blue-500/20">
-                Mulai Berkarya, Gratis!
-            </a>
-        </section>
-
-        <section class="my-16 md:my-24">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-                <div class="bg-white dark:bg-gray-800/50 p-6 rounded-lg border border-slate-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors duration-300 animate-on-scroll">
-                    <h4 class="font-semibold text-lg mb-2 text-slate-900 dark:text-white">🚀 Unggah Cepat</h4>
-                    <p class="text-slate-600 dark:text-gray-400 text-sm">Bagikan cuplikan kode, desain, atau tulisan Anda dalam hitungan detik. Tanpa proses yang rumit.</p>
-                </div>
-                <div class="bg-white dark:bg-gray-800/50 p-6 rounded-lg border border-slate-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors duration-300 animate-on-scroll" style="transition-delay: 150ms;">
-                    <h4 class="font-semibold text-lg mb-2 text-slate-900 dark:text-white">💡 Temukan Inspirasi</h4>
-                    <p class="text-slate-600 dark:text-gray-400 text-sm">Jelajahi feed tanpa akhir yang berisi karya-karya dari komunitas untuk memicu ide brilian Anda berikutnya.</p>
-                </div>
-                <div class="bg-white dark:bg-gray-800/50 p-6 rounded-lg border border-slate-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors duration-300 animate-on-scroll" style="transition-delay: 300ms;">
-                    <h4 class="font-semibold text-lg mb-2 text-slate-900 dark:text-white">🌐 Bangun Portofolio</h4>
-                    <p class="text-slate-600 dark:text-gray-400 text-sm">Setiap karya yang Anda bagikan secara otomatis membangun portofolio publik yang mengesankan.</p>
-                </div>
-            </div>
-        </section>
-        
-        </main>
-
-    <footer class="bg-slate-100 dark:bg-gray-900 border-t border-slate-200 dark:border-gray-700 text-center text-slate-500 dark:text-gray-400 py-6 text-sm">
-        &copy; 2025 RZF Academy & CHX • All rights reserved.
-    </footer>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => { /* ... Logika toggle dan animasi ... */ });
-    </script>
-</body>
-</html>
-## Perbaikan pada Light Mode
-🎨 Palet Warna Baru: Latar belakang utama kini menggunakan warna slate-50 (putih gading yang sangat lembut) dan teks utama slate-800 (abu-abu gelap). Ini lebih nyaman di mata daripada kontras hitam-putih total.
-
-⚪ Kartu "Melayang": Setiap kartu fitur kini menggunakan latar belakang white dengan border tipis. Ini menciptakan efek kartu yang bersih dan seolah melayang di atas latar belakang utama.
-
-✨ Navbar Modern: Navbar di mode terang kini semi-transparan (white/80) dengan efek blur, memberikan kesan modern seperti yang sering ditemukan di produk-produk Apple atau Vercel.
-
-🎨 Visual Hero Disesuaikan: Lingkaran SVG di bagian atas kini warnanya beradaptasi. Di mode terang, warnanya menjadi abu-abu gelap, membuatnya tetap terlihat bagus dan tidak "bolong".
-
-Silakan coba dan lihat perbedaannya. Sekarang Anda memiliki dua mode tema yang sama-sama kuat secara visual.
-
-
-
-
-
-
-Video
-
-
-Gemini dapat membuat kesalahan, jadi periksa kembali 
-</body>
 </html>
