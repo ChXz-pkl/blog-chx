@@ -39,7 +39,7 @@
 
     <nav
         class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 flex justify-between items-center shadow-md">
-        <h1 class="text-xl font-bold"><span class="bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">RZF</span> Academy</h1>
+        <h1 class="text-xl font-bold">RZF Academy</h1>
         <div class="space-x-2">
             <a href="login.html"
                 class="px-4 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Login</a>
@@ -66,7 +66,7 @@
                 </a>
                 <a href="login.html"
                     class="border border-white text-white px-6 py-3 rounded-full font-semibold text-lg hover:bg-white hover:text-blue-600 transition duration-300 shadow-md">
-                    Login
+                    Login Sekarang
                 </a>
             </div>
         </section>
@@ -74,7 +74,7 @@
         <!-- About Section -->
         <section class="mb-16 py-8">
             <h3 class="text-3xl font-bold text-blue-600 text-center mb-8">Tentang RZF Academy</h3>
-            <div class="bg-white p-8 rounded-xl shadow-lg max-w-3xl mx-auto text-gray-700 leading-relaxed text-center">
+            <div class="bg-white p-8 rounded-xl shadow-lg max-w-3xl mx-auto text-gray-700 leading-relaxed">
                 <p class="mb-4">
                     RZF Academy adalah wadah digital yang dirancang untuk para kreator dan penikmat seni. Kami percaya
                     bahwa setiap orang memiliki potensi kreatif yang unik, dan platform ini hadir untuk memfasilitasi
@@ -122,7 +122,7 @@
                 </p>
             </div>
             <div class="text-center mt-8">
-                <a href="login.html"
+                <a href="dashboard.html"
                     class="inline-block bg-blue-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-600 transition duration-300 shadow-md">
                     Lihat Semua Konten
                 </a>
@@ -263,11 +263,10 @@
         const ITEMS_TO_SHOW = 2; // Hanya tampilkan 2 data terbaru
 
         const fetchLatestContent = async () => {
-            loadingLatestContent.style.display = 'block'; // Tampilkan loading
-            latestContentContainer.innerHTML = ''; // Kosongkan container
+            loadingLatestContent.style.display = 'block';
+            latestContentContainer.innerHTML = '';
 
             const kontenRef = ref(db, 'konten');
-            // Ambil N item terbaru berdasarkan waktu (limitToLast akan mengambil N item terakhir secara kronologis)
             const latestContentQuery = query(kontenRef, orderByChild('waktu'), limitToLast(ITEMS_TO_SHOW));
 
             try {
@@ -277,21 +276,22 @@
                     fetchedItems.push(child.val());
                 });
 
-                // Karena limitToLast mengambil yang paling lama dari N terakhir, kita perlu membalik urutannya
                 fetchedItems.reverse();
 
                 if (fetchedItems.length === 0) {
-                    latestContentContainer.innerHTML = `<p class="col-span-full text-center text-gray-500">Belum ada konten terbaru.</p>`;
+                    loadingLatestContent.textContent = "Belum ada konten terbaru.";
                     return;
                 }
+                loadingLatestContent.style.display = 'none';
 
                 fetchedItems.forEach(item => {
                     const card = document.createElement("div");
                     card.className = "bg-white rounded-lg shadow hover:shadow-lg p-4 flex flex-col transition-shadow";
-                    const placeholder = 'https://placehold.co/24x24/e2e8f0/718096?text=U'; // Placeholder untuk gambar profil
+                    const placeholder = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
+                    let contentHTML = '';
 
                     if (item.jenis === 'gambar') {
-                        card.innerHTML = `
+                        contentHTML = `
                             <div>
                                 <img src="${item.gambar || 'https://placehold.co/400x250?text=Gambar+Hilang'}" alt="${item.judul}" class="w-full h-48 object-contain bg-gray-100 rounded mb-3 shadow-sm cursor-pointer"/>
                                 <h4 class="text-lg font-semibold text-blue-700 truncate mb-1">${item.judul}</h4>
@@ -303,45 +303,87 @@
                                     <span class="text-gray-500 text-xs">${item.userName}</span>
                                 </div>
                             </div>`;
-                        // Listener untuk preview gambar
                         const imgElement = card.querySelector('img');
                         imgElement.addEventListener('click', (e) => {
                             e.stopPropagation();
                             tampilkanPreview(item.gambar);
                         });
-                    } else if (item.jenis === 'teks') {
-                        const fullText = item.teks || "";
-                        const preview = fullText.slice(0, 150).replace(/\n/g, "<br>"); // Preview 150 karakter
-                        card.innerHTML = `
+                    } else if (item.jenis === 'teks' || item.jenis === 'buku') {
+                        let contentToPreview = '';
+                        let isLongContent = false;
+
+                        // Perbaiki pratinjau untuk konten buku
+                        try {
+                            const isJson = (str) => {
+                                try { JSON.parse(str); } catch (e) { return false; }
+                                return true;
+                            };
+                            if (item.jenis === 'buku' && isJson(item.teks)) {
+                                const pages = JSON.parse(item.teks);
+                                if (pages.length > 0) {
+                                    contentToPreview = pages[0].content || '';
+                                    isLongContent = pages.length > 1 || contentToPreview.length > 150;
+                                }
+                            } else { // Fallback untuk teks biasa atau data lama
+                                contentToPreview = item.teks || '';
+                                isLongContent = contentToPreview.length > 150;
+                            }
+                        } catch (e) {
+                            contentToPreview = item.teks || '';
+                            isLongContent = contentToPreview.length > 150;
+                        }
+
+                        // Hapus tag HTML dari preview dan potong
+                        contentToPreview = contentToPreview.replace(/<[^>]*>/g, '').trim();
+                        contentToPreview = contentToPreview.substring(0, 150);
+
+                        const buttonText = item.jenis === 'buku' ? 'Baca Buku' : 'Baca Selengkapnya';
+
+                        contentHTML = `
                             <div>
                                 <h4 class="text-lg font-semibold text-blue-700 mb-2">${item.judul}</h4>
-                                <p class="text-gray-800 leading-relaxed min-h-[64px] break-words">${preview}${fullText.length > 150 ? '...' : ''}</p>
-                                ${fullText.length > 150 ? `<div class="mt-2"><button class="text-sm text-blue-600 hover:underline baca-btn">Baca Selengkapnya</button></div>` : ''}
+                                <p class="text-gray-800 leading-relaxed min-h-[64px] break-words">${contentToPreview}${isLongContent ? '...' : ''}</p>
+                                <div class="mt-2">
+                                    <button class="text-sm text-blue-600 hover:underline baca-btn" data-id="${item.id}">${buttonText}</button>
+                                </div>
                             </div>
                             <div class="mt-auto pt-3 border-t flex items-center justify-between">
-                                <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                                <span class="bg-green-200 text-green-800 text-xs px-2 py-1 rounded-full">${item.kategori}</span>
                                 <div class="flex items-center gap-2">
-                                    <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
-                                    <span class="text-gray-500 text-xs">${item.userName}</span>
+                                    <img src="${item.userProfilePicture || placeholder}" alt="Author" class="w-6 h-6 rounded-full object-cover">
+                                    <span class="text-gray-500 text-xs">Oleh: ${item.userName}</span>
                                 </div>
                             </div>`;
-                        // Listener untuk modal "Baca Selengkapnya"
-                        const bacaBtn = card.querySelector('.baca-btn');
-                        if (bacaBtn) {
-                            bacaBtn.addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                bukaBaca(item.judul, item.teks);
-                            });
-                        }
                     }
+                    card.innerHTML = contentHTML;
                     latestContentContainer.appendChild(card);
                 });
 
+                document.querySelectorAll('#latestContentContainer .baca-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const itemId = btn.dataset.id;
+                        const item = fetchedItems.find(i => i.id === itemId);
+                        if (!item) return;
+
+                        if (item.jenis === 'buku') {
+                            // Tampilkan teks/pesan login untuk baca buku
+                            const pesan = 'Silakan login untuk membaca buku.';
+                            if (typeof showCustomAlert === 'function') {
+                                showCustomAlert(pesan); // asumsi kamu punya fungsi modal custom bernama ini
+                            } else {
+                                alert(pesan); // fallback
+                            }
+                        } else {
+                            // Logika untuk menampilkan modal teks biasa
+                            bukaBaca(item.judul, item.teks);
+                        }
+                    });
+                });
             } catch (error) {
                 console.error("Error fetching latest content:", error);
-                latestContentContainer.innerHTML = `<p class="col-span-full text-center text-red-500">Gagal memuat konten terbaru.</p>`;
+                loadingLatestContent.textContent = `Gagal memuat konten terbaru: ${error.message}`;
             } finally {
-                loadingLatestContent.style.display = 'none'; // Sembunyikan loading
+                loadingLatestContent.style.display = 'none';
             }
         };
 

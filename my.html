@@ -19,8 +19,55 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Gaya untuk editor buku di modal edit */
+        .rich-text-editor {
+            border: 1px solid #d1d5db;
+            /* gray-300 */
+            border-radius: 0.375rem;
+            /* rounded-md */
+            min-height: 200px;
+            padding: 0.75rem;
+            outline: none;
+            overflow-y: auto;
+        }
+
+        .rich-text-editor:focus {
+            border-color: #60a5fa;
+            /* blue-400 */
+            box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5);
+        }
+
+        /* NEW: Gaya untuk modal edit buku yang terbagi dua */
+        #bookEditModalContent {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            #bookEditModalContent {
+                flex-direction: row;
+            }
+        }
+
+        /* Gaya untuk panel kiri dan kanan di modal edit */
+        .book-edit-left-panel {
+            flex: 0 0 35%;
+            /* Mengambil 35% lebar di desktop */
+        }
+
+        .book-edit-right-panel {
+            flex: 1 1 65%;
+            /* Mengambil sisa 65% lebar */
         }
     </style>
 </head>
@@ -31,7 +78,7 @@
 
     <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center">
-            <a class="text-2xl text-center md:text-3xl md:mx-auto font-bold" href="dashboard.html"><span class="bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">RZF</span> Academy</a>
+            <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
             <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">&#9776;</button>
         </div>
         <div id="nav-menu"
@@ -77,7 +124,8 @@
             <p class="mt-3 text-gray-600">Memuat data...</p>
         </div>
         <div class="text-center mt-8">
-            <button id="load-more-button" class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 hidden">Muat Lebih Banyak</button>
+            <button id="load-more-button"
+                class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 hidden">Muat Lebih Banyak</button>
         </div>
     </main>
 
@@ -94,32 +142,121 @@
                             class="block text-sm font-medium text-gray-700 mb-1">Kategori</label><select
                             id="editKategori" class="w-full px-3 py-2 border border-gray-300 rounded-md"
                             required></select></div>
-                    
-                    <!-- NEW: Field untuk edit gambar -->
+
+                    <!-- Field untuk edit gambar -->
                     <div id="fieldEditGambar" style="display: none;">
-                        <label for="editGambar" class="block text-sm font-medium text-gray-700 mb-1">Ganti Gambar</label>
-                        <img id="editImagePreview" src="" alt="Pratinjau Gambar" class="w-24 h-24 object-contain border rounded bg-gray-50 mb-2"/>
+                        <label for="editGambar" class="block text-sm font-medium text-gray-700 mb-1">Ganti
+                            Gambar</label>
+                        <img id="editImagePreview" src="" alt="Pratinjau Gambar"
+                            class="w-24 h-24 object-contain border rounded bg-gray-50 mb-2" />
                         <input type="file" id="editGambar"
                             class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"
                             accept=".jpg,.jpeg,.png,.gif" />
                         <p class="text-xs text-gray-500 mt-1">Biarkan kosong jika tidak ingin mengubah gambar.</p>
                     </div>
 
+                    <!-- Field untuk edit teks biasa -->
                     <div id="editTeksGroup" style="display: none;"><label for="editTeks"
                             class="block text-sm font-medium text-gray-700 mb-1">Isi Teks</label><textarea id="editTeks"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="5"></textarea></div>
+
+                    <!-- NEW: Field untuk edit buku -->
+                    <div id="editBukuGroup" style="display: none;" class="md:flex">
+                        <!-- Panel Kiri: Sampul, Judul, Kategori -->
+                        <div class="book-edit-left-panel space-y-4">
+                            <label for="editBukuCover" class="block text-sm font-medium text-gray-700 mb-1">Ganti Cover
+                                Buku</label>
+                            <img id="editBukuCoverPreview" src="" alt="Pratinjau Cover Buku"
+                                class="w-full object-contain rounded-lg shadow-md bg-gray-50 mb-2" />
+                            <input type="file" id="editBukuCover"
+                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"
+                                accept=".jpg,.jpeg,.png,.gif" />
+                            <p class="text-xs text-gray-500 mt-1">Biarkan kosong jika tidak ingin mengubah cover.</p>
+
+                            <div class="mt-4 flex items-center">
+                                <input type="checkbox" id="editIsDraft"
+                                    class="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out">
+                                <label for="editIsDraft" class="ml-2 block text-sm text-gray-900">
+                                    Masih dalam pengembangan (Draft)
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Panel Kanan: Editor Isi Buku -->
+                        <div class="book-edit-right-panel space-y-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Isi Buku</label>
+
+                            <!-- Toolbar untuk editor -->
+                            <div id="editBookToolbar" class="border rounded-t-md p-2 flex space-x-2 bg-gray-100">
+                                <button type="button" data-command="bold"
+                                    class="p-1 rounded hover:bg-gray-200 font-bold">B</button>
+                                <button type="button" data-command="italic"
+                                    class="p-1 rounded hover:bg-gray-200 italic">I</button>
+                                <button type="button" data-command="formatBlock" data-value="H3"
+                                    class="p-1 rounded hover:bg-gray-200 font-semibold">H3</button>
+                                <button type="button" data-command="justifyLeft" class="p-1 rounded hover:bg-gray-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h8a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <button type="button" data-command="justifyCenter"
+                                    class="p-1 rounded hover:bg-gray-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <button type="button" data-command="justifyRight" class="p-1 rounded hover:bg-gray-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="editBukuEditor" class="rich-text-editor" contenteditable="true"></div>
+
+                            <!-- Kontrol pagination halaman -->
+                            <div class="mt-4 flex justify-between items-center">
+                                <div>
+                                    <button type="button" id="editPrevPageBtn"
+                                        class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed">&larr;
+                                        Sebelumnya</button>
+                                    <button type="button" id="editNextPageBtn"
+                                        class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed">Berikutnya
+                                        &rarr;</button>
+                                </div>
+                                <span id="editPageInfo" class="text-sm text-gray-600">Halaman 1 dari 1</span>
+                                <div>
+                                    <button type="button" id="editTambahHalamanBtn"
+                                        class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Tambah
+                                        Halaman</button>
+                                    <button type="button" id="editHapusHalamanBtn"
+                                        class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed">Hapus</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="mt-6 flex justify-end space-x-3">
                     <button type="button" id="batalEdit"
                         class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Batal</button>
-                    <button type="submit" id="simpanEditBtn" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Simpan
+                    <button type="submit" id="simpanEditBtn"
+                        class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Simpan
                         Perubahan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="confirmModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
+    <div id="confirmModal"
+        class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-4 text-center">
             <h3 class="text-lg font-bold text-gray-900 mb-2">Konfirmasi Hapus</h3>
             <p id="confirmModalMessage" class="text-sm text-gray-600 mb-6">Apakah Anda yakin ingin menghapus konten ini
@@ -159,7 +296,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
         import { getDatabase, ref, query, orderByChild, equalTo, remove, update, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-        import { getStorage, ref as storageRef, deleteObject } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js"; 
+        import { getStorage, ref as storageRef, deleteObject } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
 
         // --- KONFIGURASI FIREBASE ---
         const firebaseConfig = {
@@ -167,7 +304,7 @@
             authDomain: "rzf-academy-bd.firebaseapp.com",
             databaseURL: "https://rzf-academy-bd-default-rtdb.firebaseio.com",
             projectId: "rzf-academy-bd",
-            storageBucket: "rzf-academy-bd.appspot.com", 
+            storageBucket: "rzf-academy-bd.appspot.com",
             messagingSenderId: "875822158869",
             appId: "1:875822158869:web:a88c284f1d031d9da3aa1c",
         };
@@ -175,13 +312,13 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        const storage = getStorage(app); 
+        const storage = getStorage(app);
 
         let confirmCallback = null;
-        let loggedInUser = null; 
-        let semuaKontenCache = []; 
-        let lastVisibleKey = null; 
-        const ITEMS_PER_PAGE = 6; 
+        let loggedInUser = null;
+        let semuaKontenCache = [];
+        let lastVisibleKey = null;
+        const ITEMS_PER_PAGE = 6;
 
         // --- UI Elements ---
         const kontenContainer = document.getElementById('kontenContainer');
@@ -195,20 +332,54 @@
         const editKategoriSelect = document.getElementById('editKategori');
         const editTeksGroup = document.getElementById('editTeksGroup');
         const editTeksArea = document.getElementById('editTeks');
-        const fieldEditGambar = document.getElementById('fieldEditGambar'); 
-        const editImagePreview = document.getElementById('editImagePreview'); 
-        const editGambarInput = document.getElementById('editGambar'); 
-        const simpanEditBtn = document.getElementById('simpanEditBtn'); 
+        const fieldEditGambar = document.getElementById('fieldEditGambar');
+        const editImagePreview = document.getElementById('editImagePreview');
+        const editGambarInput = document.getElementById('editGambar');
+        const simpanEditBtn = document.getElementById('simpanEditBtn');
 
-        let editSelectedFile = null; 
+        // Elemen untuk edit buku
+        const editBukuGroup = document.getElementById('editBukuGroup');
+        const editBukuCoverInput = document.getElementById('editBukuCover');
+        const editBukuCoverPreview = document.getElementById('editBukuCoverPreview');
+        const editBukuEditorEl = document.getElementById('editBukuEditor');
+        const editPageInfoEl = document.getElementById('editPageInfo');
+        const editPrevPageBtn = document.getElementById('editPrevPageBtn');
+        const editNextPageBtn = document.getElementById('editNextPageBtn');
+        const editTambahHalamanBtn = document.getElementById('editTambahHalamanBtn');
+        const editHapusHalamanBtn = document.getElementById('editHapusHalamanBtn');
+        const editIsDraftCheckbox = document.getElementById('editIsDraft');
+        const editBookToolbar = document.getElementById('editBookToolbar');
+
+
+        let editSelectedFile = null;
+        let editSelectedBookCover = null;
+
+        // State untuk editor buku di modal edit
+        let editBookPages = [];
+        let editCurrentPageIndex = 0;
+
+        // Fungsi utilitas untuk rich text editor di modal edit
+        const executeEditCommand = (command, value = null) => {
+            document.execCommand(command, false, value);
+        };
+        const syncEditEditorToState = () => {
+            editBookPages[editCurrentPageIndex].content = editBukuEditorEl.innerHTML;
+        };
+        const renderEditEditor = () => {
+            editBukuEditorEl.innerHTML = editBookPages[editCurrentPageIndex].content;
+            editPageInfoEl.textContent = `Halaman ${editCurrentPageIndex + 1} dari ${editBookPages.length}`;
+            editPrevPageBtn.disabled = editCurrentPageIndex === 0;
+            editNextPageBtn.disabled = editCurrentPageIndex === editBookPages.length - 1;
+            editHapusHalamanBtn.disabled = editBookPages.length <= 1;
+        };
 
 
         // --- Fungsi Utilitas & UI ---
-        function showToast(m, t = 'success') { 
-            const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; 
-            e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; 
-            const a = document.createElement("style"); 
-            a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) 
+        function showToast(m, t = 'success') {
+            const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" };
+            e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m;
+            const a = document.createElement("style");
+            a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3)
         }
         const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
 
@@ -216,12 +387,12 @@
             document.getElementById("confirmModalMessage").textContent = message;
             confirmCallback = onConfirm;
             document.getElementById("confirmModal").style.display = "flex";
-            document.body.style.overflow = 'hidden'; 
+            document.body.style.overflow = 'hidden';
         };
         const hideConfirmModal = () => {
             document.getElementById("confirmModal").style.display = "none";
             confirmCallback = null;
-            document.body.style.overflow = ''; 
+            document.body.style.overflow = '';
         };
 
         const previewOverlay = document.getElementById("previewOverlay");
@@ -246,10 +417,9 @@
         };
         const tutupBaca = () => {
             bacaModal.style.display = 'none';
-            document.body.style.overflow = ''; 
+            document.body.style.overflow = '';
         };
 
-        // NEW: Function to preview image in edit modal with resizing
         const previewEditImage = () => {
             editSelectedFile = editGambarInput.files[0];
             if (editSelectedFile) {
@@ -259,12 +429,11 @@
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-                        const MAX_WIDTH = 96; // Max width for preview
-                        const MAX_HEIGHT = 96; // Max height for preview
+                        const MAX_WIDTH = 96;
+                        const MAX_HEIGHT = 96;
                         let width = img.width;
                         let height = img.height;
 
-                        // Calculate new dimensions while maintaining aspect ratio
                         if (width > height) {
                             if (width > MAX_WIDTH) {
                                 height *= MAX_WIDTH / width;
@@ -280,13 +449,26 @@
                         canvas.height = height;
 
                         ctx.drawImage(img, 0, 0, width, height);
-                        editImagePreview.src = canvas.toDataURL('image/jpeg', 0.7); // Convert to JPEG with 70% quality
+                        editImagePreview.src = canvas.toDataURL('image/jpeg', 0.7);
                     };
                     img.src = e.target.result;
                 };
                 reader.readAsDataURL(editSelectedFile);
             } else {
-                editImagePreview.src = ""; // Clear preview if no file selected
+                editImagePreview.src = "";
+            }
+        };
+
+        const previewEditBookCover = () => {
+            editSelectedBookCover = editBukuCoverInput.files[0];
+            if (editSelectedBookCover) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    editBukuCoverPreview.src = e.target.result;
+                };
+                reader.readAsDataURL(editSelectedBookCover);
+            } else {
+                editBukuCoverPreview.src = "";
             }
         };
 
@@ -295,10 +477,13 @@
             const item = semuaKontenCache.find(c => c.id === kontenId);
             if (!item) return;
 
-            // Reset file input dan preview saat modal dibuka
             editSelectedFile = null;
-            editGambarInput.value = ''; // Clear selected file in input
-            editImagePreview.src = ""; // Clear image preview
+            editGambarInput.value = '';
+            editImagePreview.src = "";
+
+            editSelectedBookCover = null;
+            editBukuCoverInput.value = '';
+            editBukuCoverPreview.src = "";
 
             const kategoriRef = ref(db, 'kategoriList');
             try {
@@ -322,23 +507,70 @@
             editIdInput.value = item.id;
             editJudulInput.value = item.judul;
 
-            // Tampilkan atau sembunyikan field gambar/teks berdasarkan jenis konten
+            editTeksGroup.style.display = 'none';
+            fieldEditGambar.style.display = 'none';
+            editBukuGroup.style.display = 'none';
+
             if (item.jenis === 'teks') {
                 editTeksArea.value = item.teks;
                 editTeksGroup.style.display = 'block';
-                fieldEditGambar.style.display = 'none';
             } else if (item.jenis === 'gambar') {
-                editTeksGroup.style.display = 'none';
                 fieldEditGambar.style.display = 'block';
-                // Set current image for preview (no resizing needed for existing URL)
-                editImagePreview.src = item.gambar || "https://placehold.co/96x96/e2e8f0/718096?text=Gambar"; 
+                editImagePreview.src = item.gambar || "https://placehold.co/96x96/e2e8f0/718096?text=Gambar";
+            } else if (item.jenis === 'buku') {
+                editBukuGroup.style.display = 'block';
+                editBukuCoverPreview.src = item.gambar || "https://placehold.co/96x96/e2e8f0/718096?text=Cover";
+
+                // Inisialisasi editor buku dengan konten dari database
+                try {
+                    const isJson = (str) => {
+                        try { JSON.parse(str); } catch (e) { return false; }
+                        return true;
+                    };
+                    if (isJson(item.teks)) {
+                        editBookPages = JSON.parse(item.teks);
+                    } else {
+                        editBookPages = [{ content: item.teks || '' }];
+                    }
+                    editCurrentPageIndex = 0;
+                    renderEditEditor();
+                } catch (e) {
+                    console.error("Gagal mem-parsing isi buku:", e);
+                    showToast("Gagal memuat isi buku.", "error");
+                    editBookPages = [{ content: item.teks || '' }];
+                    editCurrentPageIndex = 0;
+                    renderEditEditor();
+                }
+
+                editIsDraftCheckbox.checked = item.isDraft || false;
             }
             editModal.style.display = "flex";
         };
 
         const tutupEditModal = () => {
             editModal.style.display = "none";
-            document.body.style.overflow = ''; 
+            document.body.style.overflow = '';
+        };
+
+        const uploadImageToCloudinary = async (file) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'rzf-unsigned');
+
+            const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dvrbdmikf/image/upload';
+
+            const response = await fetch(cloudinaryUrl, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error.message || 'Unggahan ke Cloudinary gagal.');
+            }
+
+            const data = await response.json();
+            return data.secure_url;
         };
 
         const handleSimpanEdit = async (e) => {
@@ -350,44 +582,33 @@
             simpanEditBtn.disabled = true;
             simpanEditBtn.textContent = 'Menyimpan...';
 
-            let newImageUrl = itemToUpdate.gambar; // Default to old image URL
+            let newImageUrl = itemToUpdate.gambar;
 
             try {
-                if (editSelectedFile) { // If a new image file is selected
+                if (itemToUpdate.jenis === 'gambar' && editSelectedFile) {
                     const file = editSelectedFile;
-                    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+                    const MAX_FILE_SIZE = 5 * 1024 * 1024;
                     if (file.size > MAX_FILE_SIZE) {
                         showToast("Ukuran gambar terlalu besar (maks 5MB).", "error");
                         simpanEditBtn.disabled = false;
                         simpanEditBtn.textContent = 'Simpan Perubahan';
                         return;
                     }
-
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('upload_preset', 'rzf-unsigned'); // Your Cloudinary upload preset
-
-                    const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dvrbdmikf/image/upload'; // Your Cloudinary Cloud Name
-                    
                     showToast("Mengunggah gambar baru...", 'info');
-                    const response = await fetch(cloudinaryUrl, {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error.message || 'Unggahan gambar ke Cloudinary gagal.');
+                    newImageUrl = await uploadImageToCloudinary(file);
+                } else if (itemToUpdate.jenis === 'buku' && editSelectedBookCover) {
+                    const file = editSelectedBookCover;
+                    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+                    if (file.size > MAX_FILE_SIZE) {
+                        showToast("Ukuran cover buku terlalu besar (maks 5MB).", "error");
+                        simpanEditBtn.disabled = false;
+                        simpanEditBtn.textContent = 'Simpan Perubahan';
+                        return;
                     }
-
-                    const data = await response.json();
-                    newImageUrl = data.secure_url; // Get new image URL from Cloudinary
-
-                    // Opsional: Jika Anda ingin menghapus gambar lama dari Cloudinary,
-                    // ini biasanya memerlukan server-side karena otentikasi API Cloudinary.
-                    // Jika Anda tidak memiliki server-side, gambar lama akan tetap ada.
-                    // Contoh: if (itemToUpdate.gambar) { /* Panggil server-side untuk hapus gambar lama */ }
+                    showToast("Mengunggah cover buku baru...", 'info');
+                    newImageUrl = await uploadImageToCloudinary(file);
                 }
+
 
                 const updatedData = {
                     judul: editJudulInput.value.trim(),
@@ -398,16 +619,28 @@
                 if (itemToUpdate.jenis === 'teks') {
                     updatedData.teks = editTeksArea.value;
                 } else if (itemToUpdate.jenis === 'gambar') {
-                    updatedData.gambar = newImageUrl; // Update with new or old image URL
+                    updatedData.gambar = newImageUrl;
+                } else if (itemToUpdate.jenis === 'buku') {
+                    syncEditEditorToState();
+                    if (editBookPages.every(page => !page.content.trim())) {
+                        showToast("Isi buku tidak boleh kosong.", "error");
+                        simpanEditBtn.disabled = false;
+                        simpanEditBtn.textContent = 'Simpan Perubahan';
+                        return;
+                    }
+                    updatedData.gambar = newImageUrl;
+                    updatedData.teks = JSON.stringify(editBookPages);
+                    updatedData.isDraft = editIsDraftCheckbox.checked;
                 }
 
                 const itemRef = ref(db, 'konten/' + idToUpdate);
                 await update(itemRef, updatedData);
-                
+
                 showToast("Konten berhasil diperbarui!");
                 tutupEditModal();
-                editSelectedFile = null; // Clear selected file after successful update
-                fetchMyContent(false); // Muat ulang konten untuk refresh tampilan
+                editSelectedFile = null;
+                editSelectedBookCover = null;
+                fetchMyContent(false);
             } catch (err) {
                 showToast("Gagal memperbarui: " + err.message, 'error');
             } finally {
@@ -423,16 +656,9 @@
                 const dbRef = ref(db, 'konten/' + kontenId);
                 try {
                     await remove(dbRef);
-                    // Jika gambar di Cloudinary, Anda tidak bisa menghapusnya langsung dari client-side
-                    // tanpa mengekspos kunci API atau menggunakan signed deletion yang kompleks.
-                    // Jika Anda menggunakan Firebase Storage, logika deleteObject ini akan berfungsi.
-                    // if (item.jenis === 'gambar' && item.gambar) {
-                    //     const imageRef = storageRef(storage, item.gambar); // Ini untuk Firebase Storage
-                    //     await deleteObject(imageRef).catch(e => console.error("Gagal hapus file dari storage: ", e));
-                    // }
                     showToast("Konten berhasil dihapus.");
                     hideConfirmModal();
-                    fetchMyContent(false); 
+                    fetchMyContent(false);
                 } catch (err) {
                     showToast("Gagal menghapus: " + err.message, 'error');
                     hideConfirmModal();
@@ -440,20 +666,22 @@
             });
         };
 
-        // --- Fungsi Utama untuk Menampilkan Konten ---
         const renderMyContent = (dataToRender) => {
-            kontenContainer.innerHTML = ""; 
-            
+            kontenContainer.innerHTML = "";
+
             if (dataToRender.length === 0) {
                 kontenContainer.innerHTML = "<p class='text-gray-500 col-span-full text-center'>Anda belum mengunggah konten apapun. Mulai berkarya!</p>";
                 return;
             }
-            
+
             dataToRender.sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).forEach(item => {
                 const card = document.createElement("div");
                 card.className = "bg-white rounded-lg shadow hover:shadow-lg transition flex flex-col p-4";
+
+                let contentHTML = '';
+
                 if (item.jenis === 'gambar') {
-                    card.innerHTML = `
+                    contentHTML = `
                         <img src="${item.gambar || 'https://placehold.co/300x200?text=Gambar+hilang'}" class="w-full h-48 object-contain border rounded bg-gray-50 mb-3 cursor-pointer preview-img" />
                         <div class="flex-1 flex flex-col">
                             <h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3>
@@ -465,14 +693,14 @@
                                 </div>
                             </div>
                         </div>`;
+                    card.innerHTML = contentHTML;
                     card.querySelector('.preview-img').addEventListener('click', () => bukaPreview(item.gambar));
-
-                } else { 
+                } else if (item.jenis === 'teks') {
                     const fullText = item.teks || '';
                     const preview = fullText.substring(0, 150);
                     const isLongText = fullText.length > 150;
 
-                    card.innerHTML = `
+                    contentHTML = `
                         <div class="flex-1 flex flex-col">
                             <h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3>
                             <p class="break-words text-sm text-gray-600 mt-1 flex-1">
@@ -481,7 +709,7 @@
                             
                             ${isLongText ? `
                             <div class="mt-2">
-                                <button class="text-sm text-blue-600 hover:underline baca-selengkapnya-btn">Baca Selengkapnya</button>
+                                <button data-id="${item.id}" class="text-sm text-blue-600 hover:underline baca-selengkapnya-btn">Baca Selengkapnya</button>
                             </div>
                             ` : ''}
 
@@ -493,6 +721,7 @@
                                 </div>
                             </div>
                         </div>`;
+                    card.innerHTML = contentHTML;
 
                     if (isLongText) {
                         const bacaBtn = card.querySelector('.baca-selengkapnya-btn');
@@ -503,6 +732,65 @@
                             });
                         }
                     }
+                } else if (item.jenis === 'buku') {
+                    let firstPageContent = '';
+                    let hasMorePages = false;
+
+                    try {
+                        const isJson = (str) => {
+                            try { JSON.parse(str); } catch (e) { return false; }
+                            return true;
+                        };
+
+                        if (isJson(item.teks)) {
+                            const pages = JSON.parse(item.teks);
+                            if (pages.length > 0) {
+                                firstPageContent = (pages[0].content || '').replace(/<[^>]*>/g, '').trim();
+                                hasMorePages = pages.length > 1;
+                            }
+                        } else {
+                            firstPageContent = item.teks || '';
+                            hasMorePages = firstPageContent.length > 150;
+                        }
+                    } catch (e) {
+                        firstPageContent = item.teks || '';
+                        hasMorePages = firstPageContent.length > 150;
+                    }
+
+                    firstPageContent = firstPageContent.substring(0, 150);
+
+                    contentHTML = `
+                        <div class="flex-1 flex flex-col">
+                            <img src="${item.gambar || 'https://placehold.co/300x200?text=Cover+hilang'}" class="w-full h-48 object-contain border rounded bg-gray-50 mb-3" />
+                            <h3 class="font-semibold text-lg text-blue-700">${item.judul}</h3>
+                            ${item.isDraft ? `<span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full mb-2 self-start">Draft</span>` : ''}
+                            <div class="break-words text-sm text-gray-600 mt-1 flex-1 overflow-hidden" style="max-height: 64px;">
+                                ${firstPageContent}${hasMorePages ? '...' : ''}
+                            </div>
+                            ${hasMorePages ? `
+                            <div class="mt-2">
+                                <button data-id="${item.id}" class="text-sm text-blue-600 hover:underline baca-selengkapnya-btn">Baca Buku</button>
+                            </div>
+                            ` : ''}
+                            <div class="mt-auto pt-3 border-t flex items-center justify-between">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                                <div class="space-x-2">
+                                    <button data-id="${item.id}" class="edit-btn px-3 py-1 text-sm bg-sky-500 text-white rounded hover:bg-sky-600 md:text-center">Edit</button>
+                                    <button data-id="${item.id}" class="hapus-btn px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600">Hapus</button>
+                                </div>
+                            </div>
+                        </div>`;
+                    card.innerHTML = contentHTML;
+
+                    if (hasMorePages) {
+                        const bacaBtn = card.querySelector('.baca-selengkapnya-btn');
+                        if (bacaBtn) {
+                            bacaBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                bukaBaca(item.judul, firstPageContent);
+                            });
+                        }
+                    }
                 }
                 kontenContainer.appendChild(card);
             });
@@ -510,10 +798,9 @@
             document.querySelectorAll('.hapus-btn').forEach(btn => btn.addEventListener('click', (e) => handleHapusKonten(e.currentTarget.dataset.id)));
         };
 
-        // --- Ambil Konten Saya dari Firebase dengan Pagination (Client-side) ---
         const fetchMyContent = async (append = false) => {
-            loadingIndicator.style.display = 'flex'; 
-            loadMoreButton.style.display = 'none'; 
+            loadingIndicator.style.display = 'flex';
+            loadMoreButton.style.display = 'none';
 
             if (!loggedInUser || !loggedInUser.id) {
                 showToast("ID pengguna tidak tersedia.", "error");
@@ -544,9 +831,9 @@
                     semuaKontenCache = itemsForCurrentPage;
                 }
 
-                lastVisibleKey = (endIndex < allUserItems.length) ? true : null; 
+                lastVisibleKey = (endIndex < allUserItems.length) ? true : null;
 
-                renderMyContent(semuaKontenCache); 
+                renderMyContent(semuaKontenCache);
 
                 if (lastVisibleKey) {
                     loadMoreButton.style.display = 'block';
@@ -558,11 +845,10 @@
                 console.error("❌ Gagal mengambil konten saya:", err);
                 showToast("Gagal memuat konten Anda.", "error");
             } finally {
-                loadingIndicator.style.display = 'none'; 
+                loadingIndicator.style.display = 'none';
             }
         };
 
-        // --- Titik Masuk Utama Saat Halaman Dimuat ---
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('logout-button').addEventListener('click', logout);
             document.getElementById('batalEdit').addEventListener('click', tutupEditModal);
@@ -579,13 +865,56 @@
             const navMenu = document.getElementById("nav-menu");
             toggleBtn.addEventListener("click", () => { navMenu.classList.toggle("hidden"); });
 
-            // NEW: Event listener for edit image input
             editGambarInput.addEventListener('change', previewEditImage);
+            editBukuCoverInput.addEventListener('change', previewEditBookCover);
 
-            // Event listener untuk tombol "Muat Lebih Banyak"
+            // NEW: Event listeners untuk rich text editor di modal edit
+            document.querySelectorAll('#editBukuGroup button[data-command]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const command = button.dataset.command;
+                    const value = button.dataset.value || null;
+                    executeEditCommand(command, value);
+                    editBukuEditorEl.focus();
+                });
+            });
+
+            // NEW: Event listeners untuk pagination buku di modal edit
+            editBukuEditorEl.addEventListener('input', syncEditEditorToState);
+            editPrevPageBtn.addEventListener('click', () => {
+                syncEditEditorToState();
+                if (editCurrentPageIndex > 0) {
+                    editCurrentPageIndex--;
+                    renderEditEditor();
+                }
+            });
+            editNextPageBtn.addEventListener('click', () => {
+                syncEditEditorToState();
+                if (editCurrentPageIndex < editBookPages.length - 1) {
+                    editCurrentPageIndex++;
+                    renderEditEditor();
+                }
+            });
+            editTambahHalamanBtn.addEventListener('click', () => {
+                syncEditEditorToState();
+                editBookPages.push({ content: '' });
+                editCurrentPageIndex = editBookPages.length - 1;
+                renderEditEditor();
+            });
+            editHapusHalamanBtn.addEventListener('click', () => {
+                if (editBookPages.length > 1) {
+                    editBookPages.splice(editCurrentPageIndex, 1);
+                    if (editCurrentPageIndex >= editBookPages.length) {
+                        editCurrentPageIndex = editBookPages.length - 1;
+                    }
+                    renderEditEditor();
+                } else {
+                    showToast("Buku harus memiliki minimal satu halaman.", "error");
+                }
+            });
+
             loadMoreButton.addEventListener('click', () => {
-                loadingIndicator.style.display = 'flex'; 
-                fetchMyContent(true); 
+                loadingIndicator.style.display = 'flex';
+                fetchMyContent(true);
             });
 
             onAuthStateChanged(auth, (user) => {
@@ -595,11 +924,11 @@
                         document.getElementById("welcomeUser").textContent = loggedInUser.name;
                         if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
                         if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
-                        
+
                         if (semuaKontenCache.length === 0) {
                             loadingIndicator.style.display = 'flex';
                         }
-                        fetchMyContent(); 
+                        fetchMyContent();
                     } else {
                         logout();
                     }

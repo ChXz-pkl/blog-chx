@@ -40,7 +40,7 @@
 
     <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center">
-            <a class="text-2xl text-center md:text-3xl md:mx-auto font-bold" href="dashboard.html"><span class="bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">RZF</span> Academy</a>
+            <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
             <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">&#9776;</button>
         </div>
         <div id="nav-menu"
@@ -146,15 +146,14 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
         import { getDatabase, ref, onValue, set, remove, update, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-        // Hapus impor Firebase Storage jika tidak digunakan untuk operasi lain:
-        // import { getStorage, ref as storageRef, deleteObject } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
+        import { getStorage, ref as storageRef, deleteObject } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
             authDomain: "rzf-academy-bd.firebaseapp.com",
             databaseURL: "https://rzf-academy-bd-default-rtdb.firebaseio.com",
             projectId: "rzf-academy-bd",
-            storageBucket: "rzf-academy-bd.appspot.com", // Jika tidak ada Firebase Storage sama sekali, ini bisa dihapus
+            storageBucket: "rzf-academy-bd.appspot.com",
             messagingSenderId: "875822158869",
             appId: "1:875822158869:web:a88c284f1d031d9da3aa1c",
         };
@@ -162,8 +161,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        // Hapus inisialisasi Firebase Storage jika tidak digunakan:
-        // const storage = getStorage(app);
+        const storage = getStorage(app);
 
         let confirmCallback = null;
 
@@ -220,7 +218,7 @@
             showConfirmModal("Yakin ingin mengangkat user ini sebagai admin?", () => {
                 const userRoleRef = ref(db, `users/${userId}/role`);
                 set(userRoleRef, 'admin')
-                    .then(() => (showToast("User berhasil dijadikan admin."), hideConfirmModal(), tampilkanPengguna())) // Refresh user list
+                    .then(() => (showToast("User berhasil dijadikan admin."), hideConfirmModal(), tampilkanPengguna()))
                     .catch(e => (showToast("Gagal: " + e.message, 'error'), hideConfirmModal()));
             });
         };
@@ -232,7 +230,6 @@
                 const kontenContainer = document.getElementById('kontenContainer');
                 kontenContainer.innerHTML = '';
                 if (snapshot.exists()) {
-                    // Convert snapshot to array and sort by time (newest first)
                     const allContent = [];
                     snapshot.forEach(child => {
                         allContent.push(child.val());
@@ -242,11 +239,21 @@
                     allContent.forEach(item => {
                         const card = document.createElement('div');
                         card.className = "bg-white rounded-lg shadow flex items-center gap-4 p-4";
+                        let previewHTML = '';
+                        if (item.jenis === "gambar") {
+                            previewHTML = `<img src="${item.gambar}" alt="${item.judul}" class="w-20 h-20 object-contain border rounded bg-gray-50">`;
+                        } else if (item.jenis === "teks") {
+                            previewHTML = `<div class="w-20 h-20 flex items-center justify-center bg-gray-100 rounded border"><svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></div>`;
+                        } else if (item.jenis === "buku") {
+                            previewHTML = `<img src="${item.gambar || 'https://placehold.co/80x80?text=Cover'}" alt="Cover Buku" class="w-20 h-20 object-contain border rounded bg-gray-50">`;
+                        }
+                        
                         card.innerHTML = `
-                            ${item.jenis === "gambar" ? `<img src="${item.gambar}" alt="${item.judul}" class="w-20 h-20 object-contain border rounded bg-gray-50">` : `<div class="w-20 h-20 flex items-center justify-center bg-gray-100 rounded border"><svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></div>`}
+                            ${previewHTML}
                             <div class="flex-1">
                                 <h3 class="font-semibold text-blue-700 text-sm">${item.judul}</h3>
                                 <span class="text-xs text-gray-500">Oleh: ${item.userName}</span>
+                                ${item.jenis === "buku" && item.isDraft ? `<br><span class="bg-red-100 text-red-800 text-xs font-medium px-1.5 py-0.5 rounded-full mt-1">Draft</span>` : ''}
                             </div>
                             <button data-kontenid="${item.id}" data-imageurl="${item.gambar || ''}" class="hapus-konten-btn bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 self-center">Hapus</button>
                         `;
@@ -266,11 +273,7 @@
                 const dbRef = ref(db, 'konten/' + kontenId);
                 try {
                     await remove(dbRef);
-                    // Jika gambar diunggah ke Cloudinary, menghapusnya dari client-side
-                    // memerlukan otentikasi API Cloudinary atau signed deletion yang kompleks.
-                    // Oleh karena itu, logika penghapusan file gambar dari Firebase Storage
-                    // atau Cloudinary tidak disertakan di sini untuk keamanan dan kesederhanaan.
-                    // File gambar mungkin tetap ada di Cloudinary/Firebase Storage.
+                    // Hapus file gambar dari Cloudinary tidak dilakukan di sisi klien
                     showToast("Konten berhasil dihapus.");
                     hideConfirmModal();
                     tampilkanKonten(); // Refresh content list

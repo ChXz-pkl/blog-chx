@@ -41,13 +41,40 @@
         }
 
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-            100% {
-                transform: rotate(360deg);
-            }
+        /* NEW: Gaya untuk tampilan buku di modal */
+        #bookViewModal {
+            max-width: 90vw;
+            width: 100%;
+            height: 90vh;
+            display: flex;
+        }
+        #bookViewModal .cover-container {
+            flex-shrink: 0;
+            width: 30%;
+            padding-right: 1.5rem;
+        }
+        #bookViewModal .text-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            text-align: justify;
+            padding-left: 1.5rem;
+            border-left: 1px solid #e2e8f0;
+        }
+        #bookViewModal .text-container p {
+            font-size: 1rem;
+            line-height: 1.625;
+            white-space: pre-line;
+        }
+        #bookViewModal .page-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
         }
     </style>
 </head>
@@ -56,9 +83,11 @@
 
     <div id="toast-container" class="fixed top-5 right-5 z-[120] space-y-2"></div>
 
+
+
     <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center">
-            <a class="text-2xl text-center md:text-3xl md:mx-auto font-bold" href="dashboard.html"><span class="bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">RZF</span> Academy</a>
+            <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
             <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">&#9776;</button>
         </div>
         <div id="nav-menu"
@@ -92,23 +121,23 @@
             <p class="text-gray-600">Lihat karya-karya terbaru dari semua kreator.</p>
         </div>
         <div id="kategoriBadges" class="flex flex-wrap justify-center gap-2 mb-8"></div>
+        <!-- Ubah dari grid menjadi flex untuk menempatkan loading di tengah -->
         <div id="feedKonten" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
         <div id="loading-indicator" class="text-center p-10 hidden">
             <div class="loading-spinner"></div>
             <p class="mt-3 text-gray-600">Memuat data...</p>
         </div>
         <div class="text-center mt-8">
-            <button id="load-more-button"
-                class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 hidden">Muat Lebih Banyak</button>
+            <button id="load-more-button" class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 hidden">Muat Lebih Banyak</button>
         </div>
     </main>
-
+    
     <div id="previewOverlay" class="fixed inset-0 bg-black bg-opacity-80 hidden justify-center items-center z-50"><span
             id="close-preview"
             class="absolute top-5 right-6 text-white text-4xl cursor-pointer font-bold">&times;</span><img
             id="previewImage" class="max-w-[90%] max-h-[90%] rounded shadow-2xl" /></div>
 
-    <!-- Modal Baca Selengkapnya -->
+    <!-- Modal untuk Teks Biasa -->
     <div id="bacaModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
         <div class="bg-white max-w-xl w-full mx-4 p-6 rounded-xl shadow-lg relative">
             <button id="close-baca"
@@ -119,7 +148,36 @@
             </p>
         </div>
     </div>
-
+    
+    <!-- NEW: Modal untuk Tampilan Buku -->
+    <div id="bookModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
+        <div class="bg-white rounded-xl shadow-lg relative mx-4" id="bookViewModal">
+            <button id="close-book"
+                class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold z-10">✖</button>
+            <div class="flex flex-col md:flex-row w-full h-full">
+                <!-- Cover Buku -->
+                <div class="cover-container p-6 flex flex-col items-center justify-center">
+                    <img id="bookCover" src="" alt="Cover Buku" class="w-full max-h-96 object-contain rounded-lg shadow-xl" />
+                    <h2 id="bookTitle" class="text-xl font-bold text-blue-700 mt-4 text-center"></h2>
+                    <span id="bookAuthor" class="text-sm text-gray-600"></span>
+                    <span id="bookStatus" class="text-xs text-red-500 font-semibold mt-2"></span>
+                </div>
+                <!-- Konten Buku yang di-paginate -->
+                <div class="text-container p-6 flex flex-col">
+                    <p id="bookContentText" class="flex-1"></p>
+                    <div id="bookPageControls" class="page-controls">
+                        <button id="prevPageBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed">
+                            &larr; Sebelumnya
+                        </button>
+                        <span id="pageNumber" class="text-sm text-gray-600">Halaman 1 dari 1</span>
+                        <button id="nextPageBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed">
+                            Berikutnya &rarr;
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
         &copy; 2025 <a href="https://portfolio-chx.netlify.app/"
@@ -127,9 +185,10 @@
     </footer>
 
     <script type="module">
+        // Salin dan ganti seluruh script Anda dengan ini
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { endBefore,getDatabase, ref, get, query, orderByChild, startAt, limitToFirst, limitToLast  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+        import { getDatabase, ref, get, query, orderByChild, startAt, limitToFirst, endBefore, limitToLast } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
         // --- Konfigurasi Firebase ---
         const firebaseConfig = {
@@ -146,7 +205,7 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // --- Elemen UI ---
+        // --- UI Elements ---
         const container = document.getElementById("feedKonten");
         const kategoriBadgesContainer = document.getElementById("kategoriBadges");
         const logoutBtn = document.getElementById("logout-button");
@@ -156,16 +215,35 @@
         const previewOverlay = document.getElementById("previewOverlay");
         const previewImage = document.getElementById("previewImage");
         const closePreviewBtn = document.getElementById("close-preview");
+        
+        // Modal Teks Biasa
         const bacaModal = document.getElementById("bacaModal");
         const closeBacaBtn = document.getElementById("close-baca");
-        const loadingIndicator = document.getElementById('loading-indicator'); // Indikator loading
-        const loadMoreButton = document.getElementById('load-more-button'); // Tombol "Muat Lebih Banyak"
+        const judulBaca = document.getElementById('judulBaca');
+        const isiBaca = document.getElementById('isiBaca');
+
+        // NEW: Modal Buku
+        const bookModal = document.getElementById('bookModal');
+        const bookCoverEl = document.getElementById('bookCover');
+        const bookTitleEl = document.getElementById('bookTitle');
+        const bookAuthorEl = document.getElementById('bookAuthor');
+        const bookStatusEl = document.getElementById('bookStatus');
+        const bookContentTextEl = document.getElementById('bookContentText');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const pageNumberEl = document.getElementById('pageNumber');
+        const closeBookBtn = document.getElementById('close-book');
+
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const loadMoreButton = document.getElementById('load-more-button');
 
         // --- VARIABEL UNTUK FILTER & PAGINATION ---
-        let semuaKonten = []; // Menyimpan semua data yang sudah dimuat
-        let kategoriAktif = "Semua"; // Kategori yang sedang aktif
-        let lastVisibleKey = null; // Key dari item terakhir yang dimuat untuk pagination
-        const ITEMS_PER_PAGE = 6; // Jumlah item per halaman
+        let semuaKonten = [];
+        let kategoriAktif = "Semua";
+        let lastVisibleKey = null;
+        const ITEMS_PER_PAGE = 6;
+        let bookContentPages = []; // NEW
+        let currentPage = 0; // NEW
 
         // --- Utilitas ---
         const showToast = (message, type = 'success') => {
@@ -185,111 +263,200 @@
             previewOverlay.style.display = 'none';
             document.body.style.overflow = '';
         };
+        const tutupBaca = () => {
+            bacaModal.style.display = "none";
+            document.body.style.overflow = '';
+        };
+
+        // NEW: Fungsi untuk membuka/menutup modal buku
+        const tutupBuku = () => {
+            bookModal.style.display = 'none';
+            document.body.style.overflow = '';
+        };
+        const renderBookPage = () => {
+            if (bookContentPages.length > 0) {
+                bookContentTextEl.innerHTML = bookContentPages[currentPage].content;
+                pageNumberEl.textContent = `Halaman ${currentPage + 1} dari ${bookContentPages.length}`;
+            } else {
+                bookContentTextEl.textContent = "Konten buku kosong.";
+                pageNumberEl.textContent = `Halaman 0 dari 0`;
+            }
+            prevPageBtn.disabled = currentPage === 0;
+            nextPageBtn.disabled = currentPage === bookContentPages.length - 1;
+            bookContentTextEl.scrollTo(0, 0);
+        };
+        const bukaBuku = (item) => {
+            bookTitleEl.textContent = item.judul;
+            bookAuthorEl.textContent = `Oleh: ${item.userName}`;
+            bookCoverEl.src = item.gambar || 'https://placehold.co/300x450?text=Cover+Buku';
+            bookStatusEl.textContent = item.isDraft ? 'Masih dalam pengembangan' : '';
+            bookModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+            try {
+                const isJson = (str) => {
+                    try { JSON.parse(str); } catch (e) { return false; }
+                    return true;
+                };
+                if (isJson(item.teks)) {
+                    bookContentPages = JSON.parse(item.teks);
+                } else {
+                    bookContentPages = [{ content: item.teks || '' }];
+                }
+            } catch (e) {
+                bookContentPages = [{ content: item.teks || '' }];
+            }
+            currentPage = 0;
+            renderBookPage();
+        };
+
 
         // --- Render Konten ---
         const renderKonten = (data) => {
-            container.innerHTML = ""; // Selalu kosongkan kontainer sebelum merender
+            if (lastVisibleKey === null || data.length === 0) {
+                 container.innerHTML = "";
+            }
 
-            if (data.length === 0) { // Jika tidak ada data untuk ditampilkan
+            if (data.length === 0 && semuaKonten.length === 0) {
                 container.innerHTML = `<p class="text-center text-gray-500 col-span-1 md:col-span-2">Tidak ada konten untuk kategori ini.</p>`;
                 return;
             }
-
-            // Urutkan data berdasarkan waktu terbaru (descending)
             data.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
-
             data.forEach(item => {
                 const card = document.createElement("div");
                 card.className = "bg-white rounded-lg shadow hover:shadow-lg p-4 flex flex-col transition-shadow";
                 const placeholder = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
 
+                let contentHTML = '';
+
                 if (item.jenis === 'gambar') {
-                    card.innerHTML = `
-                <div>
-                    <img src="${item.gambar}" alt="${item.judul}" class="w-full h-56 object-contain bg-gray-100 rounded mb-3 shadow-sm cursor-pointer"/>
-                    <h3 class="text-lg font-semibold text-blue-700 truncate mb-1">${item.judul}</h3>
-                </div>
-                <div class="mt-auto pt-3 border-t flex items-center justify-between">
-                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
-                    <div class="flex items-center gap-2">
-                        <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
-                        <span class="text-gray-500 text-xs">${item.userName}</span>
-                    </div>
-                </div>`;
-                    // Listener untuk preview gambar
-                    const imgElement = card.querySelector('img');
-                    imgElement.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Mencegah event lain terpicu
-                        openPreview(item.gambar);
-                    });
+                    contentHTML = `
+                        <div>
+                            <img src="${item.gambar}" alt="${item.judul}" class="w-full h-56 object-contain bg-gray-100 rounded mb-3 shadow-sm cursor-pointer"/>
+                            <h3 class="text-lg font-semibold text-blue-700 truncate mb-1">${item.judul}</h3>
+                        </div>
+                        <div class="mt-auto pt-3 border-t flex items-center justify-between">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                            <div class="flex items-center gap-2">
+                                <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
+                                <span class="text-gray-500 text-xs">${item.userName}</span>
+                            </div>
+                        </div>`;
                 } else if (item.jenis === 'teks') {
                     const fullText = item.teks || "";
                     const preview = fullText.slice(0, 200).replace(/\n/g, "<br>");
-                    card.innerHTML = `
-                <div>
-                    <h3 class="text-lg font-semibold text-blue-700 mb-2">${item.judul}</h3>
-                    <p class="text-gray-800 leading-relaxed min-h-[64px] break-words">${preview}${fullText.length > 200 ? '...' : ''}</p>
-                    ${fullText.length > 200 ? `<div class="mt-2"><button class="text-sm text-blue-600 hover:underline baca-btn">Baca Selengkapnya</button></div>` : ''}
-                </div>
-                <div class="mt-auto pt-3 border-t flex items-center justify-between">
-                    <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
-                    <div class="flex items-center gap-2">
-                        <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
-                        <span class="text-gray-500 text-xs">${item.userName}</span>
-                    </div>
-                </div>`;
-                    // Listener untuk modal "Baca Selengkapnya"
+                    contentHTML = `
+                        <div>
+                            <h3 class="text-lg font-semibold text-blue-700 mb-2">${item.judul}</h3>
+                            <p class="text-gray-800 leading-relaxed min-h-[64px] break-words">${preview}${fullText.length > 200 ? '...' : ''}</p>
+                            ${fullText.length > 200 ? `<div class="mt-2"><button class="text-sm text-blue-600 hover:underline baca-btn">Baca Selengkapnya</button></div>` : ''}
+                        </div>
+                        <div class="mt-auto pt-3 border-t flex items-center justify-between">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                            <div class="flex items-center gap-2">
+                                <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
+                                <span class="text-gray-500 text-xs">${item.userName}</span>
+                            </div>
+                        </div>`;
+                } else if (item.jenis === 'buku') {
+                    let firstPageContent = '';
+                    let hasMorePages = false;
+                    try {
+                        const isJson = (str) => {
+                            try { JSON.parse(str); } catch (e) { return false; }
+                            return true;
+                        };
+                        if (isJson(item.teks)) {
+                            const pages = JSON.parse(item.teks);
+                            if (pages.length > 0 && pages[0].content) {
+                                firstPageContent = pages[0].content;
+                                hasMorePages = pages.length > 1;
+                            }
+                        } else {
+                            firstPageContent = item.teks || '';
+                            hasMorePages = firstPageContent.length > 150;
+                        }
+                    } catch (e) {
+                        firstPageContent = item.teks || '';
+                        hasMorePages = firstPageContent.length > 150;
+                    }
+
+                    firstPageContent = firstPageContent.replace(/<[^>]*>/g, '').trim();
+                    firstPageContent = firstPageContent.substring(0, 150);
+                    
+                    contentHTML = `
+                        <div>
+                            <img src="${item.gambar || 'https://placehold.co/400x250?text=Cover+Buku'}" alt="Cover Buku" class="w-full h-56 object-contain bg-gray-100 rounded mb-3 shadow-sm cursor-pointer"/>
+                            <h3 class="text-lg font-semibold text-blue-700 truncate mb-1">${item.judul}</h3>
+                            ${item.isDraft ? `<span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full mb-2 self-start">Draft</span>` : ''}
+                        </div>
+                        <div class="mt-auto pt-3 border-t flex items-center justify-between">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                            <div class="flex items-center gap-2">
+                                <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
+                                <span class="text-gray-500 text-xs">${item.userName}</span>
+                            </div>
+                        </div>`;
+                }
+                card.innerHTML = contentHTML;
+
+                if (item.jenis === 'gambar') {
+                    const imgElement = card.querySelector('img');
+                    imgElement.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openPreview(item.gambar);
+                    });
+                } else if (item.jenis === 'teks') {
                     const bacaBtn = card.querySelector('.baca-btn');
                     if (bacaBtn) {
                         bacaBtn.addEventListener('click', (e) => {
                             e.stopPropagation();
-                            document.getElementById('judulBaca').textContent = item.judul;
-                            document.getElementById('isiBaca').innerHTML = fullText.replace(/\n/g, "<br>");
+                            judulBaca.textContent = item.judul;
+                            isiBaca.innerHTML = item.teks.replace(/\n/g, "<br>");
                             bacaModal.style.display = 'flex';
                             document.body.style.overflow = 'hidden';
                         });
                     }
+                } else if (item.jenis === 'buku') {
+                    const imgElement = card.querySelector('img');
+                    imgElement.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        bukaBuku(item);
+                    });
                 }
                 container.appendChild(card);
             });
         };
 
-        // --- FUNGSI: MEMBUAT TOMBOL KATEGORI ---
         const renderKategoriBadges = async () => {
             const kategoriRef = ref(db, 'kategoriList');
             try {
                 const snapshot = await get(kategoriRef);
                 const kategoriUnik = snapshot.exists() ? snapshot.val() : [];
-                kategoriBadgesContainer.innerHTML = ""; // Kosongkan dulu
+                kategoriBadgesContainer.innerHTML = "";
 
-                // Buat tombol "Semua"
                 const badgeSemua = document.createElement('button');
                 badgeSemua.className = 'kategori-badge';
                 badgeSemua.textContent = 'Semua';
                 badgeSemua.dataset.kategori = 'Semua';
                 kategoriBadgesContainer.appendChild(badgeSemua);
 
-                // Buat tombol untuk setiap kategori unik
                 kategoriUnik.forEach(kategori => {
                     const badge = document.createElement('button');
                     badge.className = 'kategori-badge';
-                    badge.textContent = kategori.charAt(0).toUpperCase() + kategori.slice(1);
+                    badge.textContent = kategori;
                     badge.dataset.kategori = kategori;
                     kategoriBadgesContainer.appendChild(badge);
                 });
-
-                // Set kategori "Semua" sebagai aktif secara default
                 kategoriBadgesContainer.querySelector(`[data-kategori="${kategoriAktif}"]`).classList.add('active');
-
             } catch (error) {
                 console.error("Error fetching categories:", error);
                 showToast("Gagal memuat kategori.", "error");
             }
         };
 
-        // --- FUNGSI: FILTER DAN RENDER ULANG ---
         const filterAndRender = () => {
-            let dataToRender = [];
+            let dataToRender;
             if (kategoriAktif === 'Semua') {
                 dataToRender = semuaKonten;
             } else {
@@ -298,41 +465,39 @@
             renderKonten(dataToRender);
         };
 
-        // --- MODIFIKASI: Ambil Konten dari Firebase dengan Pagination ---
         const fetchKonten = async (append = false) => {
-            // loadingIndicator.style.display = 'flex'; // Pindahkan ini ke pemanggil
-            loadMoreButton.style.display = 'none'; // Sembunyikan tombol "Muat Lebih Banyak" saat memuat
+            loadingIndicator.style.display = 'flex';
+            loadMoreButton.style.display = 'none';
 
             const kontenRef = ref(db, 'konten');
             let queryRef;
 
             if (append && lastVisibleKey) {
-                queryRef = query(kontenRef, orderByChild('waktu'),
-                 endBefore(lastVisibleKey),
-                limitToFirst(ITEMS_PER_PAGE + 1));
+                queryRef = query(kontenRef, orderByChild('waktu'), endBefore(lastVisibleKey), limitToLast(ITEMS_PER_PAGE + 1));
             } else {
-                semuaKonten = []; // Kosongkan data jika bukan append
-                lastVisibleKey = null; // Reset lastVisibleKey
-                // container.innerHTML = ""; // Ini sudah ditangani di renderKonten
+                semuaKonten = [];
+                lastVisibleKey = null;
                 queryRef = query(kontenRef, orderByChild('waktu'), limitToLast(ITEMS_PER_PAGE + 1));
             }
 
             try {
                 const snapshot = await get(queryRef);
-                const itemsArray = [];
+                let itemsArray = [];
                 snapshot.forEach(child => {
                     itemsArray.push(child.val());
                 });
 
                 itemsArray.reverse();
+
                 let newLastKey = null;
                 let fetchedItems = [];
 
                 if (itemsArray.length > ITEMS_PER_PAGE) {
-                    newLastKey = itemsArray[itemsArray.length - 1].waktu;
+                    newLastKey = itemsArray[ITEMS_PER_PAGE - 1].waktu;
                     fetchedItems = itemsArray.slice(0, ITEMS_PER_PAGE);
                 } else {
                     fetchedItems = itemsArray;
+                    newLastKey = null;
                 }
 
                 if (append) {
@@ -355,12 +520,10 @@
                 console.error("❌ Gagal mengambil konten:", err);
                 showToast("Gagal memuat konten", "error");
             } finally {
-                loadingIndicator.style.display = 'none'; // Sembunyikan setelah selesai
+                loadingIndicator.style.display = 'none';
             }
         };
 
-
-        // --- Logout ---
         const logout = () => {
             signOut(auth).then(() => {
                 localStorage.removeItem("loggedInUser");
@@ -369,7 +532,6 @@
             });
         };
 
-        // --- DOM Loaded ---
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("menu-toggle").addEventListener("click", () => {
                 document.getElementById("nav-menu").classList.toggle("hidden");
@@ -377,13 +539,11 @@
 
             logoutBtn.addEventListener("click", logout);
 
-            // Event listener untuk preview gambar
             closePreviewBtn.addEventListener('click', closePreview);
             previewOverlay.addEventListener('click', (e) => {
                 if (e.target === previewOverlay) closePreview();
             });
 
-            // Event listener untuk modal baca teks
             closeBacaBtn.addEventListener('click', () => {
                 bacaModal.style.display = 'none';
                 document.body.style.overflow = '';
@@ -394,8 +554,26 @@
                     document.body.style.overflow = '';
                 }
             });
+            
+            // NEW: Event listener untuk modal buku
+            closeBookBtn.addEventListener('click', tutupBuku);
+            bookModal.addEventListener('click', (e) => {
+                if (e.target === bookModal) tutupBuku();
+            });
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    renderBookPage();
+                }
+            });
+            nextPageBtn.addEventListener('click', () => {
+                if (currentPage < bookContentPages.length - 1) {
+                    currentPage++;
+                    renderBookPage();
+                }
+            });
 
-            // --- Event listener untuk filter kategori ---
+
             kategoriBadgesContainer.addEventListener('click', (e) => {
                 if (e.target.classList.contains('kategori-badge')) {
                     kategoriAktif = e.target.dataset.kategori;
@@ -405,17 +583,14 @@
                     });
                     e.target.classList.add('active');
 
-                    // Tampilkan loading indicator saat kategori berubah
                     loadingIndicator.style.display = 'flex';
-                    fetchKonten(false); // Muat dari awal
+                    fetchKonten(false);
                 }
             });
 
-            // Event listener untuk tombol "Muat Lebih Banyak"
             loadMoreButton.addEventListener('click', () => {
-                // Tampilkan loading indicator saat tombol "Muat Lebih Banyak" ditekan
                 loadingIndicator.style.display = 'flex';
-                fetchKonten(true); // Muat lebih banyak (append)
+                fetchKonten(true);
             });
 
             onAuthStateChanged(auth, (user) => {
@@ -428,14 +603,8 @@
                             if (userData.profilePicture) navbarProfilePicture.src = userData.profilePicture;
                             if (userData.role === 'admin') adminLink.classList.remove('hidden');
 
-                            renderKategoriBadges(); // Render kategori terlebih dahulu
-
-                            // Tampilkan loading indicator untuk pemuatan awal
-                            // Hanya tampilkan jika belum ada konten yang dimuat
-                            if (semuaKonten.length === 0) {
-                                loadingIndicator.style.display = 'flex';
-                            }
-                            fetchKonten(); // Panggil fungsi fetch utama
+                            renderKategoriBadges();
+                            fetchKonten();
                         } else {
                             logout();
                         }

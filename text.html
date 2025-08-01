@@ -44,6 +44,38 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* NEW: Gaya untuk tampilan buku di modal */
+        #bookViewModal {
+            max-width: 90vw;
+            width: 100%;
+            height: 90vh;
+            display: flex;
+        }
+        #bookViewModal .cover-container {
+            flex-shrink: 0;
+            width: 30%;
+            padding-right: 1.5rem;
+        }
+        #bookViewModal .text-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            text-align: justify;
+            padding-left: 1.5rem;
+            border-left: 1px solid #e2e8f0;
+        }
+        #bookViewModal .text-container p {
+            font-size: 1rem;
+            line-height: 1.625;
+            white-space: pre-line;
+        }
+        #bookViewModal .page-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
     </style>
 </head>
 
@@ -53,7 +85,7 @@
 
     <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center">
-            <a class="text-2xl text-center md:text-3xl md:mx-auto font-bold" href="dashboard.html"><span class="bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">RZF</span> Academy</a>
+            <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
             <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">&#9776;</button>
         </div>
         <div id="nav-menu"
@@ -96,14 +128,45 @@
         </div>
     </main>
 
+    <!-- Modal untuk Teks Biasa -->
     <div id="bacaModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
         <div class="bg-white max-w-xl w-full mx-4 p-6 rounded-xl shadow-lg relative">
             <button id="close-baca"
                 class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold">✖</button>
             <h2 id="judulBaca" class="text-xl font-bold mb-2 text-blue-700 md:text-center"></h2>
-            <p id="isiBaca"
-                class="break-words text-gray-800 whitespace-pre-line leading-relaxed text-sm max-h-[60vh] overflow-y-auto">
-            </p>
+            <div class="max-h-[60vh] overflow-y-auto">
+                <p id="isiBaca" class="break-words text-gray-800 whitespace-pre-line leading-relaxed text-sm"></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- NEW: Modal untuk Tampilan Buku -->
+    <div id="bookModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
+        <div class="bg-white rounded-xl shadow-lg relative mx-4" id="bookViewModal">
+            <button id="close-book"
+                class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold z-10">✖</button>
+            <div class="flex flex-col md:flex-row w-full h-full">
+                <!-- Cover Buku -->
+                <div class="cover-container p-6 flex flex-col items-center justify-center">
+                    <img id="bookCover" src="" alt="Cover Buku" class="w-full max-h-96 object-contain rounded-lg shadow-xl" />
+                    <h2 id="bookTitle" class="text-xl font-bold text-blue-700 mt-4 text-center"></h2>
+                    <span id="bookAuthor" class="text-sm text-gray-600"></span>
+                    <span id="bookStatus" class="text-xs text-red-500 font-semibold mt-2"></span>
+                </div>
+                <!-- Konten Buku yang di-paginate -->
+                <div class="text-container p-6 flex flex-col">
+                    <p id="bookContentText" class="flex-1"></p>
+                    <div id="bookPageControls" class="page-controls">
+                        <button id="prevPageBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed">
+                            &larr; Sebelumnya
+                        </button>
+                        <span id="pageNumber" class="text-sm text-gray-600">Halaman 1 dari 1</span>
+                        <button id="nextPageBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed">
+                            Berikutnya &rarr;
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -136,11 +199,29 @@
         const bacaModal = document.getElementById("bacaModal");
         const loadingIndicator = document.getElementById('loading-indicator');
         const loadMoreButton = document.getElementById('load-more-button');
+        
+        const judulBaca = document.getElementById('judulBaca');
+        const isiBaca = document.getElementById('isiBaca');
 
-        let semuaKontenCache = []; // Menyimpan semua data teks yang sudah dimuat
-        let kategoriAktif = "semua"; // Kategori yang sedang aktif
-        let lastVisibleKey = null; // Key dari item terakhir yang dimuat untuk pagination
-        const ITEMS_PER_PAGE = 6; // Jumlah item per halaman
+        const bookModal = document.getElementById('bookModal');
+        const bookCoverEl = document.getElementById('bookCover');
+        const bookTitleEl = document.getElementById('bookTitle');
+        const bookAuthorEl = document.getElementById('bookAuthor');
+        const bookStatusEl = document.getElementById('bookStatus');
+        const bookContentTextEl = document.getElementById('bookContentText');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const pageNumberEl = document.getElementById('pageNumber');
+        const closeBookBtn = document.getElementById('close-book');
+
+        let semuaKontenCache = []; 
+        let kategoriAktif = "semua"; 
+        let lastVisibleKey = null; 
+        const ITEMS_PER_PAGE = 6; 
+        const CHARS_PER_PAGE = 1500;
+
+        let bookContentPages = [];
+        let currentPage = 0;
 
         function showToast(m, t = 'success') { 
             const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; 
@@ -150,9 +231,15 @@
         }
 
         const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
+
         const tutupBaca = () => {
             bacaModal.style.display = "none";
             document.body.style.overflow = ''; 
+        };
+
+        const tutupBuku = () => {
+            bookModal.style.display = "none";
+            document.body.style.overflow = '';
         };
 
         const tampilkanKategori = async () => {
@@ -171,9 +258,9 @@
                     badge.addEventListener('click', (e) => {
                         kategoriBadgesEl.querySelector('.active')?.classList.remove('active');
                         e.currentTarget.classList.add('active');
-                        kategoriAktif = e.currentTarget.dataset.kategori; // Update kategori aktif
-                        loadingIndicator.style.display = 'flex'; // Tampilkan loading
-                        fetchTextContent(false); // Muat ulang dari awal untuk kategori baru
+                        kategoriAktif = e.currentTarget.dataset.kategori;
+                        loadingIndicator.style.display = 'flex';
+                        fetchTextContent(false);
                     });
                 });
             } catch (err) {
@@ -183,57 +270,146 @@
             }
         };
 
+        const renderBookPage = () => {
+            if (bookContentPages.length > 0) {
+                bookContentTextEl.innerHTML = bookContentPages[currentPage].content;
+                pageNumberEl.textContent = `Halaman ${currentPage + 1} dari ${bookContentPages.length}`;
+            } else {
+                bookContentTextEl.textContent = "Konten buku kosong.";
+                pageNumberEl.textContent = `Halaman 0 dari 0`;
+            }
+            
+            prevPageBtn.disabled = currentPage === 0;
+            nextPageBtn.disabled = currentPage === bookContentPages.length - 1;
+            
+            bookContentTextEl.scrollTo(0, 0);
+        };
+
+        const bukaBuku = (item) => {
+            bookTitleEl.textContent = item.judul;
+            bookAuthorEl.textContent = `Oleh: ${item.userName}`;
+            bookCoverEl.src = item.gambar || 'https://placehold.co/300x450?text=Cover+Buku';
+            bookStatusEl.textContent = item.isDraft ? 'Masih dalam pengembangan' : '';
+            bookModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+            try {
+                const isJson = (str) => {
+                    try { JSON.parse(str); } catch (e) { return false; }
+                    return true;
+                };
+                if (isJson(item.teks)) {
+                    bookContentPages = JSON.parse(item.teks);
+                } else {
+                    bookContentPages = [{ content: item.teks || '' }];
+                }
+            } catch (e) {
+                bookContentPages = [{ content: item.teks || '' }];
+            }
+            currentPage = 0;
+            renderBookPage();
+        };
+
         const renderText = (dataToRender) => {
-            teksContainerEl.innerHTML = ""; // Selalu kosongkan kontainer sebelum merender
+            teksContainerEl.innerHTML = "";
 
             if (dataToRender.length === 0) {
                 teksContainerEl.innerHTML = `<p class="col-span-full text-gray-500 text-center">Tidak ada tulisan untuk kategori ini.</p>`;
                 return;
             }
 
-            // Urutkan data berdasarkan waktu terbaru (descending)
             dataToRender.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
 
             const fragment = document.createDocumentFragment();
 
-            dataToRender.forEach((item, index) => {
+            dataToRender.forEach((item) => {
                 try {
                     if (!item) return;
 
                     const card = document.createElement("div");
                     card.className = "bg-white rounded-lg shadow hover:shadow-lg p-4 flex flex-col justify-between";
-
                     const placeholderImg = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
-                    const fullText = item.teks || "";
-                    const preview = fullText.slice(0, 200);
+                    
+                    let contentToPreview = '';
+                    let isLongContent = false;
+                    
+                    if (item.jenis === 'buku') {
+                        const isJson = (str) => {
+                            try { JSON.parse(str); } catch (e) { return false; }
+                            return true;
+                        };
+                        if (isJson(item.teks)) {
+                            const pages = JSON.parse(item.teks);
+                            if (pages.length > 0 && pages[0].content) {
+                                contentToPreview = pages[0].content.substring(0, 150);
+                                isLongContent = pages[0].content.length > 150 || pages.length > 1;
+                            }
+                        } else {
+                            contentToPreview = item.teks || '';
+                            isLongContent = contentToPreview.length > 150;
+                            contentToPreview = contentToPreview.substring(0, 150);
+                        }
+                    } else { // Teks biasa
+                        contentToPreview = item.teks || '';
+                        isLongContent = contentToPreview.length > 150;
+                        contentToPreview = contentToPreview.substring(0, 150);
+                    }
+                    // Ganti tag HTML di preview dengan spasi
+                    contentToPreview = contentToPreview.replace(/<[^>]*>/g, '').trim();
 
-                    card.innerHTML = `
-                    <div>
-                        <h3 class="text-lg font-semibold text-blue-700 mb-2">${item.judul || 'Tanpa Judul'}</h3>
-                        <p class="text-sm text-gray-700 leading-relaxed min-h-[64px] break-words">
-                            ${preview.replace(/\n/g, "<br>")}${fullText.length > 200 ? '...' : ''}
-                        </p>
-                        ${fullText.length > 200 ? `
-                        <div class="mt-2">
-                            <button class="text-sm text-blue-600 hover:underline baca-selengkapnya-btn">Baca Selengkapnya</button>
-                        </div>
-                        ` : ''}
-                    </div>
-                    <div class="mt-3 pt-3 border-t flex items-center justify-between">
-                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori || '-'}</span>
-                        <div class="flex items-center gap-2">
-                            <img src="${item.userProfilePicture || placeholderImg}" class="w-6 h-6 rounded-full object-cover" />
-                            <span class="text-gray-500 text-xs">${item.userName || 'Anonim'}</span>
-                        </div>
-                    </div>`;
+                    if (item.jenis === 'buku') {
+                        card.innerHTML = `
+                            <div class="flex-1 flex flex-col">
+                                <img src="${item.gambar || 'https://placehold.co/300x200?text=Cover+Buku'}" alt="Cover Buku" class="w-full h-32 object-contain border rounded bg-gray-50 mb-3" />
+                                <h3 class="text-lg font-semibold text-blue-700 mb-1">${item.judul || 'Tanpa Judul'}</h3>
+                                ${item.isDraft ? `<span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full mb-2 self-start">Draft</span>` : ''}
+                                <p class="text-sm text-gray-700 leading-relaxed break-words">
+                                    ${contentToPreview}${isLongContent ? '...' : ''}
+                                </p>
+                                <div class="mt-2">
+                                    <button data-id="${item.id}" class="text-sm text-blue-600 hover:underline baca-selengkapnya-btn">Baca Buku</button>
+                                </div>
+                                <div class="mt-auto pt-3 border-t flex items-center justify-between">
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori || '-'}</span>
+                                    <div class="flex items-center gap-2">
+                                        <img src="${item.userProfilePicture || placeholderImg}" class="w-6 h-6 rounded-full object-cover" />
+                                        <span class="text-gray-500 text-xs">${item.userName || 'Anonim'}</span>
+                                    </div>
+                                </div>
+                            </div>`;
+                    } else { // Rendering untuk tipe teks biasa
+                        card.innerHTML = `
+                            <div>
+                                <h3 class="text-lg font-semibold text-blue-700 mb-2">${item.judul || 'Tanpa Judul'}</h3>
+                                <p class="text-sm text-gray-700 leading-relaxed min-h-[64px] break-words">
+                                    ${contentToPreview.replace(/\n/g, "<br>")}${isLongContent ? '...' : ''}
+                                </p>
+                                ${isLongContent ? `
+                                <div class="mt-2">
+                                    <button data-id="${item.id}" class="text-sm text-blue-600 hover:underline baca-selengkapnya-btn">Baca Selengkapnya</button>
+                                </div>
+                                ` : ''}
+                            </div>
+                            <div class="mt-3 pt-3 border-t flex items-center justify-between">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori || '-'}</span>
+                                <div class="flex items-center gap-2">
+                                    <img src="${item.userProfilePicture || placeholderImg}" class="w-6 h-6 rounded-full object-cover" />
+                                    <span class="text-gray-500 text-xs">${item.userName || 'Anonim'}</span>
+                                </div>
+                            </div>`;
+                    }
 
                     const bacaBtn = card.querySelector('.baca-selengkapnya-btn');
                     if (bacaBtn) {
                         bacaBtn.addEventListener('click', () => {
-                            document.getElementById('judulBaca').textContent = item.judul;
-                            document.getElementById('isiBaca').innerHTML = fullText.replace(/\n/g, "<br>");
-                            document.getElementById('bacaModal').style.display = 'flex';
-                            document.body.style.overflow = 'hidden';
+                            if (item.jenis === 'buku') {
+                                bukaBuku(item);
+                            } else {
+                                judulBaca.textContent = item.judul;
+                                isiBaca.innerHTML = item.teks.replace(/\n/g, "<br>");
+                                bacaModal.style.display = 'flex';
+                                document.body.style.overflow = 'hidden';
+                            }
                         });
                     }
                     fragment.appendChild(card);
@@ -246,20 +422,16 @@
         };
 
         const fetchTextContent = async (append = false) => {
-            loadMoreButton.style.display = 'none'; // Sembunyikan tombol "Muat Lebih Banyak" saat memuat
+            loadMoreButton.style.display = 'none';
 
             const kontenRef = ref(db, 'konten');
             let queryRef;
 
             if (append && lastVisibleKey) {
-                // Untuk memuat lebih banyak, mulai dari key terakhir yang terlihat.
-                // Kita ambil 1 item ekstra untuk menentukan lastVisibleKey berikutnya.
-                // endBefore() akan mengecualikan item dengan lastVisibleKey, jadi kita tidak perlu slice(1)
                 queryRef = query(kontenRef, orderByChild('waktu'), endBefore(lastVisibleKey), limitToLast(ITEMS_PER_PAGE + 1));
             } else {
-                // Untuk pemuatan awal atau ganti kategori, mulai dari awal.
-                semuaKontenCache = []; // Kosongkan data jika bukan append
-                lastVisibleKey = null; // Reset lastVisibleKey
+                semuaKontenCache = [];
+                lastVisibleKey = null;
                 queryRef = query(kontenRef, orderByChild('waktu'), limitToLast(ITEMS_PER_PAGE + 1));
             }
 
@@ -270,43 +442,36 @@
                     itemsArray.push(child.val());
                 });
 
-                // Karena kita menggunakan limitToLast dan endBefore, data akan datang dalam urutan ASC.
-                // Kita perlu membalik urutannya agar yang terbaru di atas.
                 itemsArray.reverse();
 
                 let newLastKey = null;
                 let fetchedItems = [];
 
                 if (itemsArray.length > ITEMS_PER_PAGE) {
-                    // Jika ada lebih banyak item dari ITEMS_PER_PAGE, berarti ada halaman berikutnya.
-                    // lastVisibleKey adalah item terakhir dari halaman saat ini (yang paling lama)
                     newLastKey = itemsArray[ITEMS_PER_PAGE - 1].waktu;
-                    fetchedItems = itemsArray.slice(0, ITEMS_PER_PAGE); // Ambil hanya ITEMS_PER_PAGE
+                    fetchedItems = itemsArray.slice(0, ITEMS_PER_PAGE);
                 } else {
-                    // Ini adalah halaman terakhir, atau kurang dari ITEMS_PER_PAGE item yang diambil.
                     fetchedItems = itemsArray;
-                    newLastKey = null; // Tidak ada halaman lagi
+                    newLastKey = null;
                 }
                 
-                // Filter berdasarkan jenis konten 'teks' dan kategori aktif
                 const filteredFetchedItems = fetchedItems.filter(item => {
-                    const isText = item.jenis === 'teks';
+                    const isTextOrBook = item.jenis === 'teks' || item.jenis === 'buku';
                     const isCategoryMatch = kategoriAktif === 'semua' || item.kategori === kategoriAktif;
-                    return isText && isCategoryMatch;
+                    return isTextOrBook && isCategoryMatch;
                 });
 
                 if (append) {
-                    // Hanya tambahkan item yang belum ada di cache
                     const existingIds = new Set(semuaKontenCache.map(item => item.id));
                     const newUniqueItems = filteredFetchedItems.filter(item => !existingIds.has(item.id));
                     semuaKontenCache = semuaKontenCache.concat(newUniqueItems);
                 } else {
-                    semuaKontenCache = filteredFetchedItems; // Untuk pemuatan awal, cukup tetapkan
+                    semuaKontenCache = filteredFetchedItems;
                 }
 
-                lastVisibleKey = newLastKey; // Update key terakhir yang terlihat
+                lastVisibleKey = newLastKey;
 
-                renderText(semuaKontenCache); // Selalu render seluruh cache yang terakumulasi
+                renderText(semuaKontenCache);
 
                 if (lastVisibleKey) {
                     loadMoreButton.style.display = 'block';
@@ -318,7 +483,7 @@
                 console.error("❌ Error saat ambil konten teks:", err);
                 showToast("Gagal memuat tulisan.", "error");
             } finally {
-                loadingIndicator.style.display = 'none'; // Sembunyikan setelah selesai
+                loadingIndicator.style.display = 'none';
             }
         };
 
@@ -326,15 +491,45 @@
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('logout-button').addEventListener('click', logout);
             document.getElementById('close-baca').addEventListener('click', tutupBaca);
-            bacaModal.addEventListener('click', (e) => { if (e.target === bacaModal) tutupBaca(); });
             document.getElementById("menu-toggle").addEventListener("click", () => {
                 document.getElementById("nav-menu").classList.toggle("hidden");
             });
 
-            // Event listener untuk tombol "Muat Lebih Banyak"
             loadMoreButton.addEventListener('click', () => {
-                loadingIndicator.style.display = 'flex'; // Tampilkan loading
-                fetchTextContent(true); // Muat lebih banyak (append)
+                loadingIndicator.style.display = 'flex';
+                fetchTextContent(true);
+            });
+            
+            closeBookBtn.addEventListener('click', tutupBuku);
+            bookModal.addEventListener('click', (e) => {
+                if (e.target === bookModal) tutupBuku();
+            });
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    renderBookPage();
+                }
+            });
+            nextPageBtn.addEventListener('click', () => {
+                if (currentPage < bookContentPages.length - 1) {
+                    currentPage++;
+                    renderBookPage();
+                }
+            });
+
+
+            kategoriBadgesEl.addEventListener('click', (e) => {
+                if (e.target.classList.contains('kategori-badge')) {
+                    kategoriAktif = e.target.dataset.kategori;
+
+                    document.querySelectorAll('.kategori-badge').forEach(badge => {
+                        badge.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+
+                    loadingIndicator.style.display = 'flex';
+                    fetchTextContent(false);
+                }
             });
 
             onAuthStateChanged(auth, (user) => {
@@ -346,7 +541,6 @@
                         if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
                         
                         tampilkanKategori();
-                        // Tampilkan loading indicator untuk pemuatan awal
                         if (semuaKontenCache.length === 0) {
                             loadingIndicator.style.display = 'flex';
                         }
