@@ -41,8 +41,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
@@ -53,12 +58,14 @@
 
     <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center">
-            <a class="text-2xl text-center md:text-3xl md:mx-auto font-bold" href="dashboard.html"><span class="bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">RZF</span> Academy</a>
+            <a class="text-2xl text-center md:text-3xl md:mx-auto font-bold" href="dashboard.html"><span
+                    class="bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">RZF</span> Academy</a>
             <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">&#9776;</button>
         </div>
         <div id="nav-menu"
             class="hidden md:flex flex-col md:flex-row mt-3 md:mt-0 md:items-center md:justify-between w-full">
-            <div class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0 mt-2 md:mt-0">
+            <div
+                class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0 mt-2 md:mt-0">
                 <a href="dashboard.html" class="hover:text-sky-200">Dashboard</a>
                 <a href="galeri.html" class="font-bold">Galeri</a>
                 <a href="text.html" class="hover:text-sky-200">Teks</a>
@@ -71,7 +78,8 @@
                 <a href="profil.html" class="flex items-center space-x-2 group">
                     <img id="navbarProfilePicture" src="https://placehold.co/32x32/e2e8f0/718096?text=U"
                         class="w-8 h-8 rounded-full border border-sky-200 group-hover:border-white transition" />
-                    <span id="welcomeUser" class="font-semibold group-hover:text-sky-200 transition">Pengguna</span>
+                    <span id="welcomeUser"
+                        class="font-semibold group-hover:text-sky-200 transition">Pengguna</span>
                 </a>
                 <button id="logout-button"
                     class="px-3 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Logout</button>
@@ -91,7 +99,8 @@
             <p class="mt-3 text-gray-600">Memuat data...</p>
         </div>
         <div class="text-center mt-8">
-            <button id="load-more-button" class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 hidden">Muat Lebih Banyak</button>
+            <button id="load-more-button"
+                class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 hidden">Muat Lebih Banyak</button>
         </div>
     </main>
 
@@ -99,6 +108,40 @@
             id="close-preview"
             class="absolute top-5 right-6 text-white text-4xl cursor-pointer font-bold">&times;</span><img
             id="previewImage" class="max-w-[90%] max-h-[90%] rounded shadow-2xl" /></div>
+
+    <div id="commentModal"
+        class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
+        <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg mx-4 flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center pb-4 border-b">
+                <h3 class="text-xl font-bold text-gray-800">Komentar</h3>
+                <button id="close-comment"
+                    class="text-gray-600 hover:text-red-500 text-xl font-bold">✖</button>
+            </div>
+            <div id="commentsList" class="flex-1 overflow-y-auto py-4 space-y-4">
+                <!-- Komentar akan dimuat di sini -->
+            </div>
+            <form id="commentForm" class="pt-4 border-t">
+                <textarea id="commentInput" class="w-full p-2 border rounded-md resize-none" rows="3"
+                    placeholder="Tambahkan komentar..."></textarea>
+                <div class="flex justify-end mt-2">
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Kirim</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal Konfirmasi Kustom -->
+    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-[130]">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-4 text-center">
+            <h3 id="confirmModalTitle" class="text-lg font-bold text-gray-900 mb-2">Konfirmasi Aksi</h3>
+            <p id="confirmModalMessage" class="text-sm text-gray-600 mb-6">Apakah Anda yakin?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="confirmModalCancel" class="px-6 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Batal</button>
+                <button id="confirmModalConfirm" class="px-6 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
 
     <footer class="bg-gray-100 text-center text-gray-600 py-4 text-sm mt-auto">
         &copy; 2025 <a href="https://portfolio-chx.netlify.app/"
@@ -108,7 +151,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { getDatabase, ref, get, query, orderByChild, endBefore, limitToLast } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+        import { getDatabase, ref, get, query, orderByChild, endBefore, limitToLast, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
         // --- KONFIGURASI FIREBASE ---
         const firebaseConfig = {
@@ -133,6 +176,21 @@
         const loadingIndicator = document.getElementById('loading-indicator');
         const loadMoreButton = document.getElementById('load-more-button');
 
+        const commentModal = document.getElementById('commentModal');
+        const closeCommentBtn = document.getElementById('close-comment');
+        const commentsListEl = document.getElementById('commentsList');
+        const commentForm = document.getElementById('commentForm');
+        const commentInput = document.getElementById('commentInput');
+        
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmModalMessage = document.getElementById('confirmModalMessage');
+        const confirmModalCancel = document.getElementById('confirmModalCancel');
+        const confirmModalConfirm = document.getElementById('confirmModalConfirm');
+        
+        let confirmCallback = null;
+        let currentKontenId = null;
+        let loggedInUser = null;
+
         // --- Cache Global ---
         let semuaKontenCache = [];
         let kategoriAktif = "semua"; // Kategori yang sedang aktif
@@ -153,6 +211,17 @@
             n.appendChild(e);
             setTimeout(() => e.remove(), 3000);
         }
+        
+        const showConfirmModal = (message, onConfirm) => {
+            confirmModalMessage.textContent = message;
+            confirmCallback = onConfirm;
+            confirmModal.style.display = 'flex';
+        };
+
+        const hideConfirmModal = () => {
+            confirmModal.style.display = 'none';
+            confirmCallback = null;
+        };
 
         const logout = () => {
             signOut(auth).then(() => {
@@ -165,12 +234,146 @@
         const tampilkanPreview = (url) => {
             previewImage.src = url;
             previewOverlay.style.display = "flex";
-            document.body.style.overflow = 'hidden'; 
+            document.body.style.overflow = 'hidden';
         };
 
         const tutupPreview = () => {
             previewOverlay.style.display = "none";
             document.body.style.overflow = '';
+        };
+
+        const openCommentModal = (kontenId) => {
+            currentKontenId = kontenId;
+            commentModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            fetchComments(kontenId);
+        };
+        const closeCommentModal = () => {
+            commentModal.style.display = 'none';
+            document.body.style.overflow = '';
+            commentsListEl.innerHTML = '';
+            currentKontenId = null;
+        };
+        
+        const deleteComment = async (kontenId, commentId) => {
+            showConfirmModal("Apakah Anda yakin ingin menghapus komentar ini?", async () => {
+                if (!loggedInUser) {
+                    showToast("Anda harus login untuk menghapus komentar.", "error");
+                    hideConfirmModal();
+                    return;
+                }
+                try {
+                    const commentRef = ref(db, `comments/${kontenId}/${commentId}`);
+                    await remove(commentRef);
+                    showToast("Komentar berhasil dihapus.");
+                    hideConfirmModal();
+                } catch (error) {
+                    console.error("Error deleting comment:", error);
+                    showToast("Gagal menghapus komentar.", "error");
+                    hideConfirmModal();
+                }
+            });
+        };
+
+        const fetchComments = (kontenId) => {
+            const commentsRef = ref(db, `comments/${kontenId}`);
+            commentsListEl.innerHTML = '<p class="text-center text-gray-500">Memuat komentar...</p>';
+            
+            onValue(commentsRef, (snapshot) => {
+                commentsListEl.innerHTML = '';
+                if (snapshot.exists()) {
+                    const comments = [];
+                    snapshot.forEach(child => {
+                        comments.push({ id: child.key, ...child.val() });
+                    });
+                    
+                    comments.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
+
+                    comments.forEach(comment => {
+                        const commentEl = document.createElement('div');
+                        commentEl.className = 'bg-gray-100 p-3 rounded-lg';
+                        const waktuFormatted = new Date(comment.waktu).toLocaleString('id-ID', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        
+                        const isMyComment = loggedInUser && loggedInUser.id === comment.userId;
+                        const deleteButtonHtml = isMyComment ? 
+                            `<button class="delete-comment-btn text-red-500 hover:text-red-700 text-xs font-semibold ml-auto" data-commentid="${comment.id}">Hapus</button>` : '';
+
+                        commentEl.innerHTML = `
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <img src="${comment.userProfilePicture || 'https://placehold.co/24x24/e2e8f0/718096?text=U'}" class="w-6 h-6 rounded-full object-cover"/>
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold text-gray-800">${comment.userName}</span>
+                                        <span class="text-xs text-gray-500">${waktuFormatted}</span>
+                                    </div>
+                                </div>
+                                ${deleteButtonHtml}
+                            </div>
+                            <p class="text-sm text-gray-700 mt-1">${comment.text}</p>
+                        `;
+
+                        if (isMyComment) {
+                            commentEl.querySelector('.delete-comment-btn').addEventListener('click', () => {
+                                deleteComment(kontenId, comment.id);
+                            });
+                        }
+
+                        commentsListEl.appendChild(commentEl);
+                    });
+                } else {
+                    commentsListEl.innerHTML = '<p class="text-center text-gray-500">Belum ada komentar.</p>';
+                }
+            }, {
+                onlyOnce: false
+            });
+        };
+        const postComment = (event) => {
+            event.preventDefault();
+            const text = commentInput.value.trim();
+            if (!text || !currentKontenId || !loggedInUser) {
+                showToast("Komentar tidak boleh kosong.", "error");
+                return;
+            }
+
+            const newCommentRef = push(ref(db, `comments/${currentKontenId}`));
+            set(newCommentRef, {
+                userId: loggedInUser.id,
+                userName: loggedInUser.name,
+                userProfilePicture: loggedInUser.profilePicture || null,
+                text: text,
+                waktu: new Date().toISOString()
+            }).then(() => {
+                commentInput.value = '';
+                showToast("Komentar berhasil dikirim.");
+            }).catch(error => {
+                showToast("Gagal mengirim komentar.", "error");
+                console.error("Error posting comment:", error);
+            });
+        };
+        const giveReaction = async (kontenId, reactionType) => {
+            if (!loggedInUser) {
+                showToast("Silakan login untuk memberi reaksi.", "error");
+                return;
+            }
+            const reactionRef = ref(db, `reactions/${kontenId}/${loggedInUser.id}`);
+            const snapshot = await get(reactionRef);
+
+            if (snapshot.exists() && snapshot.val().type === reactionType) {
+                await set(reactionRef, null);
+                showToast(`Reaksi ${reactionType} dihapus.`);
+            } else {
+                await set(reactionRef, {
+                    type: reactionType,
+                    userName: loggedInUser.name
+                });
+                showToast(`Anda menyukai konten ini dengan ${reactionType}!`);
+            }
         };
 
         // --- Tampilkan Kategori + Event Filter ---
@@ -204,55 +407,97 @@
         };
 
         // --- Tampilkan Galeri ---
-        const renderGambar = (dataToRender) => { // Removed appendMode parameter
-            galeriContainerEl.innerHTML = ""; // Always clear the container before rendering
+        const renderGambar = (dataToRender) => {
+            galeriContainerEl.innerHTML = "";
 
             if (dataToRender.length === 0) {
                 galeriContainerEl.innerHTML = "<p class='col-span-full text-gray-500 text-center'>Tidak ada gambar untuk kategori ini.</p>";
                 return;
             }
 
-            // Urutkan data berdasarkan waktu terbaru (descending)
             dataToRender.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
 
             const fragment = document.createDocumentFragment();
 
             dataToRender.forEach(item => {
                 const card = document.createElement("div");
-                card.className = "bg-white rounded-lg shadow hover:shadow-lg transition p-4";
+                card.className = "bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col";
                 const placeholder = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
                 card.innerHTML = `
-            <img src="${item.gambar}" alt="${item.judul}" class="w-full h-56 object-contain cursor-pointer border rounded bg-gray-50 mb-4">
-            <h3 class="font-semibold text-lg text-blue-700 truncate">${item.judul}</h3>
-            <div class="mt-2 pt-2 border-t flex items-center justify-between">
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
-                <div class="flex items-center gap-2">
-                    <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
-                    <span class="text-gray-500 text-xs">${item.userName}</span>
-                </div>
-            </div>`;
+                    <img src="${item.gambar}" alt="${item.judul}" class="w-full h-56 object-contain cursor-pointer border rounded bg-gray-50 mb-4">
+                    <h3 class="font-semibold text-lg text-blue-700 truncate">${item.judul}</h3>
+                    <div class="mt-2 pt-2 border-t flex items-center justify-between">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                        <div class="flex items-center gap-2">
+                            <a href="public-profile.html?id=${item.userId}" class="flex items-center space-x-2">
+                                <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
+                                <span class="text-gray-500 text-xs hover:underline">${item.userName}</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4 mt-4 pt-4 border-t">
+                        <button class="flex items-center text-gray-500 hover:text-blue-500 like-btn" data-id="${item.id}" data-type="like">
+                            ❤️ <span class="ml-1 reaction-count-like" data-id-target="${item.id}">${item.reactions?.likeCount || 0}</span>
+                        </button>
+                        <button class="flex items-center text-gray-500 hover:text-red-500 love-btn" data-id="${item.id}" data-type="love">
+                            🥰 <span class="ml-1 reaction-count-love" data-id-target="${item.id}">${item.reactions?.loveCount || 0}</span>
+                        </button>
+                        <button class="flex items-center text-gray-500 hover:text-gray-900 comment-btn" data-id="${item.id}">
+                            💬 <span class="ml-1 comment-count" data-id-target="${item.id}">${item.commentsCount || 0}</span>
+                        </button>
+                    </div>
+                `;
                 card.querySelector('img').addEventListener('click', () => tampilkanPreview(item.gambar));
+                
+                card.querySelector('.like-btn').addEventListener('click', () => giveReaction(item.id, 'like'));
+                card.querySelector('.love-btn').addEventListener('click', () => giveReaction(item.id, 'love'));
+                card.querySelector('.comment-btn').addEventListener('click', () => openCommentModal(item.id));
+
                 fragment.appendChild(card);
             });
             galeriContainerEl.appendChild(fragment);
         };
 
-        // --- Ambil Semua Konten Sekali (dengan Pagination) ---
+        const setupSocialListeners = () => {
+            onValue(ref(db, 'reactions'), (snapshot) => {
+                const reactionsData = snapshot.val() || {};
+                document.querySelectorAll('.reaction-count-like').forEach(el => el.textContent = 0);
+                document.querySelectorAll('.reaction-count-love').forEach(el => el.textContent = 0);
+
+                for (const kontenId in reactionsData) {
+                    const likeCount = Object.values(reactionsData[kontenId]).filter(r => r.type === 'like').length;
+                    const loveCount = Object.values(reactionsData[kontenId]).filter(r => r.type === 'love').length;
+
+                    const likeEl = document.querySelector(`.reaction-count-like[data-id-target="${kontenId}"]`);
+                    const loveEl = document.querySelector(`.reaction-count-love[data-id-target="${kontenId}"]`);
+
+                    if (likeEl) likeEl.textContent = likeCount;
+                    if (loveEl) loveEl.textContent = loveCount;
+                }
+            });
+            onValue(ref(db, 'comments'), (snapshot) => {
+                const commentsData = snapshot.val() || {};
+                document.querySelectorAll('.comment-count').forEach(el => el.textContent = 0);
+
+                for (const kontenId in commentsData) {
+                    const commentsCount = Object.keys(commentsData[kontenId]).length;
+                    const commentEl = document.querySelector(`.comment-count[data-id-target="${kontenId}"]`);
+                    if (commentEl) commentEl.textContent = commentsCount;
+                }
+            });
+        };
+
         const fetchGaleriContent = async (append = false) => {
-            loadMoreButton.style.display = 'none'; // Sembunyikan tombol "Muat Lebih Banyak" saat memuat
+            loadMoreButton.style.display = 'none';
 
             const kontenRef = ref(db, 'konten');
             let queryRef;
 
             if (append && lastVisibleKey) {
-                // Untuk memuat lebih banyak, mulai dari key terakhir yang terlihat.
-                // Kita ambil 1 item ekstra untuk menentukan lastVisibleKey berikutnya.
-                // endBefore() akan mengecualikan item dengan lastVisibleKey, jadi kita tidak perlu slice(1)
                 queryRef = query(kontenRef, orderByChild('waktu'), endBefore(lastVisibleKey), limitToLast(ITEMS_PER_PAGE + 1));
             } else {
-                // Untuk pemuatan awal atau ganti kategori, mulai dari awal.
-                semuaKontenCache = []; // Kosongkan data jika bukan append
-                lastVisibleKey = null; // Reset lastVisibleKey
+                semuaKontenCache = [];
+                lastVisibleKey = null;
                 queryRef = query(kontenRef, orderByChild('waktu'), limitToLast(ITEMS_PER_PAGE + 1));
             }
 
@@ -260,44 +505,56 @@
                 const snapshot = await get(queryRef);
                 let itemsArray = [];
                 snapshot.forEach(child => {
-                    itemsArray.push(child.val());
+                    itemsArray.push({ id: child.key, ...child.val() });
                 });
 
-                // Karena kita menggunakan limitToLast dan endBefore, data akan datang dalam urutan ASC.
-                // Kita perlu membalik urutannya agar yang terbaru di atas.
                 itemsArray.reverse();
 
                 let newLastKey = null;
                 let fetchedItems = [];
 
                 if (itemsArray.length > ITEMS_PER_PAGE) {
-                    // Jika ada lebih banyak item dari ITEMS_PER_PAGE, berarti ada halaman berikutnya.
-                    // lastVisibleKey adalah item terakhir dari halaman saat ini (yang paling lama)
                     newLastKey = itemsArray[ITEMS_PER_PAGE - 1].waktu;
-                    fetchedItems = itemsArray.slice(0, ITEMS_PER_PAGE); // Ambil hanya ITEMS_PER_PAGE
+                    fetchedItems = itemsArray.slice(0, ITEMS_PER_PAGE);
                 } else {
-                    // Ini adalah halaman terakhir, atau kurang dari ITEMS_PER_PAGE item yang diambil.
                     fetchedItems = itemsArray;
-                    newLastKey = null; // Tidak ada halaman lagi
+                    newLastKey = null;
                 }
-                
-                // Filter berdasarkan kategori aktif
-                const filteredFetchedItems = kategoriAktif === 'semua'
-                    ? fetchedItems.filter(item => item.jenis === 'gambar')
-                    : fetchedItems.filter(item => item.jenis === 'gambar' && item.kategori === kategoriAktif);
+
+                const filteredFetchedItems = kategoriAktif === 'semua' ?
+                    fetchedItems.filter(item => item.jenis === 'gambar') :
+                    fetchedItems.filter(item => item.jenis === 'gambar' && item.kategori === kategoriAktif);
 
                 if (append) {
-                    // Only add items that are not already in the cache
                     const existingIds = new Set(semuaKontenCache.map(item => item.id));
                     const newUniqueItems = filteredFetchedItems.filter(item => !existingIds.has(item.id));
                     semuaKontenCache = semuaKontenCache.concat(newUniqueItems);
                 } else {
-                    semuaKontenCache = filteredFetchedItems; // Untuk pemuatan awal, cukup tetapkan
+                    semuaKontenCache = filteredFetchedItems;
                 }
 
-                lastVisibleKey = newLastKey; // Update key terakhir yang terlihat
+                lastVisibleKey = newLastKey;
 
-                renderGambar(semuaKontenCache); // Selalu render seluruh cache yang terakumulasi
+                await Promise.all(semuaKontenCache.map(async (item) => {
+                    const reactionsRef = ref(db, `reactions/${item.id}`);
+                    const commentsRef = ref(db, `comments/${item.id}`);
+
+                    const reactionsSnapshot = await get(reactionsRef);
+                    const commentsSnapshot = await get(commentsRef);
+
+                    if (reactionsSnapshot.exists()) {
+                        const reactionsData = reactionsSnapshot.val();
+                        item.reactions = {
+                            likeCount: Object.values(reactionsData).filter(r => r.type === 'like').length,
+                            loveCount: Object.values(reactionsData).filter(r => r.type === 'love').length,
+                        };
+                    } else {
+                        item.reactions = { likeCount: 0, loveCount: 0 };
+                    }
+                    item.commentsCount = commentsSnapshot.exists() ? Object.keys(commentsSnapshot.val()).length : 0;
+                }));
+
+                renderGambar(semuaKontenCache);
 
                 if (lastVisibleKey) {
                     loadMoreButton.style.display = 'block';
@@ -309,7 +566,7 @@
                 console.error("❌ Gagal mengambil konten galeri:", err);
                 showToast("Gagal memuat gambar galeri", "error");
             } finally {
-                loadingIndicator.style.display = 'none'; // Sembunyikan setelah selesai
+                loadingIndicator.style.display = 'none';
             }
         };
 
@@ -324,10 +581,20 @@
                 if (e.target === previewOverlay) tutupPreview();
             });
 
-            // Event listener untuk tombol "Muat Lebih Banyak"
             loadMoreButton.addEventListener('click', () => {
-                loadingIndicator.style.display = 'flex'; // Tampilkan loading
-                fetchGaleriContent(true); // Muat lebih banyak (append)
+                loadingIndicator.style.display = 'flex';
+                fetchGaleriContent(true);
+            });
+
+            closeCommentBtn.addEventListener('click', closeCommentModal);
+            commentForm.addEventListener('submit', postComment);
+            
+            // Event listener untuk tombol konfirmasi modal
+            confirmModalCancel.addEventListener('click', hideConfirmModal);
+            confirmModalConfirm.addEventListener('click', () => {
+                if (confirmCallback) {
+                    confirmCallback();
+                }
             });
 
 
@@ -337,17 +604,17 @@
                         if (snapshot.exists()) {
                             const userProfile = snapshot.val();
                             localStorage.setItem('loggedInUser', JSON.stringify(userProfile));
+                            loggedInUser = userProfile;
                             document.getElementById("welcomeUser").textContent = userProfile.name;
                             if (userProfile.profilePicture) document.getElementById("navbarProfilePicture").src = userProfile.profilePicture;
                             if (userProfile.role === 'admin') document.getElementById("adminLink").classList.remove('hidden');
 
-                            tampilkanKategori();             // ⬅️ tampilkan tombol filter
-                            
-                            // Tampilkan loading indicator untuk pemuatan awal
+                            setupSocialListeners();
+                            tampilkanKategori();
                             if (semuaKontenCache.length === 0) {
                                 loadingIndicator.style.display = 'flex';
                             }
-                            fetchGaleriContent();      // ⬅️ ambil semua gambar
+                            fetchGaleriContent();
                         } else {
                             logout();
                         }

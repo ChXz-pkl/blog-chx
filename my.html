@@ -46,15 +46,15 @@
             box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5);
         }
 
-        /* NEW: Gaya untuk modal edit buku yang terbagi dua */
-        #bookEditModalContent {
+        /* Gaya untuk modal edit buku yang terbagi dua */
+        #editBukuGroup {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
         }
 
         @media (min-width: 768px) {
-            #bookEditModalContent {
+            #editBukuGroup {
                 flex-direction: row;
             }
         }
@@ -160,8 +160,8 @@
                             class="block text-sm font-medium text-gray-700 mb-1">Isi Teks</label><textarea id="editTeks"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="5"></textarea></div>
 
-                    <!-- NEW: Field untuk edit buku -->
-                    <div id="editBukuGroup" style="display: none;" class="md:flex">
+                    <!-- Field untuk edit buku -->
+                    <div id="editBukuGroup" style="display: none;">
                         <!-- Panel Kiri: Sampul, Judul, Kategori -->
                         <div class="book-edit-left-panel space-y-4">
                             <label for="editBukuCover" class="block text-sm font-medium text-gray-700 mb-1">Ganti Cover
@@ -477,6 +477,9 @@
             const item = semuaKontenCache.find(c => c.id === kontenId);
             if (!item) return;
 
+            // Log untuk debugging status isDraft
+            console.log("Status isDraft saat modal dibuka:", item.isDraft);
+
             editSelectedFile = null;
             editGambarInput.value = '';
             editImagePreview.src = "";
@@ -541,7 +544,7 @@
                     editCurrentPageIndex = 0;
                     renderEditEditor();
                 }
-
+                // Memastikan checkbox isDraft disetel sesuai data
                 editIsDraftCheckbox.checked = item.isDraft || false;
             }
             editModal.style.display = "flex";
@@ -630,7 +633,7 @@
                     }
                     updatedData.gambar = newImageUrl;
                     updatedData.teks = JSON.stringify(editBookPages);
-                    updatedData.isDraft = editIsDraftCheckbox.checked;
+                    updatedData.isDraft = editIsDraftCheckbox.checked; // Menyimpan status draft
                 }
 
                 const itemRef = ref(db, 'konten/' + idToUpdate);
@@ -675,6 +678,11 @@
             }
 
             dataToRender.sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).forEach(item => {
+                // Log untuk debugging status isDraft saat merender
+                if (item.jenis === 'buku') {
+                    console.log(`Item "${item.judul}" (ID: ${item.id}) status isDraft: ${item.isDraft}`);
+                }
+
                 const card = document.createElement("div");
                 card.className = "bg-white rounded-lg shadow hover:shadow-lg transition flex flex-col p-4";
 
@@ -745,6 +753,7 @@
                         if (isJson(item.teks)) {
                             const pages = JSON.parse(item.teks);
                             if (pages.length > 0) {
+                                // Menghapus tag HTML dari pratinjau
                                 firstPageContent = (pages[0].content || '').replace(/<[^>]*>/g, '').trim();
                                 hasMorePages = pages.length > 1;
                             }
@@ -868,7 +877,7 @@
             editGambarInput.addEventListener('change', previewEditImage);
             editBukuCoverInput.addEventListener('change', previewEditBookCover);
 
-            // NEW: Event listeners untuk rich text editor di modal edit
+            // Event listeners untuk rich text editor di modal edit
             document.querySelectorAll('#editBukuGroup button[data-command]').forEach(button => {
                 button.addEventListener('click', () => {
                     const command = button.dataset.command;
@@ -878,7 +887,7 @@
                 });
             });
 
-            // NEW: Event listeners untuk pagination buku di modal edit
+            // Event listeners untuk pagination buku di modal edit
             editBukuEditorEl.addEventListener('input', syncEditEditorToState);
             editPrevPageBtn.addEventListener('click', () => {
                 syncEditEditorToState();

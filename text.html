@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Teks - RZF Academy</title>
+    <title>Galeri - RZF Academy</title>
     <link rel="stylesheet" href="dist/output.css">
     <style>
         .kategori-badge {
@@ -12,21 +12,21 @@
             color: #4338ca;
             padding: 4px 12px;
             border-radius: 9999px;
-            font-size: 0.875rem;
-            transition: all 0.2s;
+            font-size: .875rem;
+            transition: all .2s;
             cursor: pointer;
-            border: 1px solid #c7d2fe;
+            border: 1px solid #c7d2fe
         }
 
         .kategori-badge:hover {
-            background-color: #c7d2fe;
+            background-color: #c7d2fe
         }
 
         .kategori-badge.active {
             background-color: #4f46e5;
-            color: white;
+            color: #fff;
             font-weight: 600;
-            border-color: #4f46e5;
+            border-color: #4f46e5
         }
 
         /* Gaya untuk indikator loading */
@@ -41,40 +41,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+            0% {
+                transform: rotate(0deg);
+            }
 
-        /* NEW: Gaya untuk tampilan buku di modal */
-        #bookViewModal {
-            max-width: 90vw;
-            width: 100%;
-            height: 90vh;
-            display: flex;
-        }
-        #bookViewModal .cover-container {
-            flex-shrink: 0;
-            width: 30%;
-            padding-right: 1.5rem;
-        }
-        #bookViewModal .text-container {
-            flex-grow: 1;
-            overflow-y: auto;
-            text-align: justify;
-            padding-left: 1.5rem;
-            border-left: 1px solid #e2e8f0;
-        }
-        #bookViewModal .text-container p {
-            font-size: 1rem;
-            line-height: 1.625;
-            white-space: pre-line;
-        }
-        #bookViewModal .page-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 1rem;
-            border-top: 1px solid #e2e8f0;
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
@@ -85,15 +58,17 @@
 
     <nav class="bg-gradient-to-r from-blue-600 to-sky-400 text-white px-4 py-3 shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center">
-            <a class="text-xl font-bold" href="dashboard.html">RZF Academy</a>
+            <a class="text-2xl text-center md:text-3xl md:mx-auto font-bold" href="dashboard.html"><span
+                    class="bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">RZF</span> Academy</a>
             <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">&#9776;</button>
         </div>
         <div id="nav-menu"
-            class="hidden md:flex flex-col md:flex-row mt-3 md:mt-0 md:items-center md:justify-between md:space-x-4">
-            <div class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0 mt-2 md:mt-0">
+            class="hidden md:flex flex-col md:flex-row mt-3 md:mt-0 md:items-center md:justify-between w-full">
+            <div
+                class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0 mt-2 md:mt-0">
                 <a href="dashboard.html" class="hover:text-sky-200">Dashboard</a>
-                <a href="galeri.html" class="hover:text-sky-200">Galeri</a>
-                <a href="text.html" class="font-bold">Teks</a>
+                <a href="galeri.html" class="font-bold">Galeri</a>
+                <a href="text.html" class="hover:text-sky-200">Teks</a>
                 <a href="my.html" class="hover:text-sky-200">Konten Saya</a>
                 <a href="upload.html" class="hover:text-sky-200">Upload</a>
                 <a id="adminLink" href="admin.html"
@@ -103,7 +78,8 @@
                 <a href="profil.html" class="flex items-center space-x-2 group">
                     <img id="navbarProfilePicture" src="https://placehold.co/32x32/e2e8f0/718096?text=U"
                         class="w-8 h-8 rounded-full border border-sky-200 group-hover:border-white transition" />
-                    <span id="welcomeUser" class="font-semibold group-hover:text-sky-200 transition">Pengguna</span>
+                    <span id="welcomeUser"
+                        class="font-semibold group-hover:text-sky-200 transition">Pengguna</span>
                 </a>
                 <button id="logout-button"
                     class="px-3 py-1 border border-white rounded hover:bg-white hover:text-blue-600 text-sm font-semibold">Logout</button>
@@ -113,59 +89,56 @@
 
     <main class="flex-1 container mx-auto px-4 py-6">
         <div class="text-center mb-6">
-            <h2 class="text-3xl font-bold text-blue-600">Konten Teks</h2>
-            <p class="text-gray-600 mt-1">Jelajahi semua konten tulisan dari para kreator.</p>
+            <h2 class="text-3xl font-bold text-blue-600">Galeri Foto</h2>
+            <p class="text-gray-600 mt-1">Jelajahi semua konten visual dari para kreator.</p>
         </div>
         <div id="kategoriBadges" class="flex flex-wrap justify-center gap-2 mb-8"></div>
-        <div id="teksContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        </div>
+        <div id="galeriContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         <div id="loading-indicator" class="text-center p-10 hidden">
             <div class="loading-spinner"></div>
             <p class="mt-3 text-gray-600">Memuat data...</p>
         </div>
         <div class="text-center mt-8">
-            <button id="load-more-button" class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 hidden">Muat Lebih Banyak</button>
+            <button id="load-more-button"
+                class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 hidden">Muat Lebih Banyak</button>
         </div>
     </main>
 
-    <!-- Modal untuk Teks Biasa -->
-    <div id="bacaModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
-        <div class="bg-white max-w-xl w-full mx-4 p-6 rounded-xl shadow-lg relative">
-            <button id="close-baca"
-                class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold">✖</button>
-            <h2 id="judulBaca" class="text-xl font-bold mb-2 text-blue-700 md:text-center"></h2>
-            <div class="max-h-[60vh] overflow-y-auto">
-                <p id="isiBaca" class="break-words text-gray-800 whitespace-pre-line leading-relaxed text-sm"></p>
+    <div id="previewOverlay" class="fixed inset-0 bg-black bg-opacity-80 hidden justify-center items-center z-50"><span
+            id="close-preview"
+            class="absolute top-5 right-6 text-white text-4xl cursor-pointer font-bold">&times;</span><img
+            id="previewImage" class="max-w-[90%] max-h-[90%] rounded shadow-2xl" /></div>
+
+    <div id="commentModal"
+        class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
+        <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg mx-4 flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center pb-4 border-b">
+                <h3 class="text-xl font-bold text-gray-800">Komentar</h3>
+                <button id="close-comment"
+                    class="text-gray-600 hover:text-red-500 text-xl font-bold">✖</button>
             </div>
+            <div id="commentsList" class="flex-1 overflow-y-auto py-4 space-y-4">
+                <!-- Komentar akan dimuat di sini -->
+            </div>
+            <form id="commentForm" class="pt-4 border-t">
+                <textarea id="commentInput" class="w-full p-2 border rounded-md resize-none" rows="3"
+                    placeholder="Tambahkan komentar..."></textarea>
+                <div class="flex justify-end mt-2">
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Kirim</button>
+                </div>
+            </form>
         </div>
     </div>
     
-    <!-- NEW: Modal untuk Tampilan Buku -->
-    <div id="bookModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
-        <div class="bg-white rounded-xl shadow-lg relative mx-4" id="bookViewModal">
-            <button id="close-book"
-                class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold z-10">✖</button>
-            <div class="flex flex-col md:flex-row w-full h-full">
-                <!-- Cover Buku -->
-                <div class="cover-container p-6 flex flex-col items-center justify-center">
-                    <img id="bookCover" src="" alt="Cover Buku" class="w-full max-h-96 object-contain rounded-lg shadow-xl" />
-                    <h2 id="bookTitle" class="text-xl font-bold text-blue-700 mt-4 text-center"></h2>
-                    <span id="bookAuthor" class="text-sm text-gray-600"></span>
-                    <span id="bookStatus" class="text-xs text-red-500 font-semibold mt-2"></span>
-                </div>
-                <!-- Konten Buku yang di-paginate -->
-                <div class="text-container p-6 flex flex-col">
-                    <p id="bookContentText" class="flex-1"></p>
-                    <div id="bookPageControls" class="page-controls">
-                        <button id="prevPageBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed">
-                            &larr; Sebelumnya
-                        </button>
-                        <span id="pageNumber" class="text-sm text-gray-600">Halaman 1 dari 1</span>
-                        <button id="nextPageBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed">
-                            Berikutnya &rarr;
-                        </button>
-                    </div>
-                </div>
+    <!-- Modal Konfirmasi Kustom -->
+    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-[130]">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-4 text-center">
+            <h3 id="confirmModalTitle" class="text-lg font-bold text-gray-900 mb-2">Konfirmasi Aksi</h3>
+            <p id="confirmModalMessage" class="text-sm text-gray-600 mb-6">Apakah Anda yakin?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="confirmModalCancel" class="px-6 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Batal</button>
+                <button id="confirmModalConfirm" class="px-6 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Ya, Hapus</button>
             </div>
         </div>
     </div>
@@ -178,8 +151,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { getDatabase, ref, get, query, orderByChild, endBefore, limitToLast } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+        import { getDatabase, ref, get, query, orderByChild, endBefore, limitToLast, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
+        // --- KONFIGURASI FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyAZF0O1y9nqZAuDXgwMf3vucM5OD1goavQ",
             authDomain: "rzf-academy-bd.firebaseapp.com",
@@ -194,54 +168,215 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        const teksContainerEl = document.getElementById('teksContainer');
+        // --- Elemen UI ---
+        const galeriContainerEl = document.getElementById('galeriContainer');
         const kategoriBadgesEl = document.getElementById('kategoriBadges');
-        const bacaModal = document.getElementById("bacaModal");
+        const previewOverlay = document.getElementById("previewOverlay");
+        const previewImage = document.getElementById("previewImage");
         const loadingIndicator = document.getElementById('loading-indicator');
         const loadMoreButton = document.getElementById('load-more-button');
+
+        const commentModal = document.getElementById('commentModal');
+        const closeCommentBtn = document.getElementById('close-comment');
+        const commentsListEl = document.getElementById('commentsList');
+        const commentForm = document.getElementById('commentForm');
+        const commentInput = document.getElementById('commentInput');
         
-        const judulBaca = document.getElementById('judulBaca');
-        const isiBaca = document.getElementById('isiBaca');
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmModalMessage = document.getElementById('confirmModalMessage');
+        const confirmModalCancel = document.getElementById('confirmModalCancel');
+        const confirmModalConfirm = document.getElementById('confirmModalConfirm');
+        
+        let confirmCallback = null;
+        let currentKontenId = null;
+        let loggedInUser = null;
 
-        const bookModal = document.getElementById('bookModal');
-        const bookCoverEl = document.getElementById('bookCover');
-        const bookTitleEl = document.getElementById('bookTitle');
-        const bookAuthorEl = document.getElementById('bookAuthor');
-        const bookStatusEl = document.getElementById('bookStatus');
-        const bookContentTextEl = document.getElementById('bookContentText');
-        const prevPageBtn = document.getElementById('prevPageBtn');
-        const nextPageBtn = document.getElementById('nextPageBtn');
-        const pageNumberEl = document.getElementById('pageNumber');
-        const closeBookBtn = document.getElementById('close-book');
+        // --- Cache Global ---
+        let semuaKontenCache = [];
+        let kategoriAktif = "semua"; // Kategori yang sedang aktif
+        let lastVisibleKey = null; // Key dari item terakhir yang dimuat untuk pagination
+        const ITEMS_PER_PAGE = 6; // Jumlah item per halaman
 
-        let semuaKontenCache = []; 
-        let kategoriAktif = "semua"; 
-        let lastVisibleKey = null; 
-        const ITEMS_PER_PAGE = 6; 
-        const CHARS_PER_PAGE = 1500;
-
-        let bookContentPages = [];
-        let currentPage = 0;
-
-        function showToast(m, t = 'success') { 
-            const n = document.getElementById("toast-container"), e = document.createElement("div"), o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" }; 
-            e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`, e.textContent = m; 
-            const a = document.createElement("style"); 
-            a.id = "toast-animation-style", a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}", document.head.appendChild(a), n.appendChild(e), setTimeout(() => e.remove(), 3e3) 
+        // --- Fungsi Utilitas ---
+        function showToast(m, t = 'success') {
+            const n = document.getElementById("toast-container");
+            const e = document.createElement("div");
+            const o = { success: "bg-green-500", error: "bg-red-500", info: "bg-sky-500" };
+            e.className = `w-auto max-w-xs p-4 text-white rounded-lg shadow-lg animate-f-in-r ${o[t]}`;
+            e.textContent = m;
+            const a = document.createElement("style");
+            a.id = "toast-animation-style";
+            a.innerHTML = "@keyframes f-in-r{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.animate-f-in-r{animation:f-in-r .5s ease-out forwards}";
+            document.head.appendChild(a);
+            n.appendChild(e);
+            setTimeout(() => e.remove(), 3000);
         }
-
-        const logout = () => signOut(auth).then(() => { localStorage.removeItem("loggedInUser"); showToast("Anda berhasil logout."); setTimeout(() => window.location.href = "index.html", 1500); });
-
-        const tutupBaca = () => {
-            bacaModal.style.display = "none";
-            document.body.style.overflow = ''; 
+        
+        const showConfirmModal = (message, onConfirm) => {
+            confirmModalMessage.textContent = message;
+            confirmCallback = onConfirm;
+            confirmModal.style.display = 'flex';
         };
 
-        const tutupBuku = () => {
-            bookModal.style.display = "none";
+        const hideConfirmModal = () => {
+            confirmModal.style.display = 'none';
+            confirmCallback = null;
+        };
+
+        const logout = () => {
+            signOut(auth).then(() => {
+                localStorage.removeItem("loggedInUser");
+                showToast("Anda berhasil logout.");
+                setTimeout(() => window.location.href = "index.html", 1500);
+            });
+        };
+
+        const tampilkanPreview = (url) => {
+            previewImage.src = url;
+            previewOverlay.style.display = "flex";
+            document.body.style.overflow = 'hidden';
+        };
+
+        const tutupPreview = () => {
+            previewOverlay.style.display = "none";
             document.body.style.overflow = '';
         };
 
+        const openCommentModal = (kontenId) => {
+            currentKontenId = kontenId;
+            commentModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            fetchComments(kontenId);
+        };
+        const closeCommentModal = () => {
+            commentModal.style.display = 'none';
+            document.body.style.overflow = '';
+            commentsListEl.innerHTML = '';
+            currentKontenId = null;
+        };
+        
+        const deleteComment = async (kontenId, commentId) => {
+            showConfirmModal("Apakah Anda yakin ingin menghapus komentar ini?", async () => {
+                if (!loggedInUser) {
+                    showToast("Anda harus login untuk menghapus komentar.", "error");
+                    hideConfirmModal();
+                    return;
+                }
+                try {
+                    const commentRef = ref(db, `comments/${kontenId}/${commentId}`);
+                    await remove(commentRef);
+                    showToast("Komentar berhasil dihapus.");
+                    hideConfirmModal();
+                } catch (error) {
+                    console.error("Error deleting comment:", error);
+                    showToast("Gagal menghapus komentar.", "error");
+                    hideConfirmModal();
+                }
+            });
+        };
+
+        const fetchComments = (kontenId) => {
+            const commentsRef = ref(db, `comments/${kontenId}`);
+            commentsListEl.innerHTML = '<p class="text-center text-gray-500">Memuat komentar...</p>';
+            
+            onValue(commentsRef, (snapshot) => {
+                commentsListEl.innerHTML = '';
+                if (snapshot.exists()) {
+                    const comments = [];
+                    snapshot.forEach(child => {
+                        comments.push({ id: child.key, ...child.val() });
+                    });
+                    
+                    comments.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
+
+                    comments.forEach(comment => {
+                        const commentEl = document.createElement('div');
+                        commentEl.className = 'bg-gray-100 p-3 rounded-lg';
+                        const waktuFormatted = new Date(comment.waktu).toLocaleString('id-ID', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        
+                        const isMyComment = loggedInUser && loggedInUser.id === comment.userId;
+                        const deleteButtonHtml = isMyComment ? 
+                            `<button class="delete-comment-btn text-red-500 hover:text-red-700 text-xs font-semibold ml-auto" data-commentid="${comment.id}">Hapus</button>` : '';
+
+                        commentEl.innerHTML = `
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <img src="${comment.userProfilePicture || 'https://placehold.co/24x24/e2e8f0/718096?text=U'}" class="w-6 h-6 rounded-full object-cover"/>
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold text-gray-800">${comment.userName}</span>
+                                        <span class="text-xs text-gray-500">${waktuFormatted}</span>
+                                    </div>
+                                </div>
+                                ${deleteButtonHtml}
+                            </div>
+                            <p class="text-sm text-gray-700 mt-1">${comment.text}</p>
+                        `;
+
+                        if (isMyComment) {
+                            commentEl.querySelector('.delete-comment-btn').addEventListener('click', () => {
+                                deleteComment(kontenId, comment.id);
+                            });
+                        }
+
+                        commentsListEl.appendChild(commentEl);
+                    });
+                } else {
+                    commentsListEl.innerHTML = '<p class="text-center text-gray-500">Belum ada komentar.</p>';
+                }
+            }, {
+                onlyOnce: false
+            });
+        };
+        const postComment = (event) => {
+            event.preventDefault();
+            const text = commentInput.value.trim();
+            if (!text || !currentKontenId || !loggedInUser) {
+                showToast("Komentar tidak boleh kosong.", "error");
+                return;
+            }
+
+            const newCommentRef = push(ref(db, `comments/${currentKontenId}`));
+            set(newCommentRef, {
+                userId: loggedInUser.id,
+                userName: loggedInUser.name,
+                userProfilePicture: loggedInUser.profilePicture || null,
+                text: text,
+                waktu: new Date().toISOString()
+            }).then(() => {
+                commentInput.value = '';
+                showToast("Komentar berhasil dikirim.");
+            }).catch(error => {
+                showToast("Gagal mengirim komentar.", "error");
+                console.error("Error posting comment:", error);
+            });
+        };
+        const giveReaction = async (kontenId, reactionType) => {
+            if (!loggedInUser) {
+                showToast("Silakan login untuk memberi reaksi.", "error");
+                return;
+            }
+            const reactionRef = ref(db, `reactions/${kontenId}/${loggedInUser.id}`);
+            const snapshot = await get(reactionRef);
+
+            if (snapshot.exists() && snapshot.val().type === reactionType) {
+                await set(reactionRef, null);
+                showToast(`Reaksi ${reactionType} dihapus.`);
+            } else {
+                await set(reactionRef, {
+                    type: reactionType,
+                    userName: loggedInUser.name
+                });
+                showToast(`Anda menyukai konten ini dengan ${reactionType}!`);
+            }
+        };
+
+        // --- Tampilkan Kategori + Event Filter ---
         const tampilkanKategori = async () => {
             const kategoriRef = ref(db, 'kategoriList');
             try {
@@ -252,69 +387,31 @@
                     const katFormatted = kat.charAt(0).toUpperCase() + kat.slice(1);
                     kategoriBadgesEl.innerHTML += `<button class="kategori-badge" data-kategori="${kat}">${katFormatted}</button>`;
                 });
+
+                // Set kategori "Semua" sebagai aktif secara default
                 kategoriBadgesEl.querySelector(`[data-kategori="${kategoriAktif}"]`).classList.add('active');
 
-                kategoriBadgesEl.querySelectorAll('.kategori-badge').forEach(badge => {
-                    badge.addEventListener('click', (e) => {
+                kategoriBadgesEl.querySelectorAll('.kategori-badge').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
                         kategoriBadgesEl.querySelector('.active')?.classList.remove('active');
                         e.currentTarget.classList.add('active');
-                        kategoriAktif = e.currentTarget.dataset.kategori;
-                        loadingIndicator.style.display = 'flex';
-                        fetchTextContent(false);
+                        kategoriAktif = e.currentTarget.dataset.kategori; // Update kategori aktif
+                        loadingIndicator.style.display = 'flex'; // Tampilkan loading
+                        fetchGaleriContent(false); // Muat ulang dari awal untuk kategori baru
                     });
                 });
-            } catch (err) {
-                console.error("❌ Gagal memuat kategori:", err);
-                kategoriBadgesEl.innerHTML = `<button class="kategori-badge active" data-kategori="semua">Semua</button>`;
+            } catch (error) {
+                console.error("Error fetching categories:", error);
                 showToast("Gagal memuat kategori.", "error");
             }
         };
 
-        const renderBookPage = () => {
-            if (bookContentPages.length > 0) {
-                bookContentTextEl.innerHTML = bookContentPages[currentPage].content;
-                pageNumberEl.textContent = `Halaman ${currentPage + 1} dari ${bookContentPages.length}`;
-            } else {
-                bookContentTextEl.textContent = "Konten buku kosong.";
-                pageNumberEl.textContent = `Halaman 0 dari 0`;
-            }
-            
-            prevPageBtn.disabled = currentPage === 0;
-            nextPageBtn.disabled = currentPage === bookContentPages.length - 1;
-            
-            bookContentTextEl.scrollTo(0, 0);
-        };
-
-        const bukaBuku = (item) => {
-            bookTitleEl.textContent = item.judul;
-            bookAuthorEl.textContent = `Oleh: ${item.userName}`;
-            bookCoverEl.src = item.gambar || 'https://placehold.co/300x450?text=Cover+Buku';
-            bookStatusEl.textContent = item.isDraft ? 'Masih dalam pengembangan' : '';
-            bookModal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-
-            try {
-                const isJson = (str) => {
-                    try { JSON.parse(str); } catch (e) { return false; }
-                    return true;
-                };
-                if (isJson(item.teks)) {
-                    bookContentPages = JSON.parse(item.teks);
-                } else {
-                    bookContentPages = [{ content: item.teks || '' }];
-                }
-            } catch (e) {
-                bookContentPages = [{ content: item.teks || '' }];
-            }
-            currentPage = 0;
-            renderBookPage();
-        };
-
-        const renderText = (dataToRender) => {
-            teksContainerEl.innerHTML = "";
+        // --- Tampilkan Galeri ---
+        const renderGambar = (dataToRender) => {
+            galeriContainerEl.innerHTML = "";
 
             if (dataToRender.length === 0) {
-                teksContainerEl.innerHTML = `<p class="col-span-full text-gray-500 text-center">Tidak ada tulisan untuk kategori ini.</p>`;
+                galeriContainerEl.innerHTML = "<p class='col-span-full text-gray-500 text-center'>Tidak ada gambar untuk kategori ini.</p>";
                 return;
             }
 
@@ -322,106 +419,75 @@
 
             const fragment = document.createDocumentFragment();
 
-            dataToRender.forEach((item) => {
-                try {
-                    if (!item) return;
+            dataToRender.forEach(item => {
+                const card = document.createElement("div");
+                card.className = "bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col";
+                const placeholder = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
+                card.innerHTML = `
+                    <img src="${item.gambar}" alt="${item.judul}" class="w-full h-56 object-contain cursor-pointer border rounded bg-gray-50 mb-4">
+                    <h3 class="font-semibold text-lg text-blue-700 truncate">${item.judul}</h3>
+                    <div class="mt-2 pt-2 border-t flex items-center justify-between">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori}</span>
+                        <div class="flex items-center gap-2">
+                            <a href="public-profile.html?id=${item.userId}" class="flex items-center space-x-2">
+                                <img src="${item.userProfilePicture || placeholder}" class="w-6 h-6 rounded-full object-cover" />
+                                <span class="text-gray-500 text-xs hover:underline">${item.userName}</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4 mt-4 pt-4 border-t">
+                        <button class="flex items-center text-gray-500 hover:text-blue-500 like-btn" data-id="${item.id}" data-type="like">
+                            ❤️ <span class="ml-1 reaction-count-like" data-id-target="${item.id}">${item.reactions?.likeCount || 0}</span>
+                        </button>
+                        <button class="flex items-center text-gray-500 hover:text-red-500 love-btn" data-id="${item.id}" data-type="love">
+                            🥰 <span class="ml-1 reaction-count-love" data-id-target="${item.id}">${item.reactions?.loveCount || 0}</span>
+                        </button>
+                        <button class="flex items-center text-gray-500 hover:text-gray-900 comment-btn" data-id="${item.id}">
+                            💬 <span class="ml-1 comment-count" data-id-target="${item.id}">${item.commentsCount || 0}</span>
+                        </button>
+                    </div>
+                `;
+                card.querySelector('img').addEventListener('click', () => tampilkanPreview(item.gambar));
+                
+                card.querySelector('.like-btn').addEventListener('click', () => giveReaction(item.id, 'like'));
+                card.querySelector('.love-btn').addEventListener('click', () => giveReaction(item.id, 'love'));
+                card.querySelector('.comment-btn').addEventListener('click', () => openCommentModal(item.id));
 
-                    const card = document.createElement("div");
-                    card.className = "bg-white rounded-lg shadow hover:shadow-lg p-4 flex flex-col justify-between";
-                    const placeholderImg = 'https://placehold.co/24x24/e2e8f0/718096?text=U';
-                    
-                    let contentToPreview = '';
-                    let isLongContent = false;
-                    
-                    if (item.jenis === 'buku') {
-                        const isJson = (str) => {
-                            try { JSON.parse(str); } catch (e) { return false; }
-                            return true;
-                        };
-                        if (isJson(item.teks)) {
-                            const pages = JSON.parse(item.teks);
-                            if (pages.length > 0 && pages[0].content) {
-                                contentToPreview = pages[0].content.substring(0, 150);
-                                isLongContent = pages[0].content.length > 150 || pages.length > 1;
-                            }
-                        } else {
-                            contentToPreview = item.teks || '';
-                            isLongContent = contentToPreview.length > 150;
-                            contentToPreview = contentToPreview.substring(0, 150);
-                        }
-                    } else { // Teks biasa
-                        contentToPreview = item.teks || '';
-                        isLongContent = contentToPreview.length > 150;
-                        contentToPreview = contentToPreview.substring(0, 150);
-                    }
-                    // Ganti tag HTML di preview dengan spasi
-                    contentToPreview = contentToPreview.replace(/<[^>]*>/g, '').trim();
-
-                    if (item.jenis === 'buku') {
-                        card.innerHTML = `
-                            <div class="flex-1 flex flex-col">
-                                <img src="${item.gambar || 'https://placehold.co/300x200?text=Cover+Buku'}" alt="Cover Buku" class="w-full h-32 object-contain border rounded bg-gray-50 mb-3" />
-                                <h3 class="text-lg font-semibold text-blue-700 mb-1">${item.judul || 'Tanpa Judul'}</h3>
-                                ${item.isDraft ? `<span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full mb-2 self-start">Draft</span>` : ''}
-                                <p class="text-sm text-gray-700 leading-relaxed break-words">
-                                    ${contentToPreview}${isLongContent ? '...' : ''}
-                                </p>
-                                <div class="mt-2">
-                                    <button data-id="${item.id}" class="text-sm text-blue-600 hover:underline baca-selengkapnya-btn">Baca Buku</button>
-                                </div>
-                                <div class="mt-auto pt-3 border-t flex items-center justify-between">
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori || '-'}</span>
-                                    <div class="flex items-center gap-2">
-                                        <img src="${item.userProfilePicture || placeholderImg}" class="w-6 h-6 rounded-full object-cover" />
-                                        <span class="text-gray-500 text-xs">${item.userName || 'Anonim'}</span>
-                                    </div>
-                                </div>
-                            </div>`;
-                    } else { // Rendering untuk tipe teks biasa
-                        card.innerHTML = `
-                            <div>
-                                <h3 class="text-lg font-semibold text-blue-700 mb-2">${item.judul || 'Tanpa Judul'}</h3>
-                                <p class="text-sm text-gray-700 leading-relaxed min-h-[64px] break-words">
-                                    ${contentToPreview.replace(/\n/g, "<br>")}${isLongContent ? '...' : ''}
-                                </p>
-                                ${isLongContent ? `
-                                <div class="mt-2">
-                                    <button data-id="${item.id}" class="text-sm text-blue-600 hover:underline baca-selengkapnya-btn">Baca Selengkapnya</button>
-                                </div>
-                                ` : ''}
-                            </div>
-                            <div class="mt-3 pt-3 border-t flex items-center justify-between">
-                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${item.kategori || '-'}</span>
-                                <div class="flex items-center gap-2">
-                                    <img src="${item.userProfilePicture || placeholderImg}" class="w-6 h-6 rounded-full object-cover" />
-                                    <span class="text-gray-500 text-xs">${item.userName || 'Anonim'}</span>
-                                </div>
-                            </div>`;
-                    }
-
-                    const bacaBtn = card.querySelector('.baca-selengkapnya-btn');
-                    if (bacaBtn) {
-                        bacaBtn.addEventListener('click', () => {
-                            if (item.jenis === 'buku') {
-                                bukaBuku(item);
-                            } else {
-                                judulBaca.textContent = item.judul;
-                                isiBaca.innerHTML = item.teks.replace(/\n/g, "<br>");
-                                bacaModal.style.display = 'flex';
-                                document.body.style.overflow = 'hidden';
-                            }
-                        });
-                    }
-                    fragment.appendChild(card);
-
-                } catch (error) {
-                    console.error(`[ERROR] Gagal memproses item "${item.judul}". Penyebab:`, error);
-                }
+                fragment.appendChild(card);
             });
-            teksContainerEl.appendChild(fragment);
+            galeriContainerEl.appendChild(fragment);
         };
 
-        const fetchTextContent = async (append = false) => {
+        const setupSocialListeners = () => {
+            onValue(ref(db, 'reactions'), (snapshot) => {
+                const reactionsData = snapshot.val() || {};
+                document.querySelectorAll('.reaction-count-like').forEach(el => el.textContent = 0);
+                document.querySelectorAll('.reaction-count-love').forEach(el => el.textContent = 0);
+
+                for (const kontenId in reactionsData) {
+                    const likeCount = Object.values(reactionsData[kontenId]).filter(r => r.type === 'like').length;
+                    const loveCount = Object.values(reactionsData[kontenId]).filter(r => r.type === 'love').length;
+
+                    const likeEl = document.querySelector(`.reaction-count-like[data-id-target="${kontenId}"]`);
+                    const loveEl = document.querySelector(`.reaction-count-love[data-id-target="${kontenId}"]`);
+
+                    if (likeEl) likeEl.textContent = likeCount;
+                    if (loveEl) loveEl.textContent = loveCount;
+                }
+            });
+            onValue(ref(db, 'comments'), (snapshot) => {
+                const commentsData = snapshot.val() || {};
+                document.querySelectorAll('.comment-count').forEach(el => el.textContent = 0);
+
+                for (const kontenId in commentsData) {
+                    const commentsCount = Object.keys(commentsData[kontenId]).length;
+                    const commentEl = document.querySelector(`.comment-count[data-id-target="${kontenId}"]`);
+                    if (commentEl) commentEl.textContent = commentsCount;
+                }
+            });
+        };
+
+        const fetchGaleriContent = async (append = false) => {
             loadMoreButton.style.display = 'none';
 
             const kontenRef = ref(db, 'konten');
@@ -439,7 +505,7 @@
                 const snapshot = await get(queryRef);
                 let itemsArray = [];
                 snapshot.forEach(child => {
-                    itemsArray.push(child.val());
+                    itemsArray.push({ id: child.key, ...child.val() });
                 });
 
                 itemsArray.reverse();
@@ -454,12 +520,10 @@
                     fetchedItems = itemsArray;
                     newLastKey = null;
                 }
-                
-                const filteredFetchedItems = fetchedItems.filter(item => {
-                    const isTextOrBook = item.jenis === 'teks' || item.jenis === 'buku';
-                    const isCategoryMatch = kategoriAktif === 'semua' || item.kategori === kategoriAktif;
-                    return isTextOrBook && isCategoryMatch;
-                });
+
+                const filteredFetchedItems = kategoriAktif === 'semua' ?
+                    fetchedItems.filter(item => item.jenis === 'gambar') :
+                    fetchedItems.filter(item => item.jenis === 'gambar' && item.kategori === kategoriAktif);
 
                 if (append) {
                     const existingIds = new Set(semuaKontenCache.map(item => item.id));
@@ -471,7 +535,26 @@
 
                 lastVisibleKey = newLastKey;
 
-                renderText(semuaKontenCache);
+                await Promise.all(semuaKontenCache.map(async (item) => {
+                    const reactionsRef = ref(db, `reactions/${item.id}`);
+                    const commentsRef = ref(db, `comments/${item.id}`);
+
+                    const reactionsSnapshot = await get(reactionsRef);
+                    const commentsSnapshot = await get(commentsRef);
+
+                    if (reactionsSnapshot.exists()) {
+                        const reactionsData = reactionsSnapshot.val();
+                        item.reactions = {
+                            likeCount: Object.values(reactionsData).filter(r => r.type === 'like').length,
+                            loveCount: Object.values(reactionsData).filter(r => r.type === 'love').length,
+                        };
+                    } else {
+                        item.reactions = { likeCount: 0, loveCount: 0 };
+                    }
+                    item.commentsCount = commentsSnapshot.exists() ? Object.keys(commentsSnapshot.val()).length : 0;
+                }));
+
+                renderGambar(semuaKontenCache);
 
                 if (lastVisibleKey) {
                     loadMoreButton.style.display = 'block';
@@ -480,74 +563,62 @@
                 }
 
             } catch (err) {
-                console.error("❌ Error saat ambil konten teks:", err);
-                showToast("Gagal memuat tulisan.", "error");
+                console.error("❌ Gagal mengambil konten galeri:", err);
+                showToast("Gagal memuat gambar galeri", "error");
             } finally {
                 loadingIndicator.style.display = 'none';
             }
         };
 
-
+        // --- INIT ---
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('logout-button').addEventListener('click', logout);
-            document.getElementById('close-baca').addEventListener('click', tutupBaca);
-            document.getElementById("menu-toggle").addEventListener("click", () => {
-                document.getElementById("nav-menu").classList.toggle("hidden");
+            document.getElementById('menu-toggle').addEventListener('click', () => {
+                document.getElementById('nav-menu').classList.toggle("hidden");
+            });
+            document.getElementById('close-preview').addEventListener('click', tutupPreview);
+            previewOverlay.addEventListener('click', e => {
+                if (e.target === previewOverlay) tutupPreview();
             });
 
             loadMoreButton.addEventListener('click', () => {
                 loadingIndicator.style.display = 'flex';
-                fetchTextContent(true);
+                fetchGaleriContent(true);
             });
+
+            closeCommentBtn.addEventListener('click', closeCommentModal);
+            commentForm.addEventListener('submit', postComment);
             
-            closeBookBtn.addEventListener('click', tutupBuku);
-            bookModal.addEventListener('click', (e) => {
-                if (e.target === bookModal) tutupBuku();
-            });
-            prevPageBtn.addEventListener('click', () => {
-                if (currentPage > 0) {
-                    currentPage--;
-                    renderBookPage();
-                }
-            });
-            nextPageBtn.addEventListener('click', () => {
-                if (currentPage < bookContentPages.length - 1) {
-                    currentPage++;
-                    renderBookPage();
+            // Event listener untuk tombol konfirmasi modal
+            confirmModalCancel.addEventListener('click', hideConfirmModal);
+            confirmModalConfirm.addEventListener('click', () => {
+                if (confirmCallback) {
+                    confirmCallback();
                 }
             });
 
-
-            kategoriBadgesEl.addEventListener('click', (e) => {
-                if (e.target.classList.contains('kategori-badge')) {
-                    kategoriAktif = e.target.dataset.kategori;
-
-                    document.querySelectorAll('.kategori-badge').forEach(badge => {
-                        badge.classList.remove('active');
-                    });
-                    e.target.classList.add('active');
-
-                    loadingIndicator.style.display = 'flex';
-                    fetchTextContent(false);
-                }
-            });
 
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-                    if (loggedInUser && loggedInUser.id === user.uid) {
-                        document.getElementById("welcomeUser").textContent = loggedInUser.name;
-                        if (loggedInUser.profilePicture) document.getElementById("navbarProfilePicture").src = loggedInUser.profilePicture;
-                        if (loggedInUser.role === 'admin') document.getElementById("adminLink").style.display = 'inline-block';
-                        
-                        tampilkanKategori();
-                        if (semuaKontenCache.length === 0) {
-                            loadingIndicator.style.display = 'flex';
+                    get(ref(db, 'users/' + user.uid)).then(snapshot => {
+                        if (snapshot.exists()) {
+                            const userProfile = snapshot.val();
+                            localStorage.setItem('loggedInUser', JSON.stringify(userProfile));
+                            loggedInUser = userProfile;
+                            document.getElementById("welcomeUser").textContent = userProfile.name;
+                            if (userProfile.profilePicture) document.getElementById("navbarProfilePicture").src = userProfile.profilePicture;
+                            if (userProfile.role === 'admin') document.getElementById("adminLink").classList.remove('hidden');
+
+                            setupSocialListeners();
+                            tampilkanKategori();
+                            if (semuaKontenCache.length === 0) {
+                                loadingIndicator.style.display = 'flex';
+                            }
+                            fetchGaleriContent();
+                        } else {
+                            logout();
                         }
-                        fetchTextContent();
-                    } else {
-                        logout();
-                    }
+                    });
                 } else {
                     showToast("Silakan login terlebih dahulu.", "error");
                     setTimeout(() => window.location.href = "login.html", 1500);
@@ -555,6 +626,7 @@
             });
         });
     </script>
+
 </body>
 
 </html>
