@@ -31,10 +31,9 @@
         /* Gaya untuk editor buku di modal edit */
         .rich-text-editor {
             border: 1px solid #d1d5db;
-            /* gray-300 */
             border-radius: 0.375rem;
-            /* rounded-md */
             min-height: 200px;
+            max-height: 50vh;
             padding: 0.75rem;
             outline: none;
             overflow-y: auto;
@@ -42,20 +41,31 @@
 
         .rich-text-editor:focus {
             border-color: #60a5fa;
-            /* blue-400 */
             box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5);
+        }
+
+        /* Perbaikan tata letak modal edit */
+        #editModal>div {
+            max-width: 1000px;
+            /* Lebar maksimum yang lebih besar untuk modal */
+            width: 90%;
+            /* Menggunakan 90% lebar layar */
+            max-height: 95vh;
+            /* Tinggi maksimum agar tidak melebihi layar */
         }
 
         /* Gaya untuk modal edit buku yang terbagi dua */
         #editBukuGroup {
             display: flex;
             flex-direction: column;
+            /* Default: susun vertikal di HP */
             gap: 1.5rem;
         }
 
         @media (min-width: 768px) {
             #editBukuGroup {
                 flex-direction: row;
+                /* Desktop: susun horizontal */
             }
         }
 
@@ -63,11 +73,24 @@
         .book-edit-left-panel {
             flex: 0 0 35%;
             /* Mengambil 35% lebar di desktop */
+            max-height: 100%;
+            /* Memastikan tinggi tidak terbatas */
+            overflow-y: auto;
+            /* Mengaktifkan scroll untuk panel kiri */
         }
 
         .book-edit-right-panel {
-            flex: 1 1 65%;
-            /* Mengambil sisa 65% lebar */
+            flex: 1;
+            /* Mengambil sisa ruang yang tersedia di desktop */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Gaya baru untuk memastikan gambar pratinjau cover buku tidak overflow */
+        #editBukuCoverPreview {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
         }
     </style>
 </head>
@@ -130,7 +153,7 @@
     </main>
 
     <div id="editModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden justify-center items-center z-[120]">
-        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg mx-4">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg mx-4 overflow-y-auto">
             <form id="edit-form">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Edit Konten</h3>
                 <div class="space-y-4">
@@ -477,9 +500,6 @@
             const item = semuaKontenCache.find(c => c.id === kontenId);
             if (!item) return;
 
-            // Log untuk debugging status isDraft
-            console.log("Status isDraft saat modal dibuka:", item.isDraft);
-
             editSelectedFile = null;
             editGambarInput.value = '';
             editImagePreview.src = "";
@@ -521,7 +541,7 @@
                 fieldEditGambar.style.display = 'block';
                 editImagePreview.src = item.gambar || "https://placehold.co/96x96/e2e8f0/718096?text=Gambar";
             } else if (item.jenis === 'buku') {
-                editBukuGroup.style.display = 'block';
+                editBukuGroup.style.display = 'flex'; // Mengubah display menjadi flex agar layout 2 kolom berfungsi
                 editBukuCoverPreview.src = item.gambar || "https://placehold.co/96x96/e2e8f0/718096?text=Cover";
 
                 // Inisialisasi editor buku dengan konten dari database
@@ -544,7 +564,7 @@
                     editCurrentPageIndex = 0;
                     renderEditEditor();
                 }
-                // Memastikan checkbox isDraft disetel sesuai data
+
                 editIsDraftCheckbox.checked = item.isDraft || false;
             }
             editModal.style.display = "flex";
@@ -612,7 +632,6 @@
                     newImageUrl = await uploadImageToCloudinary(file);
                 }
 
-
                 const updatedData = {
                     judul: editJudulInput.value.trim(),
                     kategori: editKategoriSelect.value,
@@ -624,6 +643,7 @@
                 } else if (itemToUpdate.jenis === 'gambar') {
                     updatedData.gambar = newImageUrl;
                 } else if (itemToUpdate.jenis === 'buku') {
+                    // Pastikan konten halaman saat ini tersimpan sebelum disimpan ke database
                     syncEditEditorToState();
                     if (editBookPages.every(page => !page.content.trim())) {
                         showToast("Isi buku tidak boleh kosong.", "error");
@@ -633,7 +653,7 @@
                     }
                     updatedData.gambar = newImageUrl;
                     updatedData.teks = JSON.stringify(editBookPages);
-                    updatedData.isDraft = editIsDraftCheckbox.checked; // Menyimpan status draft
+                    updatedData.isDraft = editIsDraftCheckbox.checked;
                 }
 
                 const itemRef = ref(db, 'konten/' + idToUpdate);
@@ -678,11 +698,6 @@
             }
 
             dataToRender.sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).forEach(item => {
-                // Log untuk debugging status isDraft saat merender
-                if (item.jenis === 'buku') {
-                    console.log(`Item "${item.judul}" (ID: ${item.id}) status isDraft: ${item.isDraft}`);
-                }
-
                 const card = document.createElement("div");
                 card.className = "bg-white rounded-lg shadow hover:shadow-lg transition flex flex-col p-4";
 
